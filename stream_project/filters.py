@@ -3,9 +3,6 @@ from typing import List, Dict, Tuple, Optional, Union
 from .logger import logger
 from scipy.stats import qmc
 
-
-
-
 class EnhancedParticleFilter:
     """
     Enhanced Sequential Monte Carlo implementation with adaptive resampling

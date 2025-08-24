@@ -15,15 +15,16 @@ from .utils import headless_setup, save_figure, safe_json_dump
 
 from typing import Optional, Dict, List, Tuple
 
-
-
-
+import matplotlib.pyplot as plt
+plt.show()  
 
 
 def run_enhanced_simulation(config: Optional[ModelParameters] = None,
                           save_results: bool = True,
-                          output_dir: str = "results") -> Dict:
-    headless_setup()
+                          output_dir: str = "results", interactive: bool = True) -> Dict:
+    if not interactive:
+         headless_setup()
+   
     """
     Run enhanced hydrological simulation with comprehensive analysis.
    
@@ -409,5 +410,12 @@ def run_enhanced_simulation(config: Optional[ModelParameters] = None,
         },
     }
     safe_json_dump(summary, f"{output_dir}/summary.json")
+    
+    plt.plot(results["hydrograph"])
+    if interactive:
+        plt.show()   # opens window
+    else:
+        plt.savefig(f"{output_dir}/hydrograph.png")
+        plt.close()
     
     return results
