@@ -16,7 +16,6 @@ from .utils import headless_setup, save_figure, safe_json_dump
 from typing import Optional, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
-plt.show()  
 
 
 def run_enhanced_simulation(config: Optional[ModelParameters] = None,
@@ -409,11 +408,16 @@ def run_enhanced_simulation(config: Optional[ModelParameters] = None,
             "obs_error_min": config.obs_error_min,
         },
     }
-    safe_json_dump(summary, f"{output_dir}/summary.json")
-    
-    plt.plot(results["hydrograph"])
+    # Quick hydrograph plot
+    plt.figure()
+    plt.plot(t, q_base, label="Base runoff")
+    plt.xlabel("Time (hours)")
+    plt.ylabel("Discharge (m³/s)")
+    plt.legend()
+    plt.title("Hydrograph")
+
     if interactive:
-        plt.show()   # opens window
+        plt.show()
     else:
         plt.savefig(f"{output_dir}/hydrograph.png")
         plt.close()
