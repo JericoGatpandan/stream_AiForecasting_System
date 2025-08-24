@@ -12,28 +12,30 @@ class ModelParameters:
     - area_km2: Catchment area in square kilometers
     - lorenz_params: Physically motivated chaos parameters
     """
+    
+    # Kristine Parameters
     # Hydrological parameters
-    CN: float = 78.0  # SCS Curve Number
-    lambda_ia: float = 0.2  # Initial abstraction coefficient
+    CN: float = 85.0  # SCS Curve Number
+    lambda_ia: float = 0.15  # Initial abstraction coefficient
     area_km2: float = 84.48  # Catchment area (Naga City watershed)
    
     # Unit hydrograph parameters
-    t_peak_hours: float = 4.0  # Time to peak
-    t_base_hours: float = 18.0  # Base time
+    t_peak_hours: float = 3.5  # Time to peak
+    t_base_hours: float = 16.0  # Base time
    
     # Storm parameters
-    peak_mm_hr: float = 45.0  # Peak rainfall intensity
-    peak_time: float = 10.0   # Time of peak rainfall
-    decay_rate: float = 8.0   # Exponential decay parameter
+    peak_mm_hr: float = 120.0  # Peak rainfall intensity
+    peak_time: float = 12.0   # Time of peak rainfall
+    decay_rate: float = 5.0   # Exponential decay parameter
    
     # Physically-motivated Lorenz parameters
     lorenz_params: Dict[str, float] = field(default_factory=lambda: {
         "sigma": 10.0,      # Energy dissipation rate (1/time)
         "rho": 28.0,        # Rayleigh number (dimensionless)
         "beta": 8.0/3.0,    # Geometric factor (dimensionless)
-        "gamma": 0.015,     # Hydrological forcing strength
+        "gamma": 0.025,     # Hydrological forcing strength
         "kappa": 0.12,      # Storage decay rate (1/time)
-        "mu": 0.008,        # Channel-groundwater coupling
+        "mu": 0.01,        # Channel-groundwater coupling
         "alpha": 0.25,      # Energy transfer efficiency
     })
    

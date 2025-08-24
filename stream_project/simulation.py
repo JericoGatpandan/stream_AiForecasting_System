@@ -422,4 +422,5 @@ def run_enhanced_simulation(config: Optional[ModelParameters] = None,
         plt.savefig(f"{output_dir}/hydrograph.png")
         plt.close()
     
+    
     return results

@@ -1,5 +1,6 @@
 from stream_project.simulation import run_enhanced_simulation
 from stream_project.config import ModelParameters
+from stream_project.flood_analysis import analyze_flood
 
 if __name__ == "__main__":
     results = run_enhanced_simulation(ModelParameters(), save_results=True, output_dir="results")
@@ -12,3 +13,5 @@ if __name__ == "__main__":
     print(f"CRPS: {vm['CRPS']:.4f}")
     print(f"90% Coverage: {vm['Coverage_90']:.1%}")
     print("="*60)
+    
+    analyze_flood(results, Q_FLOOD=350.0)
