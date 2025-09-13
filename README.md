@@ -1,6 +1,6 @@
 # STREAM Weather Application - Full Stack Web App
 
-# Live Preview: Wala pa
+# Live Preview: Wala pa, pinag-aaralan ko pa
 
 A comprehensive weather monitoring and forecasting application built with React, Express.js, MySQL, and Node.js. This application provides detailed weather insights, interactive maps, custom alerts, and expert meteorological analysis.
 
