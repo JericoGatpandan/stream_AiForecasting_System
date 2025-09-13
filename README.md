@@ -1,42 +1,10 @@
-# Weather Application - Full Stack Web App
+# STREAM Weather Application - Full Stack Web App
 
-# Live Preview: https://snazzy-toffee-2cae86.netlify.app/
+# Live Preview: Wala pa
 
 A comprehensive weather monitoring and forecasting application built with React, Express.js, MySQL, and Node.js. This application provides detailed weather insights, interactive maps, custom alerts, and expert meteorological analysis.
 
-## 🌟 Features
-
-### Forecast Summaries
-- Clear overviews of expected weather patterns
-- 7-day detailed forecasts with hourly breakdowns
-- Temperature, precipitation, wind, and visibility data
-- Expert meteorological analysis and insights
-
-### Interactive Weather Visualization
-- **Interactive Maps**: Explore weather layers including temperature, precipitation, wind speed, humidity, visibility, and UV index
-- **Real-time Data**: Live weather station monitoring with color-coded indicators
-- **Multiple Map Layers**: Light, satellite, and terrain views
-- **Weather Alerts**: Visual representation of active weather warnings
-
-### Location-Specific Forecasts
-- Detailed updates for multiple locations
-- Easy-to-navigate format with comprehensive data
-- Location management and favorites system
-- Customizable location preferences
-
-### Weather Notifications & Alerts
-- **Severe Weather Alerts**: Real-time notifications for dangerous conditions
-- **Custom Triggers**: Manually set weather conditions to track
-- **Industry-Tailored Alerts**: Advanced warnings based on industry impact
-- **Multiple Notification Methods**: In-app, email, SMS, and push notifications
-
-### Advanced Analytics
-- Historical weather data visualization
-- Interactive charts and graphs
-- Data export capabilities
-- Trend analysis and forecasting
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js (v16 or higher)
@@ -112,7 +80,7 @@ A comprehensive weather monitoring and forecasting application built with React,
    ```
    The application will be available at `http://localhost:5173`
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 stream_workspace/
@@ -151,7 +119,7 @@ stream_workspace/
 └── README.md
 ```
 
-## 🔧 API Endpoints
+## API Endpoints
 
 ### Weather Data
 - `GET /weather/forecast/:location` - Get 7-day forecast
@@ -182,7 +150,7 @@ stream_workspace/
 ### Environmental Data
 - `GET /environmental/:barangay` - Get environmental data
 
-## 🎨 Features Overview
+## Features Overview
 
 ### Dashboard
 - Weather overview cards with key metrics
@@ -215,7 +183,7 @@ stream_workspace/
 - Data export capabilities
 - Environmental monitoring data
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 ### Backend
 - **Node.js** - Runtime environment
@@ -237,7 +205,7 @@ stream_workspace/
 - **React Toastify** - Notifications
 - **Date-fns** - Date utilities
 
-## 🔐 Environment Variables
+## Environment Variables
 
 Create a `.env` file in the backend directory with the following variables:
 
