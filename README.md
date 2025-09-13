@@ -267,7 +267,8 @@ The application uses the following main models:
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-For full instruction go to [CONTRIBUTING](CONTRIBUTING.md)
+
+- For full instructions go to [CONTRIBUTING](CONTRIBUTING.md)
 
 ## License
 
