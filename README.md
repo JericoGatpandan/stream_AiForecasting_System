@@ -90,6 +90,7 @@ stream_workspace/
 │   ├── data/                    # CSV data files
 │   ├── models/                  # Sequelize models
 │   │   ├── environmentalData.js
+│   │   ├── floodCharacteristics.js
 │   │   ├── weatherForecast.js
 │   │   ├── weatherAlert.js
 │   │   ├── userLocation.js
@@ -98,13 +99,21 @@ stream_workspace/
 │   │   └── index.js
 │   ├── routes/                  # API routes
 │   │   ├── environmentalData.js
+│   │   ├── barangays.js
+│   │   ├── floodCharacteristics.js
 │   │   └── weather.js
 │   ├── index.js                 # Main server file
 │   ├── package.json
-│   └── seedDatabase.js          # Database seeding script
+│   ├── seedEnvironmentalData.js # Database seeding script
+│   ├── seedEnvironmentalData.js # Database seeding script
+│   ├── seedDatabase.js          # Database seeding script
+│   └── README.md
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/               # React components
+│   │   ├── components/          # React components
+│   │   │   ├── CityWideView.jsx 
+│   │   │   └── FloodCharacteristics.jsx      
+│   │   ├── pages/               # React pages
 │   │   │   ├── Home.jsx         # Dashboard
 │   │   │   ├── Forecast.jsx     # Weather forecasts
 │   │   │   ├── Map.jsx          # Interactive weather map
@@ -224,7 +233,7 @@ PORT=3001
 NODE_ENV=development
 ```
 
-## 📊 Database Schema
+## Database Schema
 
 The application uses the following main models:
 
@@ -235,7 +244,7 @@ The application uses the following main models:
 - **WeatherTrigger**: Custom weather condition monitoring
 - **Notification**: System notifications and alerts
 
-## 🚀 Deployment
+## Deployment
 
 ### Production Build
 
@@ -291,7 +300,7 @@ volumes:
   mysql_data:
 ```
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -299,18 +308,18 @@ volumes:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## Support
 
 For support and questions:
 - Create an issue in the repository
 - Check the documentation
 - Review the API endpoints
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 - Real-time weather API integration
 - Mobile app development
@@ -320,3 +329,7 @@ For support and questions:
 - Multi-language support
 - Advanced user authentication
 - Weather camera integration
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENCE) file for details.
