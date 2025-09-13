@@ -47,7 +47,7 @@ async function seedFloodData() {
       "Triangulo": { lat: 13.6198, lng: 123.1941 }
     };
 
-    // Base flood characteristics from your model results
+    // Base flood characteristics from model (sample data)
     const baseFloodData = {
       maximum_depth: 1.8,
       maximum_depth_uncertainty: 0.4,

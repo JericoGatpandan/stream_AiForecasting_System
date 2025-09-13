@@ -260,53 +260,14 @@ The application uses the following main models:
    npm start
    ```
 
-### Docker Deployment (Optional)
-
-Create a `docker-compose.yml` file for containerized deployment:
-
-```yaml
-version: '3.8'
-services:
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: your_password
-      MYSQL_DATABASE: weather_app
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  backend:
-    build: ./backend
-    ports:
-      - "3001:3001"
-    depends_on:
-      - mysql
-    environment:
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: your_password
-      DB_NAME: weather_app
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-
-volumes:
-  mysql_data:
-```
-
-## Contributing
+## Contributing 
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+For full instruction go to [CONTRIBUTING](CONTRIBUTING.md)
 
 ## License
 
