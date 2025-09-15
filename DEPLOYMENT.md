@@ -48,6 +48,7 @@ This guide provides step-by-step instructions for deploying the Stream applicati
    - Railway will automatically deploy the backend service
    - Once deployed, go to "Settings" → "Domains" to get your backend URL
    - Note this URL for configuring the frontend (e.g., `https://stream-backend.railway.app`)
+   
 
 6. Initialize the database:
    - Go to "Variables" tab in your backend service
