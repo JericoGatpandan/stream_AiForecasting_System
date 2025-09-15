@@ -104,7 +104,7 @@ stream_workspace/
 │   │   └── weather.js
 │   ├── index.js                 # Main server file
 │   ├── package.json
-│   ├── seedEnvironmentalData.js # Database seeding script
+│   ├── seedFloodData.js         # Database seeding script
 │   ├── seedEnvironmentalData.js # Database seeding script
 │   ├── seedDatabase.js          # Database seeding script
 │   └── README.md

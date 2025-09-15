@@ -36,7 +36,6 @@ function Map() {
   const stations = [
     {
       name: "Abella",
-
       lat: 13.623196284003441,  // sample approximate coords
       lng: 123.18261692770339,
       water_level: 2.18,

@@ -2,6 +2,83 @@
   "type": "FeatureCollection",
   "generator": "overpass-turbo",
   "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-  "timestamp": "2025-09-08T07:39:45Z",
-  "features": []
+  "timestamp": "2025-09-08T07:33:31Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/3084673",
+        "admin_level": "6",
+        "boundary": "administrative",
+        "is_in:state": "Camarines Sur",
+        "name": "Naga City",
+        "postal_code": "4400",
+        "type": "boundary",
+        "website": "http://www.naga.gov.ph/",
+        "wikidata": "Q2207",
+        "wikipedia": "en:Naga, Camarines Sur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [123.179345, 13.623008],
+            [123.179469, 13.623081],
+            [123.1797, 13.622717],
+            [123.180361, 13.622845],
+            [123.18075, 13.622559],
+            [123.181334, 13.622612],
+            [123.182101, 13.622497],
+            [123.183632, 13.622182],
+            [123.18434986538641, 13.622161276277012],
+            [123.184745, 13.623674],
+            [123.185, 13.624271],
+            [123.184562, 13.62455],
+            [123.184288, 13.62466],
+            [123.184115, 13.623964],
+            [123.183547, 13.624064],
+            [123.183258, 13.624206],
+            [123.183112, 13.62393],
+            [123.182201, 13.624238],
+            [123.18153, 13.623962],
+            [123.180945, 13.625317],
+            [123.180463, 13.625244],
+            [123.18022118068919, 13.624884643142867],
+            [123.18010316349144, 13.624900283512371],
+            [123.17988322235016, 13.624222533218193],
+            [123.179341, 13.623013]
+          ]
+        ]
+      },
+      "id": "relation/3084673"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/196960203",
+        "@relations": [
+          {
+            "role": "label",
+            "rel": 3084673,
+            "reltags": {
+              "admin_level": "6",
+              "boundary": "administrative",
+              "is_in:state": "Camarines Sur",
+              "name": "Naga City",
+              "postal_code": "4400",
+              "type": "boundary",
+              "website": "http://www.naga.gov.ph/",
+              "wikidata": "Q2207",
+              "wikipedia": "en:Naga, Camarines Sur"
+            }
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [123.1850318, 13.6240122]
+      },
+      "id": "node/196960203"
+    }
+  ]
 }

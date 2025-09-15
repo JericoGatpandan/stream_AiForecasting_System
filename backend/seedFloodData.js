@@ -61,10 +61,10 @@ async function seedFloodData() {
 
     for (const location of locations) {
       const coords = barangayCoords[location] || { lat: 13.62, lng: 123.19 };
-      
+
       // Add some variation to the base data for each location
       const variation = () => (Math.random() - 0.5) * 0.3; // ±15% variation
-      
+
       const floodData = {
         location,
         latitude: coords.lat + variation() * 0.01,
@@ -110,7 +110,7 @@ function generateExpertAnalysis(location, depth) {
     `Flood risk assessment for ${location} reveals substantial inundation potential. The predicted depth of ${depth.toFixed(1)}m indicates that this area requires immediate attention and preparedness measures.`,
     `Based on current flood modeling, ${location} shows significant flood vulnerability. The maximum depth of ${depth.toFixed(1)}m suggests that residents should be prepared for potential evacuation scenarios.`
   ];
-  
+
   return analyses[Math.floor(Math.random() * analyses.length)];
 }
 

@@ -18,30 +18,54 @@ const CityWideView = () => {
   const fetchCityWideData = async () => {
     setLoading(true);
     try {
-      const [alerts, floodData] = await Promise.all([
-        fetch('http://localhost:5500/weather/alerts').then(res => res.json()),
-        fetch('http://localhost:5500/flood/').then(res => res.json())
-      ]);
+      // Handle the fetch operations separately to provide better error handling
+      let alerts = [];
+      let floodData = [];
 
-      // Calculate city-wide summary
-      const totalAlerts = alerts.length;
-      const highRiskAreas = floodData.filter(area => area.flood_risk_level === 'high' || area.flood_risk_level === 'extreme').length;
-      const avgDepth = floodData.reduce((sum, area) => sum + area.maximum_depth, 0) / floodData.length;
-      const avgVelocity = floodData.reduce((sum, area) => sum + area.peak_velocity, 0) / floodData.length;
+      try {
+        const alertsRes = await fetch('http://localhost:5500/weather/alerts');
+        alerts = await alertsRes.json();
+      } catch (alertError) {
+        console.error('Error fetching alerts:', alertError);
+        alerts = []; // Ensure we have an empty array if there's an error
+      }
 
-      setCityData({
-        alerts,
-        floodData,
-        summary: {
-          totalAlerts,
+      try {
+        const floodRes = await fetch('http://localhost:5500/flood/');
+        floodData = await floodRes.json();
+      } catch (floodError) {
+        console.error('Error fetching flood data:', floodError);
+        floodData = []; // Ensure we have an empty array if there's an error
+      }
+
+      // Only calculate summary if we have valid flood data
+      let summary = null;
+      if (floodData && floodData.length > 0) {
+        const highRiskAreas = floodData.filter(area => area.flood_risk_level === 'high' || area.flood_risk_level === 'extreme').length;
+        const avgDepth = floodData.reduce((sum, area) => sum + (area.maximum_depth || 0), 0) / floodData.length;
+        const avgVelocity = floodData.reduce((sum, area) => sum + (area.peak_velocity || 0), 0) / floodData.length;
+
+        summary = {
+          totalAlerts: alerts.length,
           highRiskAreas,
           avgDepth: avgDepth.toFixed(1),
           avgVelocity: avgVelocity.toFixed(1),
           totalAreas: floodData.length
-        }
+        };
+      }
+
+      setCityData({
+        alerts: alerts || [],
+        floodData: floodData || [],
+        summary
       });
     } catch (error) {
       console.error('Error fetching city-wide data:', error);
+      setCityData({
+        alerts: [],
+        floodData: [],
+        summary: null
+      });
     } finally {
       setLoading(false);
     }
@@ -88,8 +112,8 @@ const CityWideView = () => {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${activeTab === tab
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
                 }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -106,7 +130,7 @@ const CityWideView = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Active Alerts</p>
-                  <p className="text-2xl font-bold text-red-600">{cityData.summary.totalAlerts}</p>
+                  <p className="text-2xl font-bold text-red-600">{cityData.summary?.totalAlerts || 0}</p>
                 </div>
                 <AlertTriangle className="w-8 h-8 text-red-500" />
               </div>
@@ -116,7 +140,7 @@ const CityWideView = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">High Risk Areas</p>
-                  <p className="text-2xl font-bold text-orange-600">{cityData.summary.highRiskAreas}</p>
+                  <p className="text-2xl font-bold text-orange-600">{cityData.summary?.highRiskAreas || 0}</p>
                 </div>
                 <Shield className="w-8 h-8 text-orange-500" />
               </div>
@@ -126,7 +150,7 @@ const CityWideView = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Avg Water Depth</p>
-                  <p className="text-2xl font-bold text-blue-600">{cityData.summary.avgDepth}m</p>
+                  <p className="text-2xl font-bold text-blue-600">{cityData.summary?.avgDepth || '0.0'}m</p>
                 </div>
                 <Droplets className="w-8 h-8 text-blue-500" />
               </div>
@@ -136,7 +160,7 @@ const CityWideView = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Areas</p>
-                  <p className="text-2xl font-bold text-green-600">{cityData.summary.totalAreas}</p>
+                  <p className="text-2xl font-bold text-green-600">{cityData.summary?.totalAreas || 0}</p>
                 </div>
                 <Users className="w-8 h-8 text-green-500" />
               </div>
@@ -174,9 +198,9 @@ const CityWideView = () => {
             <div className="space-y-3">
               {cityData.alerts.map((alert, index) => (
                 <div key={index} className={`p-4 rounded-lg border-l-4 ${alert.severity === 'extreme' ? 'border-red-500 bg-red-50' :
-                    alert.severity === 'severe' ? 'border-orange-500 bg-orange-50' :
-                      alert.severity === 'moderate' ? 'border-yellow-500 bg-yellow-50' :
-                        'border-blue-500 bg-blue-50'
+                  alert.severity === 'severe' ? 'border-orange-500 bg-orange-50' :
+                    alert.severity === 'moderate' ? 'border-yellow-500 bg-yellow-50' :
+                      'border-blue-500 bg-blue-50'
                   }`}>
                   <div className="flex items-start justify-between">
                     <div>
