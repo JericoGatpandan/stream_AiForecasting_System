@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5500';
+// In development, use localhost, in production use the API proxy
+const API_BASE_URL = import.meta.env.PROD ? '/api' : 'http://localhost:5500';
 
 const weatherAPI = axios.create({
   baseURL: API_BASE_URL,

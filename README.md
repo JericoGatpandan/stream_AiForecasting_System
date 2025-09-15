@@ -281,6 +281,79 @@ For support and questions:
 - Check the documentation
 - Review the API endpoints
 
+## Docker Deployment
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/get-started) installed on your machine
+- [Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
+
+### Quick Start with Docker
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd stream_workspace
+   ```
+
+2. **Configure environment variables**
+   ```bash
+   # Edit the .env file with your credentials and API keys
+   nano .env
+   ```
+
+3. **Build and start the containers**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Initialize the database** (first-time setup)
+   ```bash
+   # Access the backend container
+   docker exec -it stream-backend /bin/sh
+   
+   # Run the seeding script
+   node seedDatabase.js
+   node seedEnvironmentalData.js
+   node seedFloodData.js
+   
+   # Exit the container
+   exit
+   ```
+
+5. **Access the application**
+   - Frontend: http://localhost
+   - Backend API: http://localhost:5500
+
+### Docker Commands
+
+- **Start services**
+  ```bash
+  docker-compose up -d
+  ```
+
+- **Stop services**
+  ```bash
+  docker-compose down
+  ```
+
+- **View logs**
+  ```bash
+  docker-compose logs -f
+  ```
+
+- **Rebuild containers**
+  ```bash
+  docker-compose build
+  docker-compose up -d
+  ```
+
+### Container Structure
+
+- **MySQL**: Database service (port 3306)
+- **Backend**: Node.js Express API (port 5500)
+- **Frontend**: React application served by Nginx (port 80)
+
 ## Future Enhancements
 
 - Real-time weather API integration
