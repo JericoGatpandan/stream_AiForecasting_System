@@ -19,8 +19,8 @@ const CityWideView = () => {
     setLoading(true);
     try {
       const [alerts, floodData] = await Promise.all([
-        fetch('http://localhost:3001/weather/alerts').then(res => res.json()),
-        fetch('http://localhost:3001/flood/').then(res => res.json())
+        fetch('http://localhost:5500/weather/alerts').then(res => res.json()),
+        fetch('http://localhost:5500/flood/').then(res => res.json())
       ]);
 
       // Calculate city-wide summary
@@ -87,11 +87,10 @@ const CityWideView = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                activeTab === tab
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${activeTab === tab
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-800'
-              }`}
+                }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -174,12 +173,11 @@ const CityWideView = () => {
           {cityData.alerts.length > 0 ? (
             <div className="space-y-3">
               {cityData.alerts.map((alert, index) => (
-                <div key={index} className={`p-4 rounded-lg border-l-4 ${
-                  alert.severity === 'extreme' ? 'border-red-500 bg-red-50' :
-                  alert.severity === 'severe' ? 'border-orange-500 bg-orange-50' :
-                  alert.severity === 'moderate' ? 'border-yellow-500 bg-yellow-50' :
-                  'border-blue-500 bg-blue-50'
-                }`}>
+                <div key={index} className={`p-4 rounded-lg border-l-4 ${alert.severity === 'extreme' ? 'border-red-500 bg-red-50' :
+                    alert.severity === 'severe' ? 'border-orange-500 bg-orange-50' :
+                      alert.severity === 'moderate' ? 'border-yellow-500 bg-yellow-50' :
+                        'border-blue-500 bg-blue-50'
+                  }`}>
                   <div className="flex items-start justify-between">
                     <div>
                       <h4 className="font-semibold text-gray-800">{alert.title}</h4>

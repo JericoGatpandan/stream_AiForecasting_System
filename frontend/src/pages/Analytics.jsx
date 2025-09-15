@@ -17,14 +17,14 @@ function EnvironmentalUI() {
     const [barangays, setBarangays] = useState([]);
 
     useEffect(() => {
-        fetch(`http://localhost:3001/barangays`)
+        fetch(`http://localhost:5500/barangays`)
             .then((res) => res.json())
             .then((json) => setBarangays(json))
             .catch((err) => console.error("Error fetching data:", err));
     }, []);
 
     useEffect(() => {
-        fetch(`http://localhost:3001/barangays/${barangay}`)
+        fetch(`http://localhost:5500/barangays/${barangay}`)
             .then((res) => res.json())
             .then((json) => setData(json))
             .catch((err) => console.error("Error fetching data:", err));

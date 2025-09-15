@@ -1,4 +1,3 @@
-// routes/environmental.js
 const express = require("express");
 const router = express.Router();
 const { EnvironmentalData } = require("../models");

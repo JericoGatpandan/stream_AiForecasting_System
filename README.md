@@ -54,7 +54,7 @@ A comprehensive weather monitoring and forecasting application built with React,
    DB_PASSWORD=your_password
    DB_NAME=weather_app
    OPENWEATHER_API_KEY=your_openweather_api_key_here
-   PORT=3001
+   PORT=5500
    NODE_ENV=development
    ```
 
@@ -65,7 +65,7 @@ A comprehensive weather monitoring and forecasting application built with React,
    cd backend
    npm start
    ```
-   The server will run on `http://localhost:3001`
+   The server will run on `http://localhost:5500`
 
 2. **Seed the Database** (Optional)
    ```bash
@@ -229,7 +229,7 @@ DB_NAME=weather_app
 OPENWEATHER_API_KEY=your_openweather_api_key_here
 
 # Server Configuration
-PORT=3001
+PORT=5500
 NODE_ENV=development
 ```
 

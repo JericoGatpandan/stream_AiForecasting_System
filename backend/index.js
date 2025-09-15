@@ -8,6 +8,8 @@ app.use(cors());
 
 const db = require("./models");
 
+const PORT = process.env.PORT || 5000;
+
 // Routes
 const environmentalRouter = require("./routes/environmentalData");
 const weatherRouter = require("./routes/weather");
@@ -25,8 +27,8 @@ app.get("/health", (req, res) => {
 });
 
 db.sequelize.sync({ force: false }).then(() => {
-  app.listen(3001, () => {
-    console.log("Weather App Server running on https://localhost:3001");
+  app.listen(PORT, () => {
+    console.log(`Weather App Server running on https://localhost:${PORT}`);
     console.log("Database connected successfully");
   });
 }).catch(err => {

@@ -16,9 +16,9 @@ const FloodCharacteristics = ({ location, onLocationChange }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3001/flood/summary/${selectedLocation}`);
+      const response = await fetch(`http://localhost:5500/flood/summary/${selectedLocation}`);
       const data = await response.json();
-      
+
       if (data.hasData) {
         setFloodData(data);
       } else {
@@ -62,7 +62,7 @@ const FloodCharacteristics = ({ location, onLocationChange }) => {
     const totalMinutes = Math.floor(hours * 60);
     const hoursPart = Math.floor(totalMinutes / 60);
     const minutesPart = totalMinutes % 60;
-    
+
     if (hoursPart > 0) {
       return `${hoursPart}h ${minutesPart}m`;
     } else {
@@ -180,12 +180,11 @@ const FloodCharacteristics = ({ location, onLocationChange }) => {
               <span className="text-lg font-bold text-gray-800">{floodData.riskAssessment.score}/8</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-              <div 
-                className={`h-2 rounded-full ${
-                  floodData.riskAssessment.score >= 6 ? 'bg-red-500' :
-                  floodData.riskAssessment.score >= 4 ? 'bg-orange-500' :
-                  floodData.riskAssessment.score >= 2 ? 'bg-yellow-500' : 'bg-green-500'
-                }`}
+              <div
+                className={`h-2 rounded-full ${floodData.riskAssessment.score >= 6 ? 'bg-red-500' :
+                    floodData.riskAssessment.score >= 4 ? 'bg-orange-500' :
+                      floodData.riskAssessment.score >= 2 ? 'bg-yellow-500' : 'bg-green-500'
+                  }`}
                 style={{ width: `${(floodData.riskAssessment.score / 8) * 100}%` }}
               ></div>
             </div>
@@ -222,18 +221,16 @@ const FloodCharacteristics = ({ location, onLocationChange }) => {
       {floodData.recommendedActions && (
         <div className="mb-4">
           <h3 className="font-medium text-gray-700 mb-3">Recommended Actions</h3>
-          <div className={`rounded-lg p-4 ${
-            floodData.riskLevel === 'extreme' ? 'bg-red-50 border border-red-200' :
-            floodData.riskLevel === 'high' ? 'bg-orange-50 border border-orange-200' :
-            floodData.riskLevel === 'moderate' ? 'bg-yellow-50 border border-yellow-200' :
-            'bg-green-50 border border-green-200'
-          }`}>
-            <p className={`text-sm font-medium leading-relaxed ${
-              floodData.riskLevel === 'extreme' ? 'text-red-800' :
-              floodData.riskLevel === 'high' ? 'text-orange-800' :
-              floodData.riskLevel === 'moderate' ? 'text-yellow-800' :
-              'text-green-800'
+          <div className={`rounded-lg p-4 ${floodData.riskLevel === 'extreme' ? 'bg-red-50 border border-red-200' :
+              floodData.riskLevel === 'high' ? 'bg-orange-50 border border-orange-200' :
+                floodData.riskLevel === 'moderate' ? 'bg-yellow-50 border border-yellow-200' :
+                  'bg-green-50 border border-green-200'
             }`}>
+            <p className={`text-sm font-medium leading-relaxed ${floodData.riskLevel === 'extreme' ? 'text-red-800' :
+                floodData.riskLevel === 'high' ? 'text-orange-800' :
+                  floodData.riskLevel === 'moderate' ? 'text-yellow-800' :
+                    'text-green-800'
+              }`}>
               {floodData.recommendedActions}
             </p>
           </div>

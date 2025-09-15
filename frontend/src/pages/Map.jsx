@@ -72,7 +72,7 @@ function Map() {
 
   const fetchFloodData = async () => {
     try {
-      const response = await fetch('http://localhost:3001/flood/');
+      const response = await fetch('http://localhost:5500/flood/');
       const data = await response.json();
       setFloodData(data);
     } catch (error) {
@@ -235,6 +235,7 @@ function Map() {
         water_level: s.water_level,
         color: getColorByLayer(s, layerKey),
         radius: computeRadiusPx(s, layerKey)
+
       }
     }))
   });
