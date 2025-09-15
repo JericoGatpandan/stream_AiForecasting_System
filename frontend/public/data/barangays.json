@@ -1,0 +1,12 @@
+{
+  "barangays": [
+    {
+      "id": "abella",
+      "name": "Abella",
+      "file": "abella.geojson",
+      "center": [123.1850318, 13.6240122],
+      "zoom_level": 15,
+      "status": "active"
+    }
+  ]
+}

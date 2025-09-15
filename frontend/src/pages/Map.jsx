@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Layers, Thermometer, Droplets, Wind, Eye, AlertTriangle, MapPin, Focus } from 'lucide-react';
 import { weatherService } from '../services/weatherService';
+import { fetchBarangays, fetchBarangayGeoJSON, fetchSensors, sensorsToGeoJSON } from '../services/geoDataService';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -17,38 +18,12 @@ function Map() {
   const tokenMissing = !mapboxgl.accessToken;
   const [is3D, setIs3D] = useState(true);
   const [baseStyle, setBaseStyle] = useState('light'); // 'light' | 'satellite' | 'terrain'
+  const [barangays, setBarangays] = useState([]);
+  const [sensors, setSensors] = useState([]);
 
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
 
-  // const [barangays, setBarangays] = useState(null);
-  // useEffect(() => {
-  //   fetch("/barangays.geojson")
-  //     .then((res) => res.json())
-  //     .then((data) => setBarangays(data));
-  // }, []);
-
-
-
-  // Sample barangay weather stations with enhanced data
-  // Sample barangay weather stations within Naga City
-  // Sample barangay weather stations with enhanced data
-  const stations = [
-    {
-      name: "Abella",
-      lat: 13.623196284003441,  // sample approximate coords
-      lng: 123.18261692770339,
-      water_level: 2.18,
-      rainfall: 1.2,
-      temperature: 28.5,
-      humidity: 75,
-      wind_speed: 12.3,
-      wind_direction: "NE",
-      visibility: 15.2,
-      uv_index: 6.8,
-      scope: 800
-    }
-  ];
 
 
 
@@ -56,12 +31,45 @@ function Map() {
 
 
 
-
+  // Load city boundary GeoJSON
   useEffect(() => {
     fetch("/naga.geojson")
       .then((res) => res.json())
       .then((data) => setGeoData(data))
       .catch((err) => console.error("Error loading GeoJSON:", err));
+  }, []);
+
+  // Load barangay list from JSON file
+  useEffect(() => {
+    const loadBarangays = async () => {
+      try {
+        const barangayList = await fetchBarangays();
+        setBarangays(barangayList);
+
+        // Load the first barangay by default if none is selected
+        if (barangayList.length > 0 && !selectedBarangay) {
+          setSelectedBarangay(barangayList[0].id);
+        }
+      } catch (error) {
+        console.error("Error loading barangays:", error);
+      }
+    };
+
+    loadBarangays();
+  }, [selectedBarangay]);
+
+  // Load sensors from JSON file
+  useEffect(() => {
+    const loadSensors = async () => {
+      try {
+        const sensorData = await fetchSensors();
+        setSensors(sensorData);
+      } catch (error) {
+        console.error("Error loading sensors:", error);
+      }
+    };
+
+    loadSensors();
   }, []);
 
   useEffect(() => {
@@ -219,22 +227,23 @@ function Map() {
 
   const toStationsFeatureCollection = (layerKey) => ({
     type: 'FeatureCollection',
-    features: stations.map((s) => ({
+    features: sensors.map((s) => ({
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
       properties: {
+        id: s.id,
         name: s.name,
-        temperature: s.temperature,
-        rainfall: s.rainfall,
-        humidity: s.humidity,
-        wind_speed: s.wind_speed,
-        wind_direction: s.wind_direction,
-        visibility: s.visibility,
-        uv_index: s.uv_index,
-        water_level: s.water_level,
-        color: getColorByLayer(s, layerKey),
-        radius: computeRadiusPx(s, layerKey)
-
+        barangay: s.barangay,
+        temperature: s.readings.temperature,
+        rainfall: s.readings.rainfall,
+        humidity: s.readings.humidity,
+        wind_speed: s.readings.wind_speed,
+        wind_direction: s.readings.wind_direction,
+        visibility: s.readings.visibility,
+        uv_index: s.readings.uv_index,
+        water_level: s.readings.water_level,
+        color: getColorByLayer(s.readings, layerKey),
+        radius: computeRadiusPx(s.readings, layerKey)
       }
     }))
   });
@@ -279,15 +288,67 @@ function Map() {
     }))
   });
 
-  const focusOnBarangay = (barangayName) => {
-    const barangay = floodData.find(f => f.location === barangayName);
-    if (barangay && mapRef.current) {
-      mapRef.current.flyTo({
-        center: [barangay.longitude, barangay.latitude],
-        zoom: 15,
-        duration: 1000
-      });
-      setSelectedBarangay(barangay);
+  const focusOnBarangay = async (barangayId) => {
+    // Find the barangay in our list
+    const barangay = barangays.find(b => b.id === barangayId);
+    if (!barangay) {
+      // Fall back to the old method if we can't find the barangay in our new structure
+      const floodDataBarangay = floodData.find(f => f.location === barangayId);
+      if (floodDataBarangay && mapRef.current) {
+        mapRef.current.flyTo({
+          center: [floodDataBarangay.longitude, floodDataBarangay.latitude],
+          zoom: 15,
+          duration: 1000
+        });
+        setSelectedBarangay(floodDataBarangay);
+      }
+      return;
+    }
+
+    try {
+      // Load the barangay GeoJSON data
+      const barangayData = await fetchBarangayGeoJSON(barangayId);
+
+      // Add barangay data to the map if it exists
+      if (mapRef.current && barangayData) {
+        // If a barangay layer already exists, remove it
+        if (mapRef.current.getLayer('selected-barangay')) {
+          mapRef.current.removeLayer('selected-barangay');
+        }
+
+        if (mapRef.current.getSource('selected-barangay')) {
+          mapRef.current.removeSource('selected-barangay');
+        }
+
+        // Add the new barangay data
+        mapRef.current.addSource('selected-barangay', {
+          type: 'geojson',
+          data: barangayData
+        });
+
+        // Add a layer to display the barangay
+        mapRef.current.addLayer({
+          id: 'selected-barangay',
+          type: 'fill',
+          source: 'selected-barangay',
+          paint: {
+            'fill-color': '#0080ff',
+            'fill-opacity': 0.2,
+            'fill-outline-color': '#0080ff'
+          }
+        });
+
+        // Fly to the barangay
+        mapRef.current.flyTo({
+          center: barangay.center,
+          zoom: barangay.zoom_level || 15,
+          duration: 1500,
+        });
+
+        setSelectedBarangay(barangay);
+      }
+    } catch (error) {
+      console.error(`Error focusing on barangay ${barangayId}:`, error);
     }
   };
 
@@ -669,13 +730,21 @@ function Map() {
           <div className="flex space-x-2">
             {/* Barangay Selection */}
             <select
-              value={selectedBarangay?.location || ''}
+              value={selectedBarangay?.id || selectedBarangay?.location || ''}
               onChange={(e) => e.target.value && focusOnBarangay(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white hover:bg-gray-50"
             >
               <option value="">Select Barangay</option>
+              {/* Show barangays from our new data structure */}
+              {barangays.map((barangay) => (
+                <option key={barangay.id} value={barangay.id}>
+                  {barangay.name}
+                </option>
+              ))}
+              {/* Also show flood data barangays if available */}
+              {floodData.length > 0 && barangays.length > 0 && <option disabled>──────────</option>}
               {floodData.map((barangay) => (
-                <option key={barangay.location} value={barangay.location}>
+                <option key={`flood-${barangay.location}`} value={barangay.location}>
                   {barangay.location} ({barangay.flood_risk_level})
                 </option>
               ))}
@@ -729,14 +798,18 @@ function Map() {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <MapPin className="w-5 h-5 text-blue-600 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-800">{selectedBarangay.location}</h3>
-              <span className={`ml-3 px-2 py-1 text-xs rounded-full ${selectedBarangay.flood_risk_level === 'extreme' ? 'bg-red-100 text-red-600' :
-                selectedBarangay.flood_risk_level === 'high' ? 'bg-orange-100 text-orange-600' :
-                  selectedBarangay.flood_risk_level === 'moderate' ? 'bg-yellow-100 text-yellow-600' :
-                    'bg-green-100 text-green-600'
-                }`}>
-                {selectedBarangay.flood_risk_level.toUpperCase()} RISK
-              </span>
+              <h3 className="text-lg font-semibold text-gray-800">
+                {selectedBarangay.name || selectedBarangay.location || "Selected Area"}
+              </h3>
+              {selectedBarangay.flood_risk_level && (
+                <span className={`ml-3 px-2 py-1 text-xs rounded-full ${selectedBarangay.flood_risk_level === 'extreme' ? 'bg-red-100 text-red-600' :
+                    selectedBarangay.flood_risk_level === 'high' ? 'bg-orange-100 text-orange-600' :
+                      selectedBarangay.flood_risk_level === 'moderate' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-green-100 text-green-600'
+                  }`}>
+                  {selectedBarangay.flood_risk_level.toUpperCase()} RISK
+                </span>
+              )}
             </div>
             <button
               onClick={() => setSelectedBarangay(null)}
@@ -745,24 +818,43 @@ function Map() {
               ✕
             </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 text-sm">
-            <div>
-              <span className="text-gray-600">Max Depth:</span>
-              <span className="ml-1 font-medium">{selectedBarangay.maximum_depth.toFixed(1)} meters</span>
+          {selectedBarangay.maximum_depth !== undefined ? (
+            // Display flood data if available
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 text-sm">
+              <div>
+                <span className="text-gray-600">Max Depth:</span>
+                <span className="ml-1 font-medium">{selectedBarangay.maximum_depth.toFixed(1)} meters</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Peak Velocity:</span>
+                <span className="ml-1 font-medium">{selectedBarangay.peak_velocity.toFixed(1)} m/s</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Arrival Time:</span>
+                <span className="ml-1 font-medium">{Math.floor(selectedBarangay.arrival_time * 60)} minutes</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Inundation Area:</span>
+                <span className="ml-1 font-medium">{selectedBarangay.inundation_area.toFixed(1)} km²</span>
+              </div>
             </div>
-            <div>
-              <span className="text-gray-600">Peak Velocity:</span>
-              <span className="ml-1 font-medium">{selectedBarangay.peak_velocity.toFixed(1)} m/s</span>
+          ) : (
+            // Display barangay information if it's from the new data structure
+            <div className="mt-3 text-sm">
+              <div>
+                <span className="text-gray-600">Barangay ID:</span>
+                <span className="ml-1 font-medium">{selectedBarangay.id || "N/A"}</span>
+              </div>
+              {selectedBarangay.status && (
+                <div className="mt-1">
+                  <span className="text-gray-600">Status:</span>
+                  <span className={`ml-1 font-medium ${selectedBarangay.status === 'active' ? 'text-green-600' : 'text-gray-600'}`}>
+                    {selectedBarangay.status}
+                  </span>
+                </div>
+              )}
             </div>
-            <div>
-              <span className="text-gray-600">Arrival Time:</span>
-              <span className="ml-1 font-medium">{Math.floor(selectedBarangay.arrival_time * 60)} minutes</span>
-            </div>
-            <div>
-              <span className="text-gray-600">Inundation Area:</span>
-              <span className="ml-1 font-medium">{selectedBarangay.inundation_area.toFixed(1)} km²</span>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -782,7 +874,7 @@ function Map() {
             </div>
           </div>
           <div className="text-sm text-gray-500">
-            {stations.length} stations • {alerts.length} active alerts • {floodData.length} flood areas
+            {sensors.length} sensors • {alerts.length} active alerts • {floodData.length} flood areas
           </div>
         </div>
       </div>

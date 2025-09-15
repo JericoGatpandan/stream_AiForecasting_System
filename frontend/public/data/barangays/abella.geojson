@@ -11,12 +11,11 @@
         "admin_level": "6",
         "boundary": "administrative",
         "is_in:state": "Camarines Sur",
-        "name": "Naga City",
+        "name": "Abella",
         "postal_code": "4400",
         "type": "boundary",
-        "website": "http://www.naga.gov.ph/",
         "wikidata": "Q2207",
-        "wikipedia": "en:Naga, Camarines Sur"
+        "barangay_id": "abella"
       },
       "geometry": {
         "type": "Polygon",
@@ -46,7 +45,8 @@
             [123.18022118068919, 13.624884643142867],
             [123.18010316349144, 13.624900283512371],
             [123.17988322235016, 13.624222533218193],
-            [123.179341, 13.623013]
+            [123.179341, 13.623013],
+            [123.179345, 13.623008]
           ]
         ]
       },
@@ -64,12 +64,10 @@
               "admin_level": "6",
               "boundary": "administrative",
               "is_in:state": "Camarines Sur",
-              "name": "Naga City",
+              "name": "Abella",
               "postal_code": "4400",
               "type": "boundary",
-              "website": "http://www.naga.gov.ph/",
-              "wikidata": "Q2207",
-              "wikipedia": "en:Naga, Camarines Sur"
+              "wikidata": "Q2207"
             }
           }
         ]

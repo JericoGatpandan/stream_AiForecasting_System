@@ -27,7 +27,7 @@ app.get("/health", (req, res) => {
 });
 
 db.sequelize.sync({ force: false }).then(() => {
-  app.listen(5500, () => {
+  app.listen(PORT, () => {
     console.log(`Weather App Server running on https://localhost:${PORT}`);
     console.log("Database connected successfully");
   });
