@@ -15,7 +15,9 @@ function Map() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [geoData, setGeoData] = useState(null);
   const [floodData, setFloodData] = useState([]);
-  const [selectedBarangay, setSelectedBarangay] = useState(null);
+  const [selectedBarangay, setSelectedBarangay] = useState(null); // object or null
+  const [allBarangayGeoJSON, setAllBarangayGeoJSON] = useState(null); // merged boundaries
+  const [panelsVisibility, setPanelsVisibility] = useState({ sensors: false, alerts: false, floods: false });
   const tokenMissing = !mapboxgl.accessToken;
   const [is3D, setIs3D] = useState(true);
   const [baseStyle, setBaseStyle] = useState('light'); // 'light' | 'satellite' | 'terrain' | 'dark'
@@ -41,24 +43,30 @@ function Map() {
       .catch((err) => console.error("Error loading GeoJSON:", err));
   }, []);
 
-  // Load barangay list from JSON file
+  // Load barangays & build merged boundaries once
   useEffect(() => {
     const loadBarangays = async () => {
       try {
-        const barangayList = await fetchBarangays();
-        setBarangays(barangayList);
-
-        // Load the first barangay by default if none is selected
-        if (barangayList.length > 0 && !selectedBarangay) {
-          setSelectedBarangay(barangayList[0].id);
+        const list = await fetchBarangays();
+        setBarangays(list);
+        const merged = [];
+        for (const b of list) {
+          try {
+            const gj = await fetchBarangayGeoJSON(b.id);
+            if (gj?.features) {
+              gj.features.forEach(f => merged.push({ ...f, properties: { ...(f.properties || {}), barangay_id: b.id, barangay_name: b.name } }));
+            }
+          } catch (e) {
+            console.warn('GeoJSON missing for', b.id);
+          }
         }
-      } catch (error) {
-        console.error("Error loading barangays:", error);
+        setAllBarangayGeoJSON({ type: 'FeatureCollection', features: merged });
+      } catch (e) {
+        console.error('Error loading barangays', e);
       }
     };
-
     loadBarangays();
-  }, [selectedBarangay]);
+  }, []);
 
   // Load sensors from JSON file
   useEffect(() => {
@@ -347,8 +355,14 @@ function Map() {
   });
 
   const focusOnBarangay = async (barangayId) => {
-    if (!mapRef.current || !barangayId) {
-      console.warn('Cannot focus on barangay: Map not initialized or barangay ID missing');
+    if (!mapRef.current) return;
+    if (!barangayId) return;
+    if (barangayId === 'ALL') {
+      resetView();
+      if (mapRef.current.getLayer('selected-barangay')) mapRef.current.removeLayer('selected-barangay');
+      if (mapRef.current.getLayer('selected-barangay-outline')) mapRef.current.removeLayer('selected-barangay-outline');
+      if (mapRef.current.getSource('selected-barangay')) mapRef.current.removeSource('selected-barangay');
+      setSelectedBarangay(null);
       return;
     }
 
@@ -359,8 +373,8 @@ function Map() {
     }, 2000);
 
     try {
-      // Find the barangay in our list
-      const barangay = barangays.find(b => b.id === barangayId);
+  // Find the barangay in our list
+  const barangay = barangays.find(b => b.id === barangayId);
 
       if (!barangay) {
         // Fall back to the old method if we can't find the barangay in our new structure
@@ -396,13 +410,9 @@ function Map() {
       if (mapRef.current && barangayData) {
         try {
           // Clean up existing layers and sources to prevent memory leaks
-          if (mapRef.current.getLayer('selected-barangay')) {
-            mapRef.current.removeLayer('selected-barangay');
-          }
-
-          if (mapRef.current.getSource('selected-barangay')) {
-            mapRef.current.removeSource('selected-barangay');
-          }
+          if (mapRef.current.getLayer('selected-barangay')) mapRef.current.removeLayer('selected-barangay');
+          if (mapRef.current.getLayer('selected-barangay-outline')) mapRef.current.removeLayer('selected-barangay-outline');
+          if (mapRef.current.getSource('selected-barangay')) mapRef.current.removeSource('selected-barangay');
 
           // Add the new barangay data
           mapRef.current.addSource('selected-barangay', {
@@ -480,6 +490,46 @@ function Map() {
       setSelectedBarangay(null);
     }
   };
+
+  // Show all barangay boundaries when none selected
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !allBarangayGeoJSON) return;
+    // Remove single selection layers if present
+    if (!selectedBarangay) {
+      if (!map.getSource('all-barangays')) {
+        map.addSource('all-barangays', { type: 'geojson', data: allBarangayGeoJSON });
+      } else {
+        map.getSource('all-barangays').setData(allBarangayGeoJSON);
+      }
+      if (!map.getLayer('all-barangays-fill')) {
+        map.addLayer({
+          id: 'all-barangays-fill',
+          type: 'fill',
+          source: 'all-barangays',
+          paint: { 'fill-color': '#1d4ed8', 'fill-opacity': 0.05 }
+        });
+      }
+      if (!map.getLayer('all-barangays-line')) {
+        map.addLayer({
+          id: 'all-barangays-line',
+          type: 'line',
+          source: 'all-barangays',
+          paint: { 'line-color': '#1d4ed8', 'line-width': 1 }
+        });
+      }
+    } else {
+      // Hide all boundaries layers when a single barangay is selected
+      if (map.getLayer('all-barangays-fill')) map.setLayoutProperty('all-barangays-fill', 'visibility', 'none');
+      if (map.getLayer('all-barangays-line')) map.setLayoutProperty('all-barangays-line', 'visibility', 'none');
+    }
+    if (!selectedBarangay && map.getLayer('all-barangays-fill')) {
+      map.setLayoutProperty('all-barangays-fill', 'visibility', 'visible');
+    }
+    if (!selectedBarangay && map.getLayer('all-barangays-line')) {
+      map.setLayoutProperty('all-barangays-line', 'visibility', 'visible');
+    }
+  }, [allBarangayGeoJSON, selectedBarangay]);
 
   // Initialize Mapbox map once
   useEffect(() => {
@@ -1086,23 +1136,17 @@ function Map() {
           <div className="flex space-x-2">
             {/* Barangay Selection */}
             <select
-              value={selectedBarangay?.id || selectedBarangay?.location || ''}
-              onChange={(e) => e.target.value && focusOnBarangay(e.target.value)}
+              value={selectedBarangay ? (selectedBarangay.id || selectedBarangay.location) : 'ALL'}
+              onChange={(e) => focusOnBarangay(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white hover:bg-gray-50"
             >
-              <option value="">Select Barangay</option>
-              {/* Show barangays from our new data structure */}
-              {barangays.map((barangay) => (
-                <option key={barangay.id} value={barangay.id}>
-                  {barangay.name}
-                </option>
+              <option value="ALL">All Barangays</option>
+              {barangays.map(b => (
+                <option key={b.id} value={b.id}>{b.name}</option>
               ))}
-              {/* Also show flood data barangays if available */}
-              {floodData.length > 0 && barangays.length > 0 && <option disabled>──────────</option>}
-              {floodData.map((barangay) => (
-                <option key={`flood-${barangay.location}`} value={barangay.location}>
-                  {barangay.location} ({barangay.flood_risk_level})
-                </option>
+              {floodData.length > 0 && <option disabled>────────── Flood Data ──────────</option>}
+              {floodData.map(f => (
+                <option key={`flood-${f.location}`} value={f.location}>{f.location} ({f.flood_risk_level})</option>
               ))}
             </select>
 
@@ -1240,12 +1284,7 @@ function Map() {
 
           <div className="flex flex-wrap gap-2 text-sm">
             <button
-              onClick={() => {
-                const sensorFilter = document.getElementById('sensor-details');
-                if (sensorFilter) {
-                  sensorFilter.classList.toggle('hidden');
-                }
-              }}
+              onClick={() => setPanelsVisibility(p => ({ ...p, sensors: !p.sensors }))}
               className="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg flex items-center transition-colors"
               title="View sensor details"
             >
@@ -1255,16 +1294,9 @@ function Map() {
             </button>
 
             <button
-              onClick={() => {
-                if (alerts.length > 0) {
-                  const alertFilter = document.getElementById('alert-details');
-                  if (alertFilter) {
-                    alertFilter.classList.toggle('hidden');
-                  }
-                }
-              }}
+              onClick={() => alerts.length > 0 && setPanelsVisibility(p => ({ ...p, alerts: !p.alerts }))}
               className={`px-3 py-1 ${alerts.length > 0 ? 'bg-red-50 hover:bg-red-100 text-red-700' : 'bg-gray-50 text-gray-500'} rounded-lg flex items-center transition-colors`}
-              title={alerts.length > 0 ? "View alert details" : "No active alerts"}
+              title={alerts.length > 0 ? 'View alert details' : 'No active alerts'}
               disabled={alerts.length === 0}
             >
               {alerts.length > 0 && <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>}
@@ -1273,16 +1305,9 @@ function Map() {
             </button>
 
             <button
-              onClick={() => {
-                if (floodData.length > 0) {
-                  const floodFilter = document.getElementById('flood-details');
-                  if (floodFilter) {
-                    floodFilter.classList.toggle('hidden');
-                  }
-                }
-              }}
+              onClick={() => floodData.length > 0 && setPanelsVisibility(p => ({ ...p, floods: !p.floods }))}
               className={`px-3 py-1 ${floodData.length > 0 ? 'bg-yellow-50 hover:bg-yellow-100 text-yellow-700' : 'bg-gray-50 text-gray-500'} rounded-lg flex items-center transition-colors`}
-              title={floodData.length > 0 ? "View flood area details" : "No flood areas"}
+              title={floodData.length > 0 ? 'View flood area details' : 'No flood areas'}
               disabled={floodData.length === 0}
             >
               {floodData.length > 0 && <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse-slow"></div>}
@@ -1293,8 +1318,11 @@ function Map() {
         </div>
 
         {/* Expandable details panels */}
-        <div id="sensor-details" className="hidden mt-4 border-t pt-3 text-sm">
-          <h4 className="font-medium text-gray-700 mb-2">Sensor Overview</h4>
+        <div id="sensor-details" className={`mt-4 border-t pt-3 text-sm ${panelsVisibility.sensors ? '' : 'hidden'}`}>
+          <div className="flex items-start justify-between">
+            <h4 className="font-medium text-gray-700 mb-2">Sensor Overview</h4>
+            <button onClick={() => setPanelsVisibility(p => ({ ...p, sensors: false }))} className="text-xs text-gray-500 hover:text-gray-700">Close</button>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-blue-50 p-2 rounded">
               <div className="text-xs text-gray-600">Avg. Temperature</div>
@@ -1331,8 +1359,11 @@ function Map() {
           </div>
         </div>
 
-        <div id="alert-details" className="hidden mt-4 border-t pt-3 text-sm">
-          <h4 className="font-medium text-gray-700 mb-2">Active Alerts</h4>
+        <div id="alert-details" className={`mt-4 border-t pt-3 text-sm ${panelsVisibility.alerts ? '' : 'hidden'}`}>
+          <div className="flex items-start justify-between">
+            <h4 className="font-medium text-gray-700 mb-2">Active Alerts</h4>
+            <button onClick={() => setPanelsVisibility(p => ({ ...p, alerts: false }))} className="text-xs text-gray-500 hover:text-gray-700">Close</button>
+          </div>
           {alerts.length === 0 ? (
             <div className="text-gray-500">No active alerts</div>
           ) : (
@@ -1356,8 +1387,11 @@ function Map() {
           )}
         </div>
 
-        <div id="flood-details" className="hidden mt-4 border-t pt-3 text-sm">
-          <h4 className="font-medium text-gray-700 mb-2">Flood Risk Areas</h4>
+        <div id="flood-details" className={`mt-4 border-t pt-3 text-sm ${panelsVisibility.floods ? '' : 'hidden'}`}>
+          <div className="flex items-start justify-between">
+            <h4 className="font-medium text-gray-700 mb-2">Flood Risk Areas</h4>
+            <button onClick={() => setPanelsVisibility(p => ({ ...p, floods: false }))} className="text-xs text-gray-500 hover:text-gray-700">Close</button>
+          </div>
           {floodData.length === 0 ? (
             <div className="text-gray-500">No flood risk areas</div>
           ) : (
