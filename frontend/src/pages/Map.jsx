@@ -12,12 +12,14 @@ function Map() {
   const [selectedLayer, setSelectedLayer] = useState('temperature');
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const [geoData, setGeoData] = useState(null);
   const [floodData, setFloodData] = useState([]);
   const [selectedBarangay, setSelectedBarangay] = useState(null);
   const tokenMissing = !mapboxgl.accessToken;
   const [is3D, setIs3D] = useState(true);
-  const [baseStyle, setBaseStyle] = useState('light'); // 'light' | 'satellite' | 'terrain'
+  const [baseStyle, setBaseStyle] = useState('light'); // 'light' | 'satellite' | 'terrain' | 'dark'
+  const [showBuildings, setShowBuildings] = useState(false);
   const [barangays, setBarangays] = useState([]);
   const [sensors, setSensors] = useState([]);
 
@@ -72,30 +74,84 @@ function Map() {
     loadSensors();
   }, []);
 
+  // Combined data fetching effect for better performance
   useEffect(() => {
-    fetchWeatherData();
-    fetchFloodData();
+    const fetchAllData = async () => {
+      setLoading(true);
+
+      // Use Promise.allSettled to fetch all data in parallel
+      const results = await Promise.allSettled([
+        fetchWeatherData(),
+        fetchFloodData(),
+        fetchBarangays(),
+        fetchSensors()
+      ]);
+
+      // Check for errors in the results
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(`Data fetch error (source ${index}):`, result.reason);
+        }
+      });
+
+      // Set loading to false even if some requests failed
+      setLoading(false);
+    };
+
+    fetchAllData();
+
+    // Set up periodic refresh for real-time data
+    const refreshInterval = setInterval(() => {
+      // Silently refresh data without showing loading indicator
+      fetchWeatherData(false);
+      fetchFloodData(false);
+    }, 300000); // Refresh every 5 minutes
+
+    return () => {
+      clearInterval(refreshInterval);
+    };
   }, []);
 
-  const fetchFloodData = async () => {
+  const fetchFloodData = async (showLoading = true) => {
     try {
-      const response = await fetch('http://localhost:5500/flood/');
+      if (showLoading) setLoading(true);
+
+      // Add cache-busting parameter and timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(`http://localhost:5500/flood/?_=${Date.now()}`, {
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+
       const data = await response.json();
       setFloodData(data);
     } catch (error) {
-      console.error('Error fetching flood data:', error);
+      if (error.name === 'AbortError') {
+        console.error('Flood data request timed out');
+      } else {
+        console.error('Error fetching flood data:', error);
+      }
+    } finally {
+      if (showLoading) setLoading(false);
     }
   };
 
-  const fetchWeatherData = async () => {
-    setLoading(true);
+  const fetchWeatherData = async (showLoading = true) => {
     try {
+      if (showLoading) setLoading(true);
       const alertsData = await weatherService.getWeatherAlerts();
       setAlerts(alertsData);
     } catch (error) {
       console.error('Error fetching weather data:', error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -187,6 +243,8 @@ function Map() {
         return 'mapbox://styles/mapbox/satellite-streets-v12';
       case 'terrain':
         return 'mapbox://styles/mapbox/outdoors-v12';
+      case 'dark':
+        return 'mapbox://styles/mapbox/dark-v11';
       case 'light':
       default:
         return 'mapbox://styles/mapbox/light-v11';
@@ -289,66 +347,130 @@ function Map() {
   });
 
   const focusOnBarangay = async (barangayId) => {
-    // Find the barangay in our list
-    const barangay = barangays.find(b => b.id === barangayId);
-    if (!barangay) {
-      // Fall back to the old method if we can't find the barangay in our new structure
-      const floodDataBarangay = floodData.find(f => f.location === barangayId);
-      if (floodDataBarangay && mapRef.current) {
-        mapRef.current.flyTo({
-          center: [floodDataBarangay.longitude, floodDataBarangay.latitude],
-          zoom: 15,
-          duration: 1000
-        });
-        setSelectedBarangay(floodDataBarangay);
-      }
+    if (!mapRef.current || !barangayId) {
+      console.warn('Cannot focus on barangay: Map not initialized or barangay ID missing');
       return;
     }
 
+    // Set a loading state if needed for long operations
+    const loadingTimeout = setTimeout(() => {
+      // Show loading indicator or toast message for long operations
+      console.log('Barangay focus taking longer than expected...');
+    }, 2000);
+
     try {
+      // Find the barangay in our list
+      const barangay = barangays.find(b => b.id === barangayId);
+
+      if (!barangay) {
+        // Fall back to the old method if we can't find the barangay in our new structure
+        const floodDataBarangay = floodData.find(f => f.location === barangayId);
+        if (floodDataBarangay && mapRef.current) {
+          // Check if coordinates are valid
+          if (!floodDataBarangay.longitude || !floodDataBarangay.latitude) {
+            console.error('Invalid coordinates for barangay:', barangayId);
+            clearTimeout(loadingTimeout);
+            return;
+          }
+
+          // Animate to the barangay location
+          mapRef.current.flyTo({
+            center: [floodDataBarangay.longitude, floodDataBarangay.latitude],
+            zoom: 15,
+            duration: 1200,
+            essential: true // This animation is considered essential for the user experience
+          });
+
+          setSelectedBarangay(floodDataBarangay);
+        } else {
+          console.warn(`Barangay not found: ${barangayId}`);
+        }
+        clearTimeout(loadingTimeout);
+        return;
+      }
+
       // Load the barangay GeoJSON data
       const barangayData = await fetchBarangayGeoJSON(barangayId);
 
       // Add barangay data to the map if it exists
       if (mapRef.current && barangayData) {
-        // If a barangay layer already exists, remove it
-        if (mapRef.current.getLayer('selected-barangay')) {
-          mapRef.current.removeLayer('selected-barangay');
-        }
-
-        if (mapRef.current.getSource('selected-barangay')) {
-          mapRef.current.removeSource('selected-barangay');
-        }
-
-        // Add the new barangay data
-        mapRef.current.addSource('selected-barangay', {
-          type: 'geojson',
-          data: barangayData
-        });
-
-        // Add a layer to display the barangay
-        mapRef.current.addLayer({
-          id: 'selected-barangay',
-          type: 'fill',
-          source: 'selected-barangay',
-          paint: {
-            'fill-color': '#0080ff',
-            'fill-opacity': 0.2,
-            'fill-outline-color': '#0080ff'
+        try {
+          // Clean up existing layers and sources to prevent memory leaks
+          if (mapRef.current.getLayer('selected-barangay')) {
+            mapRef.current.removeLayer('selected-barangay');
           }
-        });
 
-        // Fly to the barangay
-        mapRef.current.flyTo({
-          center: barangay.center,
-          zoom: barangay.zoom_level || 15,
-          duration: 1500,
-        });
+          if (mapRef.current.getSource('selected-barangay')) {
+            mapRef.current.removeSource('selected-barangay');
+          }
 
-        setSelectedBarangay(barangay);
+          // Add the new barangay data
+          mapRef.current.addSource('selected-barangay', {
+            type: 'geojson',
+            data: barangayData
+          });
+
+          // Add a layer to display the barangay
+          mapRef.current.addLayer({
+            id: 'selected-barangay',
+            type: 'fill',
+            source: 'selected-barangay',
+            paint: {
+              'fill-color': '#0080ff',
+              'fill-opacity': 0.2,
+              'fill-outline-color': '#0080ff'
+            }
+          });
+
+          // Add outline layer for better visibility
+          mapRef.current.addLayer({
+            id: 'selected-barangay-outline',
+            type: 'line',
+            source: 'selected-barangay',
+            paint: {
+              'line-color': '#0080ff',
+              'line-width': 2
+            }
+          });
+
+          // Check if center coordinates are valid
+          if (!barangay.center || !Array.isArray(barangay.center) || barangay.center.length !== 2) {
+            console.error('Invalid center coordinates for barangay:', barangayId);
+            // Try to calculate center from GeoJSON if available
+            if (barangayData && barangayData.features && barangayData.features.length > 0) {
+              // Get bounds of the feature and use center
+              const bounds = new mapboxgl.LngLatBounds();
+              const coordinates = barangayData.features[0].geometry.coordinates[0];
+              coordinates.forEach(coord => bounds.extend(coord));
+
+              // Fly to calculated center
+              mapRef.current.fitBounds(bounds, {
+                padding: 50,
+                duration: 1500
+              });
+            }
+          } else {
+            // Fly to the barangay using provided center
+            mapRef.current.flyTo({
+              center: barangay.center,
+              zoom: barangay.zoom_level || 15,
+              duration: 1500,
+              essential: true
+            });
+          }
+
+          // Update selected barangay state
+          setSelectedBarangay(barangay);
+        } catch (mapError) {
+          console.error('Map operation error:', mapError);
+        }
+      } else {
+        console.warn(`No GeoJSON data found for barangay: ${barangayId}`);
       }
     } catch (error) {
       console.error(`Error focusing on barangay ${barangayId}:`, error);
+    } finally {
+      clearTimeout(loadingTimeout);
     }
   };
 
@@ -363,10 +485,12 @@ function Map() {
   useEffect(() => {
     if (tokenMissing) {
       console.error('Mapbox token missing. Set VITE_MAPBOX_TOKEN in your .env.');
+      setLoading(false);
       return;
     }
     if (mapRef.current || !mapContainerRef.current) return;
 
+    // Initialize map with default settings
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: getStyleUrl(baseStyle),
@@ -375,13 +499,19 @@ function Map() {
       pitch: is3D ? 60 : 0,
       bearing: 0,
       antialias: true,
-      maxBounds: nagaBounds
+      maxBounds: nagaBounds,
+      minZoom: 10,
+      transformRequest: (url, resourceType) => {
+        // Add timestamp to prevent caching issues with tile requests
+        if (resourceType === 'Tile' && url.includes('mapbox.com')) {
+          return {
+            url: `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`
+          };
+        }
+      }
     });
 
     mapRef.current = map;
-
-    // Constrain to bounds
-    // map.setMaxBounds([[123.16, 13.59], [123.23, 13.66]]);
 
     // Enable/Improve interactions & add controls
     map.dragPan.enable();
@@ -390,11 +520,29 @@ function Map() {
     map.touchZoomRotate.enable();
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
     map.addControl(new mapboxgl.ScaleControl({ maxWidth: 120, unit: 'metric' }));
-    map.addControl(new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }));
+    map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,
+      showUserHeading: true
+    }));
 
+    // Handle errors gracefully
     map.on('error', (e) => {
       console.error('Mapbox GL Error:', e && e.error ? e.error : e);
     });
+
+    // Set a timeout to detect if map fails to load in reasonable time
+    const mapLoadTimeout = setTimeout(() => {
+      if (!mapLoaded) {
+        console.warn('Map load timeout - forcing reload');
+        if (mapRef.current) {
+          mapRef.current.remove();
+        }
+        // Force reset map on next render cycle
+        mapRef.current = null;
+        setLoading(false);
+      }
+    }, 10000);
 
     const attachSourcesAndLayers = () => {
       // 3D terrain on demand
@@ -423,6 +571,53 @@ function Map() {
         if (map.getLayer('sky')) {
           try { map.removeLayer('sky'); } catch (_) { }
         }
+      }
+
+      // 3D Buildings layer
+      if (showBuildings && is3D) {
+        try {
+          if (!map.getLayer('3d-buildings')) {
+            // Find the first symbol layer in the map style
+            let firstSymbolId;
+            const layers = map.getStyle().layers;
+            for (const layer of layers) {
+              if (layer.type === 'symbol') {
+                firstSymbolId = layer.id;
+                break;
+              }
+            }
+
+            // Add 3D buildings
+            map.addLayer({
+              'id': '3d-buildings',
+              'source': 'composite',
+              'source-layer': 'building',
+              'filter': ['==', 'extrude', 'true'],
+              'type': 'fill-extrusion',
+              'minzoom': 14,
+              'paint': {
+                'fill-extrusion-color': '#aaa',
+                'fill-extrusion-height': [
+                  'interpolate', ['linear'], ['zoom'],
+                  15, 0,
+                  16, ['get', 'height']
+                ],
+                'fill-extrusion-base': [
+                  'interpolate', ['linear'], ['zoom'],
+                  15, 0,
+                  16, ['get', 'min_height']
+                ],
+                'fill-extrusion-opacity': 0.7
+              }
+            }, firstSymbolId);
+          }
+        } catch (err) {
+          console.warn('Could not add 3D buildings layer:', err);
+        }
+      } else if (!showBuildings && map.getLayer('3d-buildings')) {
+        try {
+          map.removeLayer('3d-buildings');
+        } catch (_) { }
       }
 
       // GeoJSON boundary
@@ -637,24 +832,52 @@ function Map() {
     };
 
     map.on('load', () => {
+      console.log('Map loaded');
       map.resize();
       attachSourcesAndLayers();
+      setMapLoaded(true);
+      setLoading(false);
+      clearTimeout(mapLoadTimeout);
     });
 
     // Reattach after style changes
     map.on('style.load', () => {
+      console.log('Map style loaded');
       attachSourcesAndLayers();
     });
 
+    // Ensure the map reacts to size changes
     const onWindowResize = () => {
-      try { map.resize(); } catch (_) { /* noop */ }
+      if (mapRef.current) {
+        try { mapRef.current.resize(); } catch (_) { /* noop */ }
+      }
     };
+
+    // Handle browser visibility changes (e.g., when tab is hidden)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && mapRef.current) {
+        mapRef.current.resize();
+      }
+    };
+
     window.addEventListener('resize', onWindowResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Force resize in case map container was initially hidden
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.resize();
+      }
+    }, 500);
 
     return () => {
-      map.remove();
+      clearTimeout(mapLoadTimeout);
+      if (mapRef.current) {
+        mapRef.current.remove();
+      }
       mapRef.current = null;
       window.removeEventListener('resize', onWindowResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [geoData]);
 
@@ -686,36 +909,169 @@ function Map() {
     }
   }, [alerts, selectedLayer, geoData, floodData]);
 
-  // React to base style or 2D/3D toggle
+  // React to base style, 2D/3D toggle, or buildings toggle
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+
+    // Preserve current view settings
     const center = map.getCenter();
     const zoom = map.getZoom();
-    const bearing = 0;
+    const bearing = map.getBearing();
     const pitch = is3D ? 60 : 0;
+
+    // Change map style
     map.setStyle(getStyleUrl(baseStyle));
+
+    // Restore view and update 3D settings after style loads
     map.once('style.load', () => {
       try {
+        // Restore position
         map.jumpTo({ center, zoom, bearing, pitch });
-      } catch (_) { }
+
+        // Handle 3D settings
+        if (is3D) {
+          // Add terrain if 3D is enabled
+          if (!map.getSource('mapbox-dem')) {
+            map.addSource('mapbox-dem', {
+              type: 'raster-dem',
+              url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+              tileSize: 512,
+              maxzoom: 14
+            });
+          }
+          map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+          // Add sky layer
+          if (!map.getLayer('sky')) {
+            map.addLayer({
+              id: 'sky',
+              type: 'sky',
+              paint: {
+                'sky-type': 'atmosphere',
+                'sky-atmosphere-sun-intensity': 15
+              }
+            });
+          }
+
+          // Add 3D buildings if enabled
+          if (showBuildings) {
+            // Find the first symbol layer
+            const layers = map.getStyle().layers;
+            let firstSymbolId;
+            for (const layer of layers) {
+              if (layer.type === 'symbol') {
+                firstSymbolId = layer.id;
+                break;
+              }
+            }
+
+            if (!map.getLayer('3d-buildings')) {
+              map.addLayer({
+                'id': '3d-buildings',
+                'source': 'composite',
+                'source-layer': 'building',
+                'filter': ['==', 'extrude', 'true'],
+                'type': 'fill-extrusion',
+                'minzoom': 14,
+                'paint': {
+                  'fill-extrusion-color': baseStyle === 'dark' ? '#444' : '#aaa',
+                  'fill-extrusion-height': [
+                    'interpolate', ['linear'], ['zoom'],
+                    15, 0,
+                    16, ['get', 'height']
+                  ],
+                  'fill-extrusion-base': [
+                    'interpolate', ['linear'], ['zoom'],
+                    15, 0,
+                    16, ['get', 'min_height']
+                  ],
+                  'fill-extrusion-opacity': 0.7
+                }
+              }, firstSymbolId);
+            }
+          }
+        } else {
+          // Remove 3D elements if 2D mode
+          map.setTerrain(null);
+          if (map.getLayer('sky')) {
+            map.removeLayer('sky');
+          }
+          if (map.getLayer('3d-buildings')) {
+            map.removeLayer('3d-buildings');
+          }
+        }
+      } catch (error) {
+        console.error('Error updating map style:', error);
+      }
     });
-  }, [baseStyle, is3D]);
+  }, [baseStyle, is3D, showBuildings]);
+
+  // Function to retry loading the map in case of issues
+  const retryMapLoad = () => {
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+    }
+    setLoading(true);
+    setMapLoaded(false);
+
+    // Force remount of the map component
+    setTimeout(() => {
+      const container = mapContainerRef.current;
+      if (container) {
+        const map = new mapboxgl.Map({
+          container,
+          style: getStyleUrl(baseStyle),
+          center: [123.19, 13.62],
+          zoom: 12,
+          pitch: is3D ? 60 : 0,
+          bearing: 0,
+          antialias: true,
+          maxBounds: nagaBounds,
+          minZoom: 10,
+        });
+
+        mapRef.current = map;
+
+        map.on('load', () => {
+          console.log('Map reloaded successfully');
+          setMapLoaded(true);
+          setLoading(false);
+        });
+      }
+    }, 500);
+  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex flex-col items-center justify-center h-screen bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <div className="text-gray-700">Loading map data...</div>
+        {/* Add retry button if loading takes too long */}
+        {!mapLoaded && (
+          <button
+            onClick={retryMapLoad}
+            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Retry Loading Map
+          </button>
+        )}
       </div>
     );
   }
 
   if (tokenMissing) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-lg font-semibold text-gray-800 mb-2">Map cannot load</div>
-          <div className="text-sm text-gray-600">Missing Mapbox token. Set <code>VITE_MAPBOX_TOKEN</code> in your .env and restart dev server.</div>
+      <div className="h-screen flex items-center justify-center bg-white">
+        <div className="text-center max-w-md p-6 bg-red-50 rounded-lg shadow-md">
+          <div className="text-lg font-semibold text-red-800 mb-2">Map Cannot Load</div>
+          <div className="text-sm text-gray-600 mb-4">
+            Missing Mapbox token. Please set <code className="bg-gray-100 px-1 py-0.5 rounded">VITE_MAPBOX_TOKEN</code> in your .env.local file and restart the dev server.
+          </div>
+          <div className="text-xs text-gray-500 mt-4 p-2 bg-gray-100 rounded">
+            <strong>Troubleshooting:</strong> Check that your .env.local file exists and contains a valid Mapbox token.
+          </div>
         </div>
       </div>
     );
@@ -764,6 +1120,7 @@ function Map() {
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white hover:bg-gray-50"
             >
               <option value="light">Light</option>
+              <option value="dark">Dark</option>
               <option value="satellite">Satellite</option>
               <option value="terrain">Terrain</option>
             </select>
@@ -775,6 +1132,16 @@ function Map() {
             >
               {is3D ? '3D On' : '2D Mode'}
             </button>
+
+            {is3D && (
+              <button
+                onClick={() => setShowBuildings((v) => !v)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showBuildings ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                title="Toggle 3D Buildings"
+              >
+                {showBuildings ? 'Buildings On' : 'Buildings Off'}
+              </button>
+            )}
             {['temperature', 'precipitation', 'wind', 'humidity', 'visibility', 'uv'].map((layer) => (
               <button
                 key={layer}
@@ -793,19 +1160,19 @@ function Map() {
       </div>
 
       {/* Selected Barangay Info */}
-      {selectedBarangay && (
-        <div className="bg-blue-50 border-b p-4">
+      {selectedBarangay && selectedBarangay.name && (
+        <div className="bg-blue-50 border-b p-4 animate-fadeIn">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <MapPin className="w-5 h-5 text-blue-600 mr-2" />
               <h3 className="text-lg font-semibold text-gray-800">
-                {selectedBarangay.name || selectedBarangay.location || "Selected Area"}
+                {selectedBarangay.name || selectedBarangay.location}
               </h3>
               {selectedBarangay.flood_risk_level && (
                 <span className={`ml-3 px-2 py-1 text-xs rounded-full ${selectedBarangay.flood_risk_level === 'extreme' ? 'bg-red-100 text-red-600' :
-                    selectedBarangay.flood_risk_level === 'high' ? 'bg-orange-100 text-orange-600' :
-                      selectedBarangay.flood_risk_level === 'moderate' ? 'bg-yellow-100 text-yellow-600' :
-                        'bg-green-100 text-green-600'
+                  selectedBarangay.flood_risk_level === 'high' ? 'bg-orange-100 text-orange-600' :
+                    selectedBarangay.flood_risk_level === 'moderate' ? 'bg-yellow-100 text-yellow-600' :
+                      'bg-green-100 text-green-600'
                   }`}>
                   {selectedBarangay.flood_risk_level.toUpperCase()} RISK
                 </span>
@@ -814,6 +1181,7 @@ function Map() {
             <button
               onClick={() => setSelectedBarangay(null)}
               className="text-gray-500 hover:text-gray-700"
+              aria-label="Close"
             >
               ✕
             </button>
@@ -841,10 +1209,6 @@ function Map() {
           ) : (
             // Display barangay information if it's from the new data structure
             <div className="mt-3 text-sm">
-              <div>
-                <span className="text-gray-600">Barangay ID:</span>
-                <span className="ml-1 font-medium">{selectedBarangay.id || "N/A"}</span>
-              </div>
               {selectedBarangay.status && (
                 <div className="mt-1">
                   <span className="text-gray-600">Status:</span>
@@ -865,17 +1229,161 @@ function Map() {
 
       {/* Legend */}
       <div className="bg-white shadow-lg p-4 border-t">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+          <div className="flex items-center mb-3 md:mb-0">
             <span className="text-sm font-medium text-gray-700 mr-4">Current Layer:</span>
             <div className="flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-lg">
               {getLayerIcon(selectedLayer)}
               <span className="ml-2 capitalize">{selectedLayer}</span>
             </div>
           </div>
-          <div className="text-sm text-gray-500">
-            {sensors.length} sensors • {alerts.length} active alerts • {floodData.length} flood areas
+
+          <div className="flex flex-wrap gap-2 text-sm">
+            <button
+              onClick={() => {
+                const sensorFilter = document.getElementById('sensor-details');
+                if (sensorFilter) {
+                  sensorFilter.classList.toggle('hidden');
+                }
+              }}
+              className="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg flex items-center transition-colors"
+              title="View sensor details"
+            >
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse-slow"></div>
+              <span className="font-medium">{sensors.length}</span>
+              <span className="ml-1">sensors</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (alerts.length > 0) {
+                  const alertFilter = document.getElementById('alert-details');
+                  if (alertFilter) {
+                    alertFilter.classList.toggle('hidden');
+                  }
+                }
+              }}
+              className={`px-3 py-1 ${alerts.length > 0 ? 'bg-red-50 hover:bg-red-100 text-red-700' : 'bg-gray-50 text-gray-500'} rounded-lg flex items-center transition-colors`}
+              title={alerts.length > 0 ? "View alert details" : "No active alerts"}
+              disabled={alerts.length === 0}
+            >
+              {alerts.length > 0 && <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>}
+              <span className="font-medium">{alerts.length}</span>
+              <span className="ml-1">active alerts</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (floodData.length > 0) {
+                  const floodFilter = document.getElementById('flood-details');
+                  if (floodFilter) {
+                    floodFilter.classList.toggle('hidden');
+                  }
+                }
+              }}
+              className={`px-3 py-1 ${floodData.length > 0 ? 'bg-yellow-50 hover:bg-yellow-100 text-yellow-700' : 'bg-gray-50 text-gray-500'} rounded-lg flex items-center transition-colors`}
+              title={floodData.length > 0 ? "View flood area details" : "No flood areas"}
+              disabled={floodData.length === 0}
+            >
+              {floodData.length > 0 && <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse-slow"></div>}
+              <span className="font-medium">{floodData.length}</span>
+              <span className="ml-1">flood areas</span>
+            </button>
           </div>
+        </div>
+
+        {/* Expandable details panels */}
+        <div id="sensor-details" className="hidden mt-4 border-t pt-3 text-sm">
+          <h4 className="font-medium text-gray-700 mb-2">Sensor Overview</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-blue-50 p-2 rounded">
+              <div className="text-xs text-gray-600">Avg. Temperature</div>
+              <div className="font-medium">
+                {sensors.length > 0 ?
+                  (sensors.reduce((sum, s) => sum + s.readings.temperature, 0) / sensors.length).toFixed(1) + '°C'
+                  : 'N/A'}
+              </div>
+            </div>
+            <div className="bg-blue-50 p-2 rounded">
+              <div className="text-xs text-gray-600">Avg. Rainfall</div>
+              <div className="font-medium">
+                {sensors.length > 0 ?
+                  (sensors.reduce((sum, s) => sum + s.readings.rainfall, 0) / sensors.length).toFixed(1) + ' mm'
+                  : 'N/A'}
+              </div>
+            </div>
+            <div className="bg-blue-50 p-2 rounded">
+              <div className="text-xs text-gray-600">Avg. Humidity</div>
+              <div className="font-medium">
+                {sensors.length > 0 ?
+                  (sensors.reduce((sum, s) => sum + s.readings.humidity, 0) / sensors.length).toFixed(0) + '%'
+                  : 'N/A'}
+              </div>
+            </div>
+            <div className="bg-blue-50 p-2 rounded">
+              <div className="text-xs text-gray-600">Avg. Wind Speed</div>
+              <div className="font-medium">
+                {sensors.length > 0 ?
+                  (sensors.reduce((sum, s) => sum + s.readings.wind_speed, 0) / sensors.length).toFixed(1) + ' m/s'
+                  : 'N/A'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="alert-details" className="hidden mt-4 border-t pt-3 text-sm">
+          <h4 className="font-medium text-gray-700 mb-2">Active Alerts</h4>
+          {alerts.length === 0 ? (
+            <div className="text-gray-500">No active alerts</div>
+          ) : (
+            <div className="max-h-32 overflow-y-auto">
+              {alerts.map((alert, index) => (
+                <div key={index} className={`mb-2 p-2 rounded ${alert.severity === 'extreme' ? 'bg-red-50' :
+                    alert.severity === 'severe' ? 'bg-orange-50' :
+                      alert.severity === 'moderate' ? 'bg-yellow-50' :
+                        'bg-green-50'
+                  }`}>
+                  <div className="font-medium">{alert.title}</div>
+                  <div className="text-xs text-gray-600">{alert.location} • {new Date(alert.start_time).toLocaleTimeString()}</div>
+                </div>
+              )).slice(0, 3)}
+              {alerts.length > 3 && (
+                <div className="text-blue-600 text-xs mt-1 text-center cursor-pointer hover:underline">
+                  + {alerts.length - 3} more alerts
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div id="flood-details" className="hidden mt-4 border-t pt-3 text-sm">
+          <h4 className="font-medium text-gray-700 mb-2">Flood Risk Areas</h4>
+          {floodData.length === 0 ? (
+            <div className="text-gray-500">No flood risk areas</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-32 overflow-y-auto">
+              {floodData.map((area, index) => (
+                <div key={index}
+                  className={`p-2 rounded cursor-pointer hover:bg-opacity-80 ${area.flood_risk_level === 'extreme' ? 'bg-red-50' :
+                      area.flood_risk_level === 'high' ? 'bg-orange-50' :
+                        area.flood_risk_level === 'moderate' ? 'bg-yellow-50' :
+                          'bg-green-50'
+                    }`}
+                  onClick={() => focusOnBarangay(area.location)}
+                >
+                  <div className="font-medium">{area.location}</div>
+                  <div className="text-xs text-gray-600">
+                    {area.flood_risk_level.toUpperCase()} • {area.maximum_depth.toFixed(1)}m
+                  </div>
+                </div>
+              )).slice(0, 8)}
+              {floodData.length > 8 && (
+                <div className="text-blue-600 text-xs mt-1 text-center col-span-full cursor-pointer hover:underline">
+                  + {floodData.length - 8} more areas
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
