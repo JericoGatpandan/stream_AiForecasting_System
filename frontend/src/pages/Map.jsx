@@ -414,34 +414,43 @@ function Map() {
           if (mapRef.current.getLayer('selected-barangay-outline')) mapRef.current.removeLayer('selected-barangay-outline');
           if (mapRef.current.getSource('selected-barangay')) mapRef.current.removeSource('selected-barangay');
 
-          // Add the new barangay data
-          mapRef.current.addSource('selected-barangay', {
-            type: 'geojson',
-            data: barangayData
-          });
+          // Ensure style is loaded before adding sources and layers
+          const addBarangayLayers = () => {
+            // Add the new barangay data
+            mapRef.current.addSource('selected-barangay', {
+              type: 'geojson',
+              data: barangayData
+            });
 
-          // Add a layer to display the barangay
-          mapRef.current.addLayer({
-            id: 'selected-barangay',
-            type: 'fill',
-            source: 'selected-barangay',
-            paint: {
-              'fill-color': '#0080ff',
-              'fill-opacity': 0.2,
-              'fill-outline-color': '#0080ff'
-            }
-          });
+            // Add a layer to display the barangay
+            mapRef.current.addLayer({
+              id: 'selected-barangay',
+              type: 'fill',
+              source: 'selected-barangay',
+              paint: {
+                'fill-color': '#0080ff',
+                'fill-opacity': 0.2,
+                'fill-outline-color': '#0080ff'
+              }
+            });
 
-          // Add outline layer for better visibility
-          mapRef.current.addLayer({
-            id: 'selected-barangay-outline',
-            type: 'line',
-            source: 'selected-barangay',
-            paint: {
-              'line-color': '#0080ff',
-              'line-width': 2
-            }
-          });
+            // Add outline layer for better visibility
+            mapRef.current.addLayer({
+              id: 'selected-barangay-outline',
+              type: 'line',
+              source: 'selected-barangay',
+              paint: {
+                'line-color': '#0080ff',
+                'line-width': 2
+              }
+            });
+          };
+
+          if (mapRef.current.isStyleLoaded()) {
+            addBarangayLayers();
+          } else {
+            mapRef.current.once('styledata', addBarangayLayers);
+          }
 
           // Check if center coordinates are valid
           if (!barangay.center || !Array.isArray(barangay.center) || barangay.center.length !== 2) {
@@ -495,39 +504,48 @@ function Map() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !allBarangayGeoJSON) return;
-    // Remove single selection layers if present
-    if (!selectedBarangay) {
-      if (!map.getSource('all-barangays')) {
-        map.addSource('all-barangays', { type: 'geojson', data: allBarangayGeoJSON });
+    
+    const updateBarangayBoundaries = () => {
+      // Remove single selection layers if present
+      if (!selectedBarangay) {
+        if (!map.getSource('all-barangays')) {
+          map.addSource('all-barangays', { type: 'geojson', data: allBarangayGeoJSON });
+        } else {
+          map.getSource('all-barangays').setData(allBarangayGeoJSON);
+        }
+        if (!map.getLayer('all-barangays-fill')) {
+          map.addLayer({
+            id: 'all-barangays-fill',
+            type: 'fill',
+            source: 'all-barangays',
+            paint: { 'fill-color': '#1d4ed8', 'fill-opacity': 0.05 }
+          });
+        }
+        if (!map.getLayer('all-barangays-line')) {
+          map.addLayer({
+            id: 'all-barangays-line',
+            type: 'line',
+            source: 'all-barangays',
+            paint: { 'line-color': '#1d4ed8', 'line-width': 1 }
+          });
+        }
       } else {
-        map.getSource('all-barangays').setData(allBarangayGeoJSON);
+        // Hide all boundaries layers when a single barangay is selected
+        if (map.getLayer('all-barangays-fill')) map.setLayoutProperty('all-barangays-fill', 'visibility', 'none');
+        if (map.getLayer('all-barangays-line')) map.setLayoutProperty('all-barangays-line', 'visibility', 'none');
       }
-      if (!map.getLayer('all-barangays-fill')) {
-        map.addLayer({
-          id: 'all-barangays-fill',
-          type: 'fill',
-          source: 'all-barangays',
-          paint: { 'fill-color': '#1d4ed8', 'fill-opacity': 0.05 }
-        });
+      if (!selectedBarangay && map.getLayer('all-barangays-fill')) {
+        map.setLayoutProperty('all-barangays-fill', 'visibility', 'visible');
       }
-      if (!map.getLayer('all-barangays-line')) {
-        map.addLayer({
-          id: 'all-barangays-line',
-          type: 'line',
-          source: 'all-barangays',
-          paint: { 'line-color': '#1d4ed8', 'line-width': 1 }
-        });
+      if (!selectedBarangay && map.getLayer('all-barangays-line')) {
+        map.setLayoutProperty('all-barangays-line', 'visibility', 'visible');
       }
+    };
+
+    if (map.isStyleLoaded()) {
+      updateBarangayBoundaries();
     } else {
-      // Hide all boundaries layers when a single barangay is selected
-      if (map.getLayer('all-barangays-fill')) map.setLayoutProperty('all-barangays-fill', 'visibility', 'none');
-      if (map.getLayer('all-barangays-line')) map.setLayoutProperty('all-barangays-line', 'visibility', 'none');
-    }
-    if (!selectedBarangay && map.getLayer('all-barangays-fill')) {
-      map.setLayoutProperty('all-barangays-fill', 'visibility', 'visible');
-    }
-    if (!selectedBarangay && map.getLayer('all-barangays-line')) {
-      map.setLayoutProperty('all-barangays-line', 'visibility', 'visible');
+      map.once('styledata', updateBarangayBoundaries);
     }
   }, [allBarangayGeoJSON, selectedBarangay]);
 
@@ -595,6 +613,12 @@ function Map() {
     }, 10000);
 
     const attachSourcesAndLayers = () => {
+      // Check if style is loaded before adding sources
+      if (!map.isStyleLoaded()) {
+        console.warn('Trying to add sources before style is loaded');
+        return;
+      }
+      
       // 3D terrain on demand
       if (is3D) {
         if (!map.getSource('mapbox-dem')) {
@@ -670,119 +694,123 @@ function Map() {
         } catch (_) { }
       }
 
-      // GeoJSON boundary
-      if (geoData) {
-        if (!map.getSource('naga')) {
-          map.addSource('naga', { type: 'geojson', data: geoData });
+      try {
+        // GeoJSON boundary
+        if (geoData) {
+          if (!map.getSource('naga')) {
+            map.addSource('naga', { type: 'geojson', data: geoData });
+          } else {
+            map.getSource('naga').setData(geoData);
+          }
+          if (!map.getLayer('naga-fill')) {
+            map.addLayer({
+              id: 'naga-fill',
+              type: 'fill',
+              source: 'naga',
+              paint: { 'fill-color': '#2563eb', 'fill-opacity': 0.1 }
+            });
+          }
+          if (!map.getLayer('naga-line')) {
+            map.addLayer({
+              id: 'naga-line',
+              type: 'line',
+              source: 'naga',
+              paint: { 'line-color': '#2563eb', 'line-width': 2 }
+            });
+          }
+        }
+
+        // Stations (compact style)
+        const stationData = toStationsFeatureCollection(selectedLayer);
+        if (!map.getSource('stations')) {
+          map.addSource('stations', { type: 'geojson', data: stationData });
         } else {
-          map.getSource('naga').setData(geoData);
+          map.getSource('stations').setData(stationData);
         }
-        if (!map.getLayer('naga-fill')) {
+        if (!map.getLayer('stations-halo')) {
           map.addLayer({
-            id: 'naga-fill',
-            type: 'fill',
-            source: 'naga',
-            paint: { 'fill-color': '#2563eb', 'fill-opacity': 0.1 }
+            id: 'stations-halo',
+            type: 'circle',
+            source: 'stations',
+            paint: {
+              'circle-color': ['get', 'color'],
+              'circle-opacity': 0.18,
+              'circle-radius': ['+', ['get', 'radius'], 4]
+            }
           });
         }
-        if (!map.getLayer('naga-line')) {
+        if (!map.getLayer('stations-core')) {
           map.addLayer({
-            id: 'naga-line',
-            type: 'line',
-            source: 'naga',
-            paint: { 'line-color': '#2563eb', 'line-width': 2 }
+            id: 'stations-core',
+            type: 'circle',
+            source: 'stations',
+            paint: {
+              'circle-color': ['get', 'color'],
+              'circle-stroke-color': '#ffffff',
+              'circle-stroke-width': 3,
+              'circle-radius': ['get', 'radius'],
+              'circle-opacity': 0.9
+            }
           });
         }
-      }
 
-      // Stations (compact style)
-      const stationData = toStationsFeatureCollection(selectedLayer);
-      if (!map.getSource('stations')) {
-        map.addSource('stations', { type: 'geojson', data: stationData });
-      } else {
-        map.getSource('stations').setData(stationData);
-      }
-      if (!map.getLayer('stations-halo')) {
-        map.addLayer({
-          id: 'stations-halo',
-          type: 'circle',
-          source: 'stations',
-          paint: {
-            'circle-color': ['get', 'color'],
-            'circle-opacity': 0.18,
-            'circle-radius': ['+', ['get', 'radius'], 4]
-          }
-        });
-      }
-      if (!map.getLayer('stations-core')) {
-        map.addLayer({
-          id: 'stations-core',
-          type: 'circle',
-          source: 'stations',
-          paint: {
-            'circle-color': ['get', 'color'],
-            'circle-stroke-color': '#ffffff',
-            'circle-stroke-width': 3,
-            'circle-radius': ['get', 'radius'],
-            'circle-opacity': 0.9
-          }
-        });
-      }
+        // Alerts
+        const alertData = toAlertsFeatureCollection();
+        if (!map.getSource('alerts')) {
+          map.addSource('alerts', { type: 'geojson', data: alertData });
+        } else {
+          map.getSource('alerts').setData(alertData);
+        }
+        if (!map.getLayer('alerts-circle')) {
+          map.addLayer({
+            id: 'alerts-circle',
+            type: 'circle',
+            source: 'alerts',
+            paint: {
+              'circle-color': ['get', 'color'],
+              'circle-stroke-color': ['get', 'color'],
+              'circle-stroke-width': 3,
+              'circle-radius': 10,
+              'circle-opacity': 0.8
+            }
+          });
+        }
 
-      // Alerts
-      const alertData = toAlertsFeatureCollection();
-      if (!map.getSource('alerts')) {
-        map.addSource('alerts', { type: 'geojson', data: alertData });
-      } else {
-        map.getSource('alerts').setData(alertData);
-      }
-      if (!map.getLayer('alerts-circle')) {
-        map.addLayer({
-          id: 'alerts-circle',
-          type: 'circle',
-          source: 'alerts',
-          paint: {
-            'circle-color': ['get', 'color'],
-            'circle-stroke-color': ['get', 'color'],
-            'circle-stroke-width': 3,
-            'circle-radius': 10,
-            'circle-opacity': 0.8
-          }
-        });
-      }
-
-      // Flood Data
-      const floodDataGeoJSON = toFloodDataFeatureCollection();
-      if (!map.getSource('flood-data')) {
-        map.addSource('flood-data', { type: 'geojson', data: floodDataGeoJSON });
-      } else {
-        map.getSource('flood-data').setData(floodDataGeoJSON);
-      }
-      if (!map.getLayer('flood-data-halo')) {
-        map.addLayer({
-          id: 'flood-data-halo',
-          type: 'circle',
-          source: 'flood-data',
-          paint: {
-            'circle-color': ['get', 'color'],
-            'circle-opacity': 0.2,
-            'circle-radius': ['+', ['get', 'radius'], 6]
-          }
-        });
-      }
-      if (!map.getLayer('flood-data-core')) {
-        map.addLayer({
-          id: 'flood-data-core',
-          type: 'circle',
-          source: 'flood-data',
-          paint: {
-            'circle-color': ['get', 'color'],
-            'circle-stroke-color': '#ffffff',
-            'circle-stroke-width': 2,
-            'circle-radius': ['get', 'radius'],
-            'circle-opacity': 0.9
-          }
-        });
+        // Flood Data
+        const floodDataGeoJSON = toFloodDataFeatureCollection();
+        if (!map.getSource('flood-data')) {
+          map.addSource('flood-data', { type: 'geojson', data: floodDataGeoJSON });
+        } else {
+          map.getSource('flood-data').setData(floodDataGeoJSON);
+        }
+        if (!map.getLayer('flood-data-halo')) {
+          map.addLayer({
+            id: 'flood-data-halo',
+            type: 'circle',
+            source: 'flood-data',
+            paint: {
+              'circle-color': ['get', 'color'],
+              'circle-opacity': 0.2,
+              'circle-radius': ['+', ['get', 'radius'], 6]
+            }
+          });
+        }
+        if (!map.getLayer('flood-data-core')) {
+          map.addLayer({
+            id: 'flood-data-core',
+            type: 'circle',
+            source: 'flood-data',
+            paint: {
+              'circle-color': ['get', 'color'],
+              'circle-stroke-color': '#ffffff',
+              'circle-stroke-width': 2,
+              'circle-radius': ['get', 'radius'],
+              'circle-opacity': 0.9
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error adding sources and layers:', error);
       }
 
       // Hover cursors
@@ -884,7 +912,12 @@ function Map() {
     map.on('load', () => {
       console.log('Map loaded');
       map.resize();
-      attachSourcesAndLayers();
+      // Wait a bit to ensure style is fully loaded
+      setTimeout(() => {
+        if (map.isStyleLoaded()) {
+          attachSourcesAndLayers();
+        }
+      }, 100);
       setMapLoaded(true);
       setLoading(false);
       clearTimeout(mapLoadTimeout);
@@ -893,7 +926,12 @@ function Map() {
     // Reattach after style changes
     map.on('style.load', () => {
       console.log('Map style loaded');
-      attachSourcesAndLayers();
+      // Wait a bit to ensure style is fully loaded
+      setTimeout(() => {
+        if (map.isStyleLoaded()) {
+          attachSourcesAndLayers();
+        }
+      }, 100);
     });
 
     // Ensure the map reacts to size changes
@@ -979,76 +1017,82 @@ function Map() {
         // Restore position
         map.jumpTo({ center, zoom, bearing, pitch });
 
-        // Handle 3D settings
-        if (is3D) {
-          // Add terrain if 3D is enabled
-          if (!map.getSource('mapbox-dem')) {
-            map.addSource('mapbox-dem', {
-              type: 'raster-dem',
-              url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-              tileSize: 512,
-              maxzoom: 14
-            });
-          }
-          map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-
-          // Add sky layer
-          if (!map.getLayer('sky')) {
-            map.addLayer({
-              id: 'sky',
-              type: 'sky',
-              paint: {
-                'sky-type': 'atmosphere',
-                'sky-atmosphere-sun-intensity': 15
-              }
-            });
-          }
-
-          // Add 3D buildings if enabled
-          if (showBuildings) {
-            // Find the first symbol layer
-            const layers = map.getStyle().layers;
-            let firstSymbolId;
-            for (const layer of layers) {
-              if (layer.type === 'symbol') {
-                firstSymbolId = layer.id;
-                break;
-              }
+        // Handle 3D settings - ensure style is loaded
+        if (map.isStyleLoaded()) {
+          if (is3D) {
+            // Add terrain if 3D is enabled
+            if (!map.getSource('mapbox-dem')) {
+              map.addSource('mapbox-dem', {
+                type: 'raster-dem',
+                url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                tileSize: 512,
+                maxzoom: 14
+              });
             }
+            map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
 
-            if (!map.getLayer('3d-buildings')) {
+            // Add sky layer
+            if (!map.getLayer('sky')) {
               map.addLayer({
-                'id': '3d-buildings',
-                'source': 'composite',
-                'source-layer': 'building',
-                'filter': ['==', 'extrude', 'true'],
-                'type': 'fill-extrusion',
-                'minzoom': 14,
-                'paint': {
-                  'fill-extrusion-color': baseStyle === 'dark' ? '#444' : '#aaa',
-                  'fill-extrusion-height': [
-                    'interpolate', ['linear'], ['zoom'],
-                    15, 0,
-                    16, ['get', 'height']
-                  ],
-                  'fill-extrusion-base': [
-                    'interpolate', ['linear'], ['zoom'],
-                    15, 0,
-                    16, ['get', 'min_height']
-                  ],
-                  'fill-extrusion-opacity': 0.7
+                id: 'sky',
+                type: 'sky',
+                paint: {
+                  'sky-type': 'atmosphere',
+                  'sky-atmosphere-sun-intensity': 15
                 }
-              }, firstSymbolId);
+              });
             }
-          }
-        } else {
-          // Remove 3D elements if 2D mode
-          map.setTerrain(null);
-          if (map.getLayer('sky')) {
-            map.removeLayer('sky');
-          }
-          if (map.getLayer('3d-buildings')) {
-            map.removeLayer('3d-buildings');
+
+            // Add 3D buildings if enabled
+            if (showBuildings) {
+              try {
+                // Find the first symbol layer
+                const layers = map.getStyle().layers;
+                let firstSymbolId;
+                for (const layer of layers) {
+                  if (layer.type === 'symbol') {
+                    firstSymbolId = layer.id;
+                    break;
+                  }
+                }
+
+                if (!map.getLayer('3d-buildings')) {
+                  map.addLayer({
+                    'id': '3d-buildings',
+                    'source': 'composite',
+                    'source-layer': 'building',
+                    'filter': ['==', 'extrude', 'true'],
+                    'type': 'fill-extrusion',
+                    'minzoom': 14,
+                    'paint': {
+                      'fill-extrusion-color': baseStyle === 'dark' ? '#444' : '#aaa',
+                      'fill-extrusion-height': [
+                        'interpolate', ['linear'], ['zoom'],
+                        15, 0,
+                        16, ['get', 'height']
+                      ],
+                      'fill-extrusion-base': [
+                        'interpolate', ['linear'], ['zoom'],
+                        15, 0,
+                        16, ['get', 'min_height']
+                      ],
+                      'fill-extrusion-opacity': 0.7
+                    }
+                  }, firstSymbolId);
+                }
+              } catch (err) {
+                console.warn('Could not add 3D buildings layer:', err);
+              }
+            }
+          } else {
+            // Remove 3D elements if 2D mode
+            map.setTerrain(null);
+            if (map.getLayer('sky')) {
+              map.removeLayer('sky');
+            }
+            if (map.getLayer('3d-buildings')) {
+              map.removeLayer('3d-buildings');
+            }
           }
         }
       } catch (error) {
