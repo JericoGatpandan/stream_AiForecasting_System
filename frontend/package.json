@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run combine-geojson && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "combine-geojson": "node scripts/combine-geojson.js",
+    "optimize-map": "npm run combine-geojson"
   },
   "dependencies": {
     "axios": "^1.6.0",

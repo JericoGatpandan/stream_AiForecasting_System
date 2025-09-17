@@ -3,7 +3,7 @@
     {
       "id": "abella",
       "name": "Abella",
-      "file": "Abella.geojson",
+      "file": "abella.geojson",
       "center": [123.1850318, 13.6240122],
       "zoom_level": 15,
       "status": "active"
@@ -11,7 +11,7 @@
     {
       "id": "calauag",
       "name": "Calauag",
-      "file": "Calauag.geojson",
+      "file": "calauag.geojson",
       "center": [123.1905, 13.6189],
       "zoom_level": 15,
       "status": "active"
@@ -19,7 +19,7 @@
     {
       "id": "dinaga",
       "name": "Dinaga",
-      "file": "Dinaga.geojson",
+      "file": "dinaga.geojson",
       "center": [123.1932, 13.6245],
       "zoom_level": 15,
       "status": "active"
@@ -27,7 +27,7 @@
     {
       "id": "lerma",
       "name": "Lerma",
-      "file": "Lerma.geojson",
+      "file": "lerma.geojson",
       "center": [123.1812, 13.6261],
       "zoom_level": 15,
       "status": "active"
@@ -35,7 +35,7 @@
     {
       "id": "liboton",
       "name": "Liboton",
-      "file": "Liboton.geojson",
+      "file": "liboton.geojson",
       "center": [123.1867, 13.6208],
       "zoom_level": 15,
       "status": "active"
@@ -43,7 +43,7 @@
     {
       "id": "santacruz",
       "name": "Santa Cruz",
-      "file": "SantaCruz.geojson",
+      "file": "santacruz.geojson",
       "center": [123.1895, 13.6292],
       "zoom_level": 15,
       "status": "active"
@@ -51,7 +51,7 @@
     {
       "id": "tabuco",
       "name": "Tabuco",
-      "file": "Tabuco.geojson",
+      "file": "tabuco.geojson",
       "center": [123.1964, 13.6169],
       "zoom_level": 15,
       "status": "active"
