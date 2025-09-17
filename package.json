@@ -1,0 +1,20 @@
+{
+  "name": "stream-ai-forecasting-system",
+  "version": "1.0.0",
+  "description": "AI-powered flood forecasting system with weather monitoring",
+  "scripts": {
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "build": "cd frontend && npm run build",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:deploy": "docker-compose down && docker-compose up --build -d",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "author": "Your Team",
+  "license": "MIT"
+}
