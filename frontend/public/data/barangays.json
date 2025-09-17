@@ -55,6 +55,14 @@
       "center": [123.1964, 13.6169],
       "zoom_level": 15,
       "status": "active"
+    },
+        {
+      "id": "bagumbayannorte",
+      "name": "Bagumbayan Norte",
+      "file": "bagumbayannorte.geojson",
+      "center": [123.18503330356216, 13.635688369322462],
+      "zoom_level": 15,
+      "status": "active"
     }
   ]
 }
