@@ -28,13 +28,6 @@ function Map() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
 
-
-
-
-
-
-
-
   // Load city boundary GeoJSON
   useEffect(() => {
     fetch("/naga.geojson")
@@ -43,29 +36,70 @@ function Map() {
       .catch((err) => console.error("Error loading GeoJSON:", err));
   }, []);
 
-  // Load barangays & build merged boundaries once
+  // Load barangays & build merged boundaries once (optimized)
   useEffect(() => {
-    const loadBarangays = async () => {
+    const loadBarangaysOptimized = async () => {
       try {
-        const list = await fetchBarangays();
-        setBarangays(list);
-        const merged = [];
-        for (const b of list) {
-          try {
-            const gj = await fetchBarangayGeoJSON(b.id);
-            if (gj?.features) {
-              gj.features.forEach(f => merged.push({ ...f, properties: { ...(f.properties || {}), barangay_id: b.id, barangay_name: b.name } }));
-            }
-          } catch (e) {
-            console.warn('GeoJSON missing for', b.id);
-          }
+        // Load barangay list and combined GeoJSON in parallel
+        const [barangayList, combinedGeoJSON] = await Promise.allSettled([
+          fetchBarangays(),
+          fetch('/data/barangays-combined.geojson').then(r => r.json()).catch(() => null)
+        ]);
+        
+        if (barangayList.status === 'fulfilled') {
+          setBarangays(barangayList.value);
         }
-        setAllBarangayGeoJSON({ type: 'FeatureCollection', features: merged });
+        
+        // If combined file exists, use it; otherwise fall back to individual loading
+        if (combinedGeoJSON.status === 'fulfilled' && combinedGeoJSON.value) {
+          console.log('Using combined barangay GeoJSON file');
+          setAllBarangayGeoJSON(combinedGeoJSON.value);
+        } else {
+          console.log('Falling back to individual barangay GeoJSON loading');
+          // Fallback to original method with better error handling
+          const list = barangayList.status === 'fulfilled' ? barangayList.value : [];
+          const merged = [];
+          
+          // Load only first 3 barangays initially, then load rest in background
+          const priorityBarangays = list.slice(0, 3);
+          const remainingBarangays = list.slice(3);
+          
+          // Load priority barangays first
+          for (const b of priorityBarangays) {
+            try {
+              const gj = await fetchBarangayGeoJSON(b.id);
+              if (gj?.features) {
+                gj.features.forEach(f => merged.push({ ...f, properties: { ...(f.properties || {}), barangay_id: b.id, barangay_name: b.name } }));
+              }
+            } catch (e) {
+              console.warn('GeoJSON missing for', b.id);
+            }
+          }
+          
+          // Set initial data to show map faster
+          setAllBarangayGeoJSON({ type: 'FeatureCollection', features: merged });
+          
+          // Load remaining barangays in background
+          setTimeout(async () => {
+            for (const b of remainingBarangays) {
+              try {
+                const gj = await fetchBarangayGeoJSON(b.id);
+                if (gj?.features) {
+                  gj.features.forEach(f => merged.push({ ...f, properties: { ...(f.properties || {}), barangay_id: b.id, barangay_name: b.name } }));
+                }
+              } catch (e) {
+                console.warn('GeoJSON missing for', b.id);
+              }
+            }
+            // Update with complete data
+            setAllBarangayGeoJSON({ type: 'FeatureCollection', features: merged });
+          }, 1000);
+        }
       } catch (e) {
         console.error('Error loading barangays', e);
       }
     };
-    loadBarangays();
+    loadBarangaysOptimized();
   }, []);
 
   // Load sensors from JSON file
@@ -82,38 +116,62 @@ function Map() {
     loadSensors();
   }, []);
 
-  // Combined data fetching effect for better performance
+  // Optimized data fetching with progressive loading
   useEffect(() => {
-    const fetchAllData = async () => {
+    const fetchAllDataOptimized = async () => {
       setLoading(true);
-
-      // Use Promise.allSettled to fetch all data in parallel
-      const results = await Promise.allSettled([
-        fetchWeatherData(),
-        fetchFloodData(),
-        fetchBarangays(),
-        fetchSensors()
-      ]);
-
-      // Check for errors in the results
-      results.forEach((result, index) => {
-        if (result.status === 'rejected') {
-          console.error(`Data fetch error (source ${index}):`, result.reason);
+      
+      // Set a maximum timeout for initial load
+      const loadTimeout = setTimeout(() => {
+        console.warn('Initial data load taking longer than expected');
+        // Allow map to show with available data
+        setLoading(false);
+      }, 8000); // 8 second timeout
+      
+      try {
+        // Fetch critical data first (sensors and basic map data)
+        const criticalData = await Promise.allSettled([
+          fetchSensors(),
+          Promise.resolve([]) // placeholder for immediate barangays if needed
+        ]);
+        
+        // Load map faster by showing it with available data
+        if (criticalData[0].status === 'fulfilled') {
+          setSensors(criticalData[0].value);
+          // Show map with sensors first
+          setTimeout(() => setLoading(false), 500);
         }
-      });
-
-      // Set loading to false even if some requests failed
-      setLoading(false);
+        
+        // Then fetch secondary data in background
+        const secondaryData = await Promise.allSettled([
+          fetchWeatherData(false), // Don't show loading for secondary data
+          fetchFloodData(false)
+        ]);
+        
+        // Handle results
+        [...criticalData, ...secondaryData].forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.error(`Data fetch error (source ${index}):`, result.reason);
+          }
+        });
+        
+        clearTimeout(loadTimeout);
+        
+      } catch (error) {
+        console.error('Critical error in data fetching:', error);
+        clearTimeout(loadTimeout);
+        setLoading(false);
+      }
     };
 
-    fetchAllData();
+    fetchAllDataOptimized();
 
-    // Set up periodic refresh for real-time data
+    // Set up periodic refresh for real-time data (reduced frequency)
     const refreshInterval = setInterval(() => {
       // Silently refresh data without showing loading indicator
       fetchWeatherData(false);
       fetchFloodData(false);
-    }, 300000); // Refresh every 5 minutes
+    }, 600000); // Refresh every 10 minutes instead of 5
 
     return () => {
       clearInterval(refreshInterval);
@@ -558,7 +616,7 @@ function Map() {
     }
     if (mapRef.current || !mapContainerRef.current) return;
 
-    // Initialize map with default settings
+    // Initialize map with optimized settings for better performance
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: getStyleUrl(baseStyle),
@@ -569,13 +627,21 @@ function Map() {
       antialias: true,
       maxBounds: nagaBounds,
       minZoom: 10,
+      maxZoom: 18,
+      // Performance optimizations
+      renderWorldCopies: false, // Don't render multiple world copies
+      optimizeForTerrain: is3D,
+      preserveDrawingBuffer: false, // Better performance for screenshots not needed
+      // Improved caching strategy
       transformRequest: (url, resourceType) => {
-        // Add timestamp to prevent caching issues with tile requests
-        if (resourceType === 'Tile' && url.includes('mapbox.com')) {
+        if (resourceType === 'Source' && url.startsWith('http')) {
+          // Enable caching for data sources
           return {
-            url: `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`
+            url,
+            headers: { 'Cache-Control': 'max-age=300' } // 5 minute cache
           };
         }
+        return { url };
       }
     });
 
@@ -1141,7 +1207,13 @@ function Map() {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <div className="text-gray-700">Loading map data...</div>
+        <div className="text-gray-700 mb-2">Loading map data...</div>
+        <div className="text-sm text-gray-500 text-center max-w-md">
+          <div>• Loading Mapbox tiles</div>
+          <div>• Fetching sensor data</div>
+          <div>• Loading barangay boundaries</div>
+          <div>• Connecting to weather services</div>
+        </div>
         {/* Add retry button if loading takes too long */}
         {!mapLoaded && (
           <button
@@ -1151,6 +1223,9 @@ function Map() {
             Retry Loading Map
           </button>
         )}
+        <div className="mt-4 text-xs text-gray-400">
+          If loading takes too long, check your internet connection and Mapbox token.
+        </div>
       </div>
     );
   }

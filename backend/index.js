@@ -26,11 +26,20 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-db.sequelize.sync({ force: true }).then(() => {
-  app.listen(PORT, () => {
-    console.log(`Weather App Server running on https://localhost:${PORT}`);
-    console.log("Database connected successfully");
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  db.sequelize.sync({ force: false }).then(() => {
+    app.listen(PORT, () => {
+      console.log(`Weather App Server running on http://localhost:${PORT}`);
+      console.log("Database connected successfully");
+    });
+  }).catch(err => {
+    console.error("Database connection failed:", err);
   });
-}).catch(err => {
-  console.error("Database connection failed:", err);
-});
+} else {
+  // For Vercel deployment - don't sync database on every request
+  console.log('Running in production mode');
+}
+
+// Export for Vercel
+module.exports = app;
