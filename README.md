@@ -1,6 +1,6 @@
 # STREAM Weather Application - Full Stack Web App
 
-# Live Preview: Wala pa, pinag-aaralan ko pa
+# Live Preview: https://stream-ai-forecasting-system-one.vercel.app/
 
 A comprehensive weather monitoring and forecasting application built with React, Express.js, MySQL, and Node.js. This application provides detailed weather insights, interactive maps, custom alerts, and expert meteorological analysis.
 
@@ -53,7 +53,6 @@ A comprehensive weather monitoring and forecasting application built with React,
    DB_USER=root
    DB_PASSWORD=your_password
    DB_NAME=weather_app
-   OPENWEATHER_API_KEY=your_openweather_api_key_here
    PORT=5500
    NODE_ENV=development
    ```
@@ -71,6 +70,7 @@ A comprehensive weather monitoring and forecasting application built with React,
    ```bash
    cd backend
    node seedDatabase.js
+   node seedFloodData.js
    ```
 
 3. **Start the Frontend Development Server**
