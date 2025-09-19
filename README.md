@@ -1,12 +1,13 @@
 # STREAM Weather Application - Full Stack Web App
 
-# Live Preview: https://stream-ai-forecasting-system-one.vercel.app/
+# Live Preview: <https://stream-ai-forecasting-system-one.vercel.app/>
 
 A comprehensive weather monitoring and forecasting application built with React, Express.js, MySQL, and Node.js. This application provides detailed weather insights, interactive maps, custom alerts, and expert meteorological analysis.
 
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js (v16 or higher)
 - MySQL (v8.0 or higher)
 - npm or yarn
@@ -14,12 +15,14 @@ A comprehensive weather monitoring and forecasting application built with React,
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd stream_workspace
    ```
 
 2. **Backend Setup**
+
    ```bash
    cd backend
    npm install
@@ -28,6 +31,7 @@ A comprehensive weather monitoring and forecasting application built with React,
 3. **Database Configuration**
    - Create a MySQL database named `weather_app`
    - Update database credentials in `backend/config/config.json`:
+
      ```json
      {
        "development": {
@@ -41,6 +45,7 @@ A comprehensive weather monitoring and forecasting application built with React,
      ```
 
 4. **Frontend Setup**
+
    ```bash
    cd ../frontend
    npm install
@@ -48,6 +53,7 @@ A comprehensive weather monitoring and forecasting application built with React,
 
 5. **Environment Variables**
    Create a `.env` file in the backend directory:
+
    ```env
    DB_HOST=localhost
    DB_USER=root
@@ -60,13 +66,16 @@ A comprehensive weather monitoring and forecasting application built with React,
 ### Running the Application
 
 1. **Start the Backend Server**
+
    ```bash
    cd backend
    npm start
    ```
+
    The server will run on `http://localhost:5500`
 
 2. **Seed the Database** (Optional)
+
    ```bash
    cd backend
    node seedDatabase.js
@@ -74,15 +83,17 @@ A comprehensive weather monitoring and forecasting application built with React,
    ```
 
 3. **Start the Frontend Development Server**
+
    ```bash
    cd frontend
    npm run dev
    ```
+
    The application will be available at `http://localhost:5173`
 
 ## Project Structure
 
-```
+```tree
 stream_workspace/
 ├── backend/
 │   ├── config/
@@ -131,49 +142,58 @@ stream_workspace/
 ## API Endpoints
 
 ### Weather Data
+
 - `GET /weather/forecast/:location` - Get 7-day forecast
 - `GET /weather/forecast/hourly/:location` - Get hourly forecast
 - `GET /weather/summary/:location` - Get weather summary
 - `GET /weather/analysis/:location` - Get expert analysis
 
 ### Weather Alerts
+
 - `GET /weather/alerts` - Get all active alerts
 - `GET /weather/alerts/:location` - Get location-specific alerts
 
 ### User Locations
+
 - `GET /weather/locations` - Get user locations
 - `POST /weather/locations` - Add new location
 - `PUT /weather/locations/:id` - Update location
 - `DELETE /weather/locations/:id` - Delete location
 
 ### Weather Triggers
+
 - `GET /weather/triggers` - Get all triggers
 - `POST /weather/triggers` - Create new trigger
 - `PUT /weather/triggers/:id` - Update trigger
 - `DELETE /weather/triggers/:id` - Delete trigger
 
 ### Notifications
+
 - `GET /weather/notifications` - Get notifications
 - `PUT /weather/notifications/:id/read` - Mark as read
 
 ### Environmental Data
+
 - `GET /environmental/:barangay` - Get environmental data
 
 ## Features Overview
 
 ### Dashboard
+
 - Weather overview cards with key metrics
 - Active alerts and notifications
 - Quick action buttons
 - Location selector
 
 ### Forecast Page
+
 - **Summary View**: Current conditions and expert analysis
 - **Detailed View**: 7-day forecast with comprehensive data
 - **Hourly View**: 24-hour detailed breakdown table
 - Interactive weather icons and severity indicators
 
 ### Interactive Weather Map
+
 - Multiple weather layers (temperature, precipitation, wind, humidity, visibility, UV)
 - Real-time weather station data
 - Weather alert overlays
@@ -181,12 +201,14 @@ stream_workspace/
 - Color-coded indicators based on weather conditions
 
 ### Alerts & Notifications
+
 - **Notifications Tab**: Recent weather alerts and system notifications
 - **Triggers Tab**: Custom weather condition monitoring
 - **Add Trigger**: Create custom alerts for specific conditions
 - **Severity Levels**: Info, warning, and critical notifications
 
 ### Analytics
+
 - Historical data visualization
 - Interactive charts and graphs
 - Data export capabilities
@@ -195,6 +217,7 @@ stream_workspace/
 ## Technologies Used
 
 ### Backend
+
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
 - **Sequelize** - ORM for MySQL
@@ -204,11 +227,12 @@ stream_workspace/
 - **Node-cron** - Task scheduling
 
 ### Frontend
+
 - **React** - UI framework
 - **React Router** - Navigation
 - **Tailwind CSS** - Styling
 - **Lucide React** - Icons
-- **React Leaflet** - Interactive maps
+- **Mapbox** - Interactive maps
 - **Recharts** - Data visualization
 - **Axios** - API calls
 - **React Toastify** - Notifications
@@ -249,18 +273,20 @@ The application uses the following main models:
 ### Production Build
 
 1. **Build Frontend**
+
    ```bash
    cd frontend
    npm run build
    ```
 
 2. **Start Production Server**
+
    ```bash
    cd backend
    npm start
    ```
 
-## Contributing 
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -277,12 +303,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENCE) file
 ## Support
 
 For support and questions:
+
 - Create an issue in the repository
 - Check the documentation
 - Review the API endpoints
-
-
-
 
 ## Future Enhancements
 
@@ -294,5 +318,3 @@ For support and questions:
 - Multi-language support
 - Advanced user authentication
 - Weather camera integration
-
-
