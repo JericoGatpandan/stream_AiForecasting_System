@@ -26,19 +26,21 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
+// For Docker or local development
+if (process.env.NODE_ENV !== 'vercel') {
   db.sequelize.sync({ force: false }).then(() => {
     app.listen(PORT, () => {
       console.log(`Weather App Server running on http://localhost:${PORT}`);
       console.log("Database connected successfully");
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   }).catch(err => {
     console.error("Database connection failed:", err);
+    process.exit(1);
   });
 } else {
   // For Vercel deployment - don't sync database on every request
-  console.log('Running in production mode');
+  console.log('Running in Vercel mode');
 }
 
 // Export for Vercel

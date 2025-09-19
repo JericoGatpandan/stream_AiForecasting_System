@@ -29,12 +29,12 @@ function Map() {
   const mapRef = useRef(null);
 
   // Load city boundary GeoJSON
-  useEffect(() => {
-    fetch("/naga.geojson")
-      .then((res) => res.json())
-      .then((data) => setGeoData(data))
-      .catch((err) => console.error("Error loading GeoJSON:", err));
-  }, []);
+  // useEffect(() => {
+  //   fetch("/naga.geojson")
+  //     .then((res) => res.json())
+  //     .then((data) => setGeoData(data))
+  //     .catch((err) => console.error("Error loading GeoJSON:", err));
+  // }, []);
 
   // Load barangays & build merged boundaries once (optimized)
   useEffect(() => {
