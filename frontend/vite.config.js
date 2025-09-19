@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    base: '/stream_AiForecasting_System/',
     // Configure proxy for development
     proxy: {
       '/api': {

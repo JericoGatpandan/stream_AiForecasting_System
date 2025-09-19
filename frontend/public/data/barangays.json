@@ -9,6 +9,22 @@
       "status": "active"
     },
     {
+      "id": "bagumbayannorte",
+      "name": "Bagumbayan Norte",
+      "file": "bagumbayannorte.geojson",
+      "center": [123.18503330356216, 13.635688369322462],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "bagumbayansur",
+      "name": "Bagumbayan Sur",
+      "file": "bagumbayansur.geojson",
+      "center": [123.18427502682738, 13.631395958365207],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
       "id": "calauag",
       "name": "Calauag",
       "file": "calauag.geojson",
@@ -41,6 +57,14 @@
       "status": "active"
     },
     {
+      "id": "mabolo",
+      "name": "Mabolo",
+      "file": "mabolo.geojson",
+      "center": [123.18152820382417, 13.614190008331331],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
       "id": "santacruz",
       "name": "Santa Cruz",
       "file": "santacruz.geojson",
@@ -56,11 +80,19 @@
       "zoom_level": 15,
       "status": "active"
     },
-        {
-      "id": "bagumbayannorte",
-      "name": "Bagumbayan Norte",
-      "file": "bagumbayannorte.geojson",
-      "center": [123.18503330356216, 13.635688369322462],
+    {
+      "id": "tinago",
+      "name": "Tinago",
+      "file": "tinago.geojson",
+      "center": [123.19206962203141, 13.624569967326043],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "triangulo",
+      "name": "Triangulo",
+      "file": "triangulo.geojson",
+      "center": [123.19269227226269, 13.61757932155189],
       "zoom_level": 15,
       "status": "active"
     }
