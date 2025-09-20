@@ -1,34 +1,28 @@
-import { createTheme } from '@mui/material/styles';
-// import Map from './pages/Map';
-import { useMemo } from 'react';
-import { themeSettings } from './theme';
-import { CssBaseline, ThemeProvider, Box, styled } from '@mui/material';
+import { Box, styled } from '@mui/material';
+import { CustomThemeProvider } from './contexts/ThemeContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Sidebar from '@/scenes/sidebar';
 import Home from './scenes/home/Home';
 
 const Main = styled('main')(({ theme }) => ({
   flexGrow: 1,
-  padding: theme.spacing(2),
+  padding: 0,
   transition: theme.transitions.create('margin', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  marginLeft: '65px',
+  marginLeft: 0,
   [theme.breakpoints.down('sm')]: {
-    marginLeft: '65px',
-    padding: theme.spacing(1),
+    marginLeft: 0,
+    padding: 0,
   },
 }));
 
 function App() {
-  const theme = useMemo(() => createTheme(themeSettings), []);
-
   return (
     <div className='app'>
-      <BrowserRouter>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
+      <CustomThemeProvider>
+        <BrowserRouter>
           <Box sx={{
             display: 'flex',
             height: '100vh',
@@ -43,10 +37,9 @@ function App() {
                 <Route path='/analytics' element={<div>Analytics</div>} />
               </Routes>
             </Main>
-            {/* <Map /> */}
           </Box>
-        </ThemeProvider>
-      </BrowserRouter>
+        </BrowserRouter>
+      </CustomThemeProvider>
     </div>
   )
 }

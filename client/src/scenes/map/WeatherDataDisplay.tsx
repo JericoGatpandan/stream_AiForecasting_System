@@ -18,8 +18,8 @@ import {
 } from '@mui/material';
 import {
     Sensors as SensorsIcon,
-    // Campaign as AlertsIcon,
-    // Description as ReportsIcon,
+    Campaign as AlertsIcon,
+    Description as ReportsIcon,
     ExpandLess,
     ExpandMore,
     LocationOn,
@@ -52,7 +52,7 @@ interface WeatherDataDisplayProps {
 
 const WeatherDataDisplay = ({ onSensorSelect }: WeatherDataDisplayProps) => {
     const [displayType, setDisplayType] = useState<DataDisplayType>('sensors');
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const handleDisplayTypeChange = (_: React.MouseEvent<HTMLElement>, newType: DataDisplayType | null) => {
         if (newType !== null) {

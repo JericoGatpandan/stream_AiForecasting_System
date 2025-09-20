@@ -1,12 +1,12 @@
-// import React from 'react'
+import React from 'react'
 import Map from '../map/Map'
-import { Box, Paper } from '@mui/material'
+import { Box, Paper, Typography } from '@mui/material'
 
 function Home() {
     return (
         <Box
             sx={{
-                height: 'calc(100vh - 100px)',
+                height: '100vh',
                 width: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -14,10 +14,10 @@ function Home() {
             }}
         >
             <Paper
-                elevation={2}
+                elevation={0}
                 sx={{
                     p: 0,
-                    borderRadius: 2,
+                    borderRadius: 0,
                     flexGrow: 1,
                     overflow: 'hidden'
                 }}
