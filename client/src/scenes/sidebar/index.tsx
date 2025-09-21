@@ -129,7 +129,7 @@ const WeatherWidget = styled(Box)(({ theme }) => ({
 const Sidebar = () => {
     const { palette } = useTheme();
     const { isDarkMode, toggleDarkMode } = useCustomTheme();
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     const location = useLocation();
 
     const handleDrawerToggle = () => {
