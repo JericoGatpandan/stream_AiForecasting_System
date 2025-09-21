@@ -127,6 +127,62 @@
       "center": [123.19140279861857, 13.624379775070956],
       "zoom_level": 15,
       "status": "active"
+    },
+    {
+      "id": "balatas",
+      "name": "Balatas",
+      "file": "balatas.geojson",
+      "center": [123.1900, 13.6200],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "carolina",
+      "name": "Carolina",
+      "file": "carolina.geojson",
+      "center": [123.1900, 13.6200],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "concepciongrande",
+      "name": "Concepcion Grande",
+      "file": "concepciongrande.geojson",
+      "center": [123.1900, 13.6200],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "concepcionpequeña",
+      "name": "Concepcion Pequeña",
+      "file": "concepcionpequeña.geojson",
+      "center": [123.1900, 13.6200],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "dayangdang",
+      "name": "Dayangdang",
+      "file": "dayangdang.geojson",
+      "center": [123.1900, 13.6200],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "igualdadinterior",
+      "name": "Igualdad Interior",
+      "file": "igualdadinterior.geojson",
+      "center": [123.1900, 13.6200],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "triangulo",
+      "name": "Triangulo",
+      "file": "triangulo.geojson",
+      "center": [123.1900, 13.6200],
+      "zoom_level": 15,
+      "status": "active"
     }
   ]
 }
