@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "description": "AI-powered flood forecasting system with weather monitoring",
   "scripts": {
-    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
-    "build": "cd frontend && npm run build",
-    "docker:build": "docker-compose build",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f",
-    "docker:deploy": "docker-compose down && docker-compose up --build -d",
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "build": "cd client && npm run build",
+    "docker:build": "docker-compose -f Database/docker-compose.dev.yml build",
+    "docker:up": "docker-compose -f Database/docker-compose.dev.yml up -d",
+    "docker:down": "docker-compose -f Database/docker-compose.dev.yml down",
+    "docker:logs": "docker-compose -f Database/docker-compose.dev.yml logs -f",
+    "docker:deploy": "docker-compose -f Database/docker-compose.dev.yml down && docker-compose -f Database/docker-compose.dev.yml up --build -d",
+    "docker:ps": "docker-compose -f Database/docker-compose.dev.yml ps",
+    "docker:restart": "docker-compose -f Database/docker-compose.dev.yml restart",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "setup": "npm run install:all && npm run docker:up && cd server && npx prisma generate && npx prisma migrate dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
