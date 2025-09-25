@@ -8,10 +8,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "start:prod": "NODE_ENV=production node index.js",
-    "build": "npm install --production",
-    "vercel-build": "npm install --production && npm list mysql2",
-    "deploy": "vercel --prod",
-    "deploy:dev": "vercel"
+    "build": "npm install --production"
   },
   "author": "",
   "license": "ISC",

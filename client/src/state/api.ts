@@ -13,10 +13,56 @@ import type {
     FloodRiskAssessment,
     FloodAlert
 } from './types';
+import { 
+    mockEnvironmentalData, 
+    mockFloodCharacteristics, 
+    mockWeatherForecast, 
+    mockHourlyForecast, 
+    mockBarangays 
+} from '../data/mockData';
 
+// Mock data fallback
+const useMockData = true; // Set to false when backend is available
+
+const mockBaseQuery = async (args: string | { url: string }) => {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+    
+    const url = typeof args === 'string' ? args : args.url;
+        
+    // Handle different endpoints
+    if (url === 'barangays') {
+        return { data: mockBarangays };
+    }
+    
+    if (url.startsWith('environmental/')) {
+        const barangay = url.split('/')[1];
+        return { data: mockEnvironmentalData[barangay as keyof typeof mockEnvironmentalData] || [] };
+    }
+    
+    if (url === 'flood/characteristics') {
+        return { data: mockFloodCharacteristics };
+    }
+    
+    if (url.startsWith('flood/characteristics/')) {
+        const location = url.split('/')[2];
+        const data = mockFloodCharacteristics.filter(item => item.location === location);
+        return { data };
+    }
+    
+    if (url.startsWith('weather/forecast/hourly/')) {
+        return { data: mockHourlyForecast };
+    }
+    
+    if (url.startsWith('weather/forecast/')) {
+        return { data: mockWeatherForecast };
+    }
+    
+    // Default empty response
+    return { data: [] };
+};
 
 export const api = createApi({
-    baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
+    baseQuery: useMockData ? mockBaseQuery : fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
     reducerPath: 'main',
     tagTypes: ['WeatherAlert', 'UserLocation', 'WeatherTrigger', 'Notification', 'EnvironmentalData', 'FloodCharacteristics', 'FloodRiskAssessment'],
     endpoints: (build) => ({
@@ -138,14 +184,24 @@ export const api = createApi({
         }),
 
         // Environmental Data Endpoints
-        getEnvironmentalData: build.query<EnvironmentalData, string>({
+        getEnvironmentalData: build.query<EnvironmentalData[], string>({
             query: (barangay) => `environmental/${barangay}`,
             providesTags: ['EnvironmentalData'],
+        }),
+
+        // Get all barangays list
+        getBarangays: build.query<string[], void>({
+            query: () => 'barangays',
         }),
 
         // Flood Characteristics Endpoints
         getAllFloodCharacteristics: build.query<FloodCharacteristics[], void>({
             query: () => 'flood/characteristics',
+            providesTags: ['FloodCharacteristics'],
+        }),
+
+        getFloodCharacteristics: build.query<FloodCharacteristics[], string>({
+            query: (location) => `flood/characteristics/${location}`,
             providesTags: ['FloodCharacteristics'],
         }),
 
@@ -259,3 +315,6 @@ export const {
     useGetFloodCharacteristicsByRiskQuery,
     useGetActiveFloodMonitoringQuery,
 } = api
+
+// Export alias for backward compatibility
+export const useGetFloodCharacteristicsQuery = api.useGetFloodCharacteristicsByLocationQuery;

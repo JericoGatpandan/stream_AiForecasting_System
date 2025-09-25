@@ -15,3 +15,5 @@ frontend/dist/
 *.log
 coverage/
 *.class
+WARP.md
+UI_ENHANCEMENT_README.md

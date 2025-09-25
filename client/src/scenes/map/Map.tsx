@@ -8,6 +8,7 @@ import {
 import AlertsPanel, { AlertsToggleButton } from './AlertsPanel';
 import WeatherLayerControls from './WeatherLayerControls';
 import WeatherDataDisplay from './WeatherDataDisplay';
+import MapDataOverlay from '@/components/MapDataOverlay';
 import type { WeatherLayerType } from './weatherData';
 import { ThreeDRotation, ViewComfy, LocationOn, ExpandLess, ExpandMore, LocationCity } from "@mui/icons-material";
 import SatelliteIcon from '@mui/icons-material/Satellite';
@@ -618,7 +619,12 @@ export default function Map() {
             <WeatherLayerControls onLayerChange={handleWeatherLayerChange} position="bottom" />
 
             {/* Weather Data Display - Lower left corner */}
-            <WeatherDataDisplay onSensorSelect={handleSensorSelect} />            {/* Map Controls Panel */}
+            <WeatherDataDisplay onSensorSelect={handleSensorSelect} />
+
+            {/* Environmental Data Overlay - Right side */}
+            <MapDataOverlay selectedLocation={selectedBarangay ? barangays.find(b => b.id === selectedBarangay)?.name : undefined} />
+
+            {/* Map Controls Panel */}
             <MapControlPanel elevation={3} sx={{ top: '76px' }}>
                 {/* 2D/3D Toggle */}
                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>

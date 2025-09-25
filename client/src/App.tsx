@@ -3,6 +3,9 @@ import { CustomThemeProvider } from './contexts/ThemeContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Sidebar from '@/scenes/sidebar';
 import Home from './scenes/home/Home';
+import Forecast from './scenes/forecast/Forecast';
+import Alerts from './scenes/alerts/Alerts';
+import Analytics from './scenes/analytics/Analytics';
 
 const Main = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -32,9 +35,9 @@ function App() {
             <Main>
               <Routes>
                 <Route path='/' element={<Home />} />
-                <Route path='/forecast' element={<div>Forecast</div>} />
-                <Route path='/alerts' element={<div>Weather Alerts</div>} />
-                <Route path='/analytics' element={<div>Analytics</div>} />
+                <Route path='/forecast' element={<Forecast />} />
+                <Route path='/alerts' element={<Alerts />} />
+                <Route path='/analytics' element={<Analytics />} />
               </Routes>
             </Main>
           </Box>
