@@ -153,7 +153,7 @@ const Analytics: React.FC = () => {
               alignItems: 'center', 
               justifyContent: 'center' 
             }}>
-              <DashboardIcon sx={{ fontSize: '2rem' }} />
+              <DashboardIcon sx={{ fontSize: '2rem', color: 'white' }} />
             </Box>
             <Box>
               <Typography variant="h4" fontWeight="bold">
@@ -165,12 +165,13 @@ const Analytics: React.FC = () => {
             </Box>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Time Range</InputLabel>
+          <FormControl size="small" sx={{ minWidth: 120, '& .MuiInputLabel-root': { color: 'white' }, '& .MuiOutlinedInput-root': { color: 'white', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.3)' }, '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.5)' } }, '& .MuiSvgIcon-root': { color: 'white' } }}>
+            <InputLabel sx={{ color: 'white' }}>Time Range</InputLabel>
             <Select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
               label="Time Range"
+              sx={{ color: 'white' }}
             >
               <MenuItem value="1h">Last Hour</MenuItem>
               <MenuItem value="24h">Last 24 Hours</MenuItem>
@@ -181,6 +182,7 @@ const Analytics: React.FC = () => {
           <BarangaySelector
             selectedBarangay={selectedBarangay}
             onBarangayChange={setSelectedBarangay}
+            whiteTheme={true}
           />
             <Tooltip title="Refresh Data">
               <IconButton onClick={handleRefresh} sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.1)' }}>
@@ -192,14 +194,14 @@ const Analytics: React.FC = () => {
         
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <SensorsIcon fontSize="small" />
-            <Typography variant="body2">
+            <SensorsIcon fontSize="small" sx={{ color: 'white' }} />
+            <Typography variant="body2" sx={{ color: 'white' }}>
               12 Active Sensors
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ShowChartIcon fontSize="small" />
-            <Typography variant="body2">
+            <ShowChartIcon fontSize="small" sx={{ color: 'white' }} />
+            <Typography variant="body2" sx={{ color: 'white' }}>
               Last updated: {new Date().toLocaleTimeString()}
             </Typography>
           </Box>

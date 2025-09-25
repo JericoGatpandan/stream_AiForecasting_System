@@ -155,7 +155,7 @@ const Forecast: React.FC = () => {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56 }}>
-                            <FloodIcon sx={{ fontSize: '2rem' }} />
+                            <FloodIcon sx={{ fontSize: '2rem', color: 'white' }} />
                         </Avatar>
                         <Box>
                             <Typography variant="h4" fontWeight="bold">
@@ -178,6 +178,7 @@ const Forecast: React.FC = () => {
                         <BarangaySelector
                             selectedBarangay={selectedBarangay}
                             onBarangayChange={setSelectedBarangay}
+                            whiteTheme={true}
                         />
                         <Tooltip title="Refresh Flood Data">
                             <IconButton onClick={handleRefresh} sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.1)' }}>
@@ -188,8 +189,8 @@ const Forecast: React.FC = () => {
                 </Box>
                 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <LocationOnIcon fontSize="small" />
-                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    <LocationOnIcon fontSize="small" sx={{ color: 'white' }} />
+                    <Typography variant="body1" sx={{ fontWeight: 500, color: 'white' }}>
                         Monitoring flood conditions for {selectedBarangay}
                     </Typography>
                 </Box>
