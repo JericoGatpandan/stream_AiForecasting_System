@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, type ReactNode } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 
@@ -76,7 +76,7 @@ export const CustomThemeProvider: React.FC<CustomThemeProviderProps> = ({ childr
       },
       background: {
         default: colors.background,
-        paper: isDarkMode ? colors.paper || '#1A2332' : '#ffffff',
+        paper: isDarkMode ? figmaColors.dark.paper || '#1A2332' : '#ffffff',
       },
       text: {
         primary: colors.text,

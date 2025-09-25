@@ -205,7 +205,7 @@ export default function Map() {
                 const coordinates = e.lngLat;
 
                 // Create popup content
-                const barangayName = feature.properties.barangay_name;
+                const barangayName = feature.properties?.barangay_name;
                 const popupContent = `<div style="font-weight: bold;">${barangayName}</div>`;
 
                 // Set popup content and position
@@ -724,7 +724,6 @@ export default function Map() {
                 map={mapInstanceRef.current}
                 isActive={isSimulationActive}
                 currentTimeFrame={getCurrentTimeFrame()}
-                opacity={0.7}
             />
             
             {/* Time Control - Bottom center */}

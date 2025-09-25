@@ -1,13 +1,11 @@
 import { useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
 import { getFloodRiskColor } from '../data/floodSimulationData';
-import type { FloodTimeFrame, BarangayFloodRisk } from '../data/floodSimulationData';
+import type { FloodTimeFrame } from '../data/floodSimulationData';
 
 export interface FloodSimulationProps {
-    map: mapboxgl.Map | null;
+    map: any;
     isActive: boolean;
     currentTimeFrame: FloodTimeFrame | null;
-    opacity?: number;
 }
 
 // Simple sample data for demonstration
@@ -44,8 +42,7 @@ const getSampleFloodData = (timeIndex: number) => {
 const FloodSimulation: React.FC<FloodSimulationProps> = ({
     map,
     isActive,
-    currentTimeFrame,
-    opacity = 0.7
+    currentTimeFrame
 }) => {
     const timeIndexRef = useRef(0);
 

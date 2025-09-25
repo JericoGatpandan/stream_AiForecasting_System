@@ -15,7 +15,6 @@ import {
     ListItemSecondaryAction,
     IconButton,
     Badge,
-    Divider,
     InputAdornment,
     MenuItem,
     Select,
@@ -346,7 +345,7 @@ function Alerts() {
                 
                 return (
                     <List sx={{ width: '100%' }}>
-                        {allItems.map((item, index) => 
+                        {allItems.map((item) => 
                             item.type === 'alert' 
                                 ? renderAlertItem({ ...item, id: `alert-${item.id}` } as FloodAlert)
                                 : renderReportItem({ ...item, id: `report-${item.id}` } as FloodReport)

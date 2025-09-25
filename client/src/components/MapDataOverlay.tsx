@@ -142,30 +142,30 @@ const MapDataOverlay: React.FC<MapDataOverlayProps> = ({ selectedLocation = 'Pac
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <ThermostatIcon fontSize="small" color="primary" />
                         <Typography variant="body2">
-                            {latestData?.temperature_c?.toFixed(1) || '--'}°C
+                            {latestData?.temperature?.toFixed(1) || '--'}°C
                         </Typography>
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <OpacityIcon fontSize="small" color="info" />
                         <Typography variant="body2">
-                            {latestData?.humidity_percent?.toFixed(0) || '--'}% humidity
+                            {latestData?.humidity?.toFixed(0) || '--'}% humidity
                         </Typography>
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <WaterIcon fontSize="small" color="secondary" />
                         <Typography variant="body2">
-                            {latestData?.water_level_m?.toFixed(2) || '--'}m water level
+                            {latestData?.pressure?.toFixed(2) || '--'} hPa pressure
                         </Typography>
                     </Box>
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                         <Chip
-                            label={`${(latestFloodData?.flood_risk_level || 'Unknown').toUpperCase()} RISK`}
+                            label={`${(latestFloodData?.floodRiskLevel || 'Unknown').toUpperCase()} RISK`}
                             size="small"
                             sx={{
-                                backgroundColor: getRiskColor(latestFloodData?.flood_risk_level),
+                                backgroundColor: getRiskColor(latestFloodData?.floodRiskLevel),
                                 color: 'white',
                                 fontWeight: 'bold'
                             }}

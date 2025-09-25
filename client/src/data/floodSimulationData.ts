@@ -36,24 +36,24 @@ export const generateFloodSimulationData = (): FloodTimeFrame[] => {
     
     // Define all barangays with their properties
     const barangays = [
-        { id: 'pacol', name: 'Pacol', center: [123.2700, 13.6475], baseRisk: 0.4, riverProximity: 1.0 },
-        { id: 'triangulo', name: 'Triangulo', center: [123.1900, 13.6300], baseRisk: 0.2, riverProximity: 0.8 },
-        { id: 'sabang', name: 'Sabang', center: [123.2100, 13.6500], baseRisk: 0.45, riverProximity: 0.9 },
-        { id: 'carolina', name: 'Carolina', center: [123.2200, 13.6600], baseRisk: 0.35, riverProximity: 1.0 },
-        { id: 'peñafrancia', name: 'Peñafrancia', center: [123.1650, 13.6350], baseRisk: 0.25, riverProximity: 0.6 },
-        { id: 'bagumbayannorte', name: 'Bagumbayan Norte', center: [123.1750, 13.6500], baseRisk: 0.15, riverProximity: 0.4 },
-        { id: 'bagumbayansur', name: 'Bagumbayan Sur', center: [123.1853, 13.6315], baseRisk: 0.18, riverProximity: 0.5 },
-        { id: 'mabolo', name: 'Mabolo', center: [123.1821, 13.6125], baseRisk: 0.12, riverProximity: 0.3 },
-        { id: 'abella', name: 'Abella', center: [123.1850, 13.6240], baseRisk: 0.1, riverProximity: 0.2 },
-        { id: 'tinago', name: 'Tinago', center: [123.1914, 13.6244], baseRisk: 0.2, riverProximity: 0.4 },
-        { id: 'sanfelipe', name: 'San Felipe', center: [123.2095, 13.6447], baseRisk: 0.3, riverProximity: 0.7 },
-        { id: 'sanisidro', name: 'San Isidro', center: [123.2657, 13.6281], baseRisk: 0.22, riverProximity: 0.6 },
-        { id: 'panicuason', name: 'Panicuason', center: [123.3286, 13.6611], baseRisk: 0.25, riverProximity: 0.8 },
-        { id: 'balatas', name: 'Balatas', center: [123.19, 13.62], baseRisk: 0.15, riverProximity: 0.3 },
-        { id: 'concepciongrande', name: 'Concepcion Grande', center: [123.19, 13.62], baseRisk: 0.18, riverProximity: 0.4 },
-        { id: 'concepcionpequeña', name: 'Concepcion Pequeña', center: [123.19, 13.62], baseRisk: 0.16, riverProximity: 0.4 },
-        { id: 'dayangdang', name: 'Dayangdang', center: [123.19, 13.62], baseRisk: 0.2, riverProximity: 0.5 },
-        { id: 'igualdadinterior', name: 'Igualdad Interior', center: [123.19, 13.62], baseRisk: 0.14, riverProximity: 0.3 }
+        { id: 'pacol', name: 'Pacol', center: [123.2700, 13.6475] as [number, number], baseRisk: 0.4, riverProximity: 1.0 },
+        { id: 'triangulo', name: 'Triangulo', center: [123.1900, 13.6300] as [number, number], baseRisk: 0.2, riverProximity: 0.8 },
+        { id: 'sabang', name: 'Sabang', center: [123.2100, 13.6500] as [number, number], baseRisk: 0.45, riverProximity: 0.9 },
+        { id: 'carolina', name: 'Carolina', center: [123.2200, 13.6600] as [number, number], baseRisk: 0.35, riverProximity: 1.0 },
+        { id: 'peñafrancia', name: 'Peñafrancia', center: [123.1650, 13.6350] as [number, number], baseRisk: 0.25, riverProximity: 0.6 },
+        { id: 'bagumbayannorte', name: 'Bagumbayan Norte', center: [123.1750, 13.6500] as [number, number], baseRisk: 0.15, riverProximity: 0.4 },
+        { id: 'bagumbayansur', name: 'Bagumbayan Sur', center: [123.1853, 13.6315] as [number, number], baseRisk: 0.18, riverProximity: 0.5 },
+        { id: 'mabolo', name: 'Mabolo', center: [123.1821, 13.6125] as [number, number], baseRisk: 0.12, riverProximity: 0.3 },
+        { id: 'abella', name: 'Abella', center: [123.1850, 13.6240] as [number, number], baseRisk: 0.1, riverProximity: 0.2 },
+        { id: 'tinago', name: 'Tinago', center: [123.1914, 13.6244] as [number, number], baseRisk: 0.2, riverProximity: 0.4 },
+        { id: 'sanfelipe', name: 'San Felipe', center: [123.2095, 13.6447] as [number, number], baseRisk: 0.3, riverProximity: 0.7 },
+        { id: 'sanisidro', name: 'San Isidro', center: [123.2657, 13.6281] as [number, number], baseRisk: 0.22, riverProximity: 0.6 },
+        { id: 'panicuason', name: 'Panicuason', center: [123.3286, 13.6611] as [number, number], baseRisk: 0.25, riverProximity: 0.8 },
+        { id: 'balatas', name: 'Balatas', center: [123.19, 13.62] as [number, number], baseRisk: 0.15, riverProximity: 0.3 },
+        { id: 'concepciongrande', name: 'Concepcion Grande', center: [123.19, 13.62] as [number, number], baseRisk: 0.18, riverProximity: 0.4 },
+        { id: 'concepcionpequeña', name: 'Concepcion Pequeña', center: [123.19, 13.62] as [number, number], baseRisk: 0.16, riverProximity: 0.4 },
+        { id: 'dayangdang', name: 'Dayangdang', center: [123.19, 13.62] as [number, number], baseRisk: 0.2, riverProximity: 0.5 },
+        { id: 'igualdadinterior', name: 'Igualdad Interior', center: [123.19, 13.62] as [number, number], baseRisk: 0.14, riverProximity: 0.3 }
     ];
     
     // Origin points for flood spread (typically river-adjacent areas)

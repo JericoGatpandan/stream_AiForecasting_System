@@ -10,31 +10,20 @@ import {
     IconButton,
     Tooltip,
     Skeleton,
-    Divider,
     Stack,
     Avatar,
     Container
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import ThermostatIcon from '@mui/icons-material/Thermostat';
-import OpacityIcon from '@mui/icons-material/Opacity';
-import AirIcon from '@mui/icons-material/Air';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import CloudIcon from '@mui/icons-material/Cloud';
-import WbSunnyIcon from '@mui/icons-material/WbSunny';
-import ThunderstormIcon from '@mui/icons-material/Thunderstorm';
-import UmbrellaIcon from '@mui/icons-material/Umbrella';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import WaterIcon from '@mui/icons-material/Water';
 import FloodIcon from '@mui/icons-material/Flood';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import SpeedIcon from '@mui/icons-material/Speed';
 import BarangaySelector from '@/components/BarangaySelector';
 import AlertBanner from '@/components/AlertBanner';
@@ -58,7 +47,7 @@ const Forecast: React.FC = () => {
     } = useGetHourlyForecastQuery(selectedBarangay);
 
     const {
-        data: floodData,
+        data: _floodData,
         isLoading: floodLoading,
         refetch: refetchFlood
     } = useGetFloodCharacteristicsQuery(selectedBarangay);
@@ -76,34 +65,8 @@ const Forecast: React.FC = () => {
         refetchRisk();
     };
 
-    const getWeatherIcon = (condition: string, size: 'small' | 'medium' | 'large' = 'medium') => {
-        const conditionLower = condition?.toLowerCase() || '';
-        const iconSize = size === 'large' ? 'inherit' : size === 'medium' ? 'large' : 'medium';
-        
-        if (conditionLower.includes('rain') || conditionLower.includes('storm')) {
-            return <ThunderstormIcon fontSize={iconSize} />;
-        }
-        if (conditionLower.includes('cloud')) {
-            return <CloudIcon fontSize={iconSize} />;
-        }
-        return <WbSunnyIcon fontSize={iconSize} />;
-    };
 
-    const getWeatherConditionText = (condition: string) => {
-        const conditionLower = condition?.toLowerCase() || '';
-        if (conditionLower.includes('rain')) return 'Rainy';
-        if (conditionLower.includes('storm')) return 'Stormy';
-        if (conditionLower.includes('cloud')) return 'Cloudy';
-        return 'Sunny';
-    };
 
-    const getTempColor = (temp: number) => {
-        if (temp >= 35) return '#FF5722'; // Very hot - red
-        if (temp >= 30) return '#FF9800'; // Hot - orange
-        if (temp >= 25) return '#FFC107'; // Warm - amber
-        if (temp >= 20) return '#4CAF50'; // Pleasant - green
-        return '#2196F3'; // Cool - blue
-    };
 
     const getFloodRiskColor = (level: string) => {
         switch (level?.toLowerCase()) {
@@ -132,13 +95,6 @@ const Forecast: React.FC = () => {
         return { level: 'No Rain', color: '#4CAF50', risk: 'No flood risk' };
     };
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
 
     const formatTime = (dateString: string) => {
         return new Date(dateString).toLocaleTimeString('en-US', {
@@ -151,7 +107,7 @@ const Forecast: React.FC = () => {
     return (
         <Container maxWidth="xl" sx={{ py: 3, minHeight: '100vh' }}>
             {/* Header Section */}
-            <Paper elevation={0} sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)', color: 'white', borderRadius: 3 }}>
+            <Box sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)', color: 'white', borderRadius: 3, boxShadow: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56 }}>
@@ -194,7 +150,7 @@ const Forecast: React.FC = () => {
                         Monitoring flood conditions for {selectedBarangay}
                     </Typography>
                 </Box>
-            </Paper>
+            </Box>
 
             {forecastError && (
                 <AlertBanner
@@ -213,7 +169,7 @@ const Forecast: React.FC = () => {
                     </Box>
                 ) : floodRiskData ? (
                     <Box sx={{ 
-                        background: `linear-gradient(135deg, ${getFloodRiskColor(floodRiskData.riskLevel)}22 0%, ${getFloodRiskColor(floodRiskData.riskLevel)}11 100%)`,
+                        background: `linear-gradient(135deg, ${getFloodRiskColor(floodRiskData.currentRiskLevel)}22 0%, ${getFloodRiskColor(floodRiskData.currentRiskLevel)}11 100%)`,
                         p: 4
                     }}>
                         <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ color: 'text.primary' }}>
@@ -222,11 +178,11 @@ const Forecast: React.FC = () => {
                         <Grid container spacing={3} alignItems="center">
                             <Grid size={{ xs: 12, md: 4 }}>
                                 <Box sx={{ textAlign: 'center' }}>
-                                    <Box sx={{ fontSize: '4rem', color: getFloodRiskColor(floodRiskData.riskLevel), mb: 1 }}>
-                                        {getFloodRiskIcon(floodRiskData.riskLevel)}
+                                    <Box sx={{ fontSize: '4rem', color: getFloodRiskColor(floodRiskData.currentRiskLevel), mb: 1 }}>
+                                        {getFloodRiskIcon(floodRiskData.currentRiskLevel)}
                                     </Box>
-                                    <Typography variant="h3" fontWeight="bold" sx={{ color: getFloodRiskColor(floodRiskData.riskLevel), textTransform: 'uppercase' }}>
-                                        {floodRiskData.riskLevel}
+                                    <Typography variant="h3" fontWeight="bold" sx={{ color: getFloodRiskColor(floodRiskData.currentRiskLevel), textTransform: 'uppercase' }}>
+                                        {floodRiskData.currentRiskLevel}
                                     </Typography>
                                     <Typography variant="h6" color="text.secondary">
                                         Flood Risk Level
@@ -243,28 +199,28 @@ const Forecast: React.FC = () => {
                                         <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
                                             <WaterIcon sx={{ color: '#2196F3', mb: 1 }} />
                                             <Typography variant="body2" color="text.secondary">Water Level</Typography>
-                                            <Typography variant="h6" fontWeight="bold">{floodRiskData.currentWaterLevel || 'N/A'} m</Typography>
+                                            <Typography variant="h6" fontWeight="bold">{floodRiskData.riskFactors?.waterLevel || 'N/A'} m</Typography>
                                         </Box>
                                     </Grid>
                                     <Grid size={{ xs: 6, sm: 3 }}>
                                         <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
                                             <WaterDropIcon sx={{ color: '#FF9800', mb: 1 }} />
                                             <Typography variant="body2" color="text.secondary">Expected Rain</Typography>
-                                            <Typography variant="h6" fontWeight="bold">{forecastData?.[0]?.precipitation_probability || 0}%</Typography>
+                                            <Typography variant="h6" fontWeight="bold">{forecastData?.[0]?.precipitation || 0}%</Typography>
                                         </Box>
                                     </Grid>
                                     <Grid size={{ xs: 6, sm: 3 }}>
                                         <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
                                             <SpeedIcon sx={{ color: '#4CAF50', mb: 1 }} />
                                             <Typography variant="body2" color="text.secondary">Flow Rate</Typography>
-                                            <Typography variant="h6" fontWeight="bold">{floodRiskData.flowVelocity || 'N/A'} m/s</Typography>
+                                            <Typography variant="h6" fontWeight="bold">{floodRiskData.riskFactors?.soilSaturation || 'N/A'} m/s</Typography>
                                         </Box>
                                     </Grid>
                                     <Grid size={{ xs: 6, sm: 3 }}>
                                         <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
-                                            <WarningIcon sx={{ color: getFloodRiskColor(floodRiskData.riskLevel), mb: 1 }} />
+                                            <WarningIcon sx={{ color: getFloodRiskColor(floodRiskData.currentRiskLevel), mb: 1 }} />
                                             <Typography variant="body2" color="text.secondary">Alert Level</Typography>
-                                            <Typography variant="h6" fontWeight="bold">{floodRiskData.alertLevel || 'Normal'}</Typography>
+                                            <Typography variant="h6" fontWeight="bold">{floodRiskData.currentRiskLevel || 'Normal'}</Typography>
                                         </Box>
                                     </Grid>
                                 </Grid>
@@ -309,10 +265,10 @@ const Forecast: React.FC = () => {
                                         <Grid size={2}>
                                             <Box sx={{ textAlign: 'center' }}>
                                                 <Typography variant="subtitle1" fontWeight="bold">
-                                                    {index === 0 ? 'Today' : new Date(forecast.forecast_date).toLocaleDateString('en-US', { weekday: 'short' })}
+                                                    {index === 0 ? 'Today' : new Date(forecast.date).toLocaleDateString('en-US', { weekday: 'short' })}
                                                 </Typography>
                                                 <Typography variant="caption" color="text.secondary">
-                                                    {new Date(forecast.forecast_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                    {new Date(forecast.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                                 </Typography>
                                             </Box>
                                         </Grid>
@@ -328,7 +284,7 @@ const Forecast: React.FC = () => {
                                                         Moderate Risk
                                                     </Typography>
                                                     <Typography variant="caption" color="text.secondary">
-                                                        {getRainfallIntensity(forecast.precipitation_probability * 0.5).level} Rain Expected
+                                                        {getRainfallIntensity(forecast.precipitation * 0.5).level} Rain Expected
                                                     </Typography>
                                                 </Box>
                                             </Box>
@@ -340,7 +296,7 @@ const Forecast: React.FC = () => {
                                                 <WaterDropIcon fontSize="small" sx={{ color: '#2196F3' }} />
                                                 <Box>
                                                     <Typography variant="body2" fontWeight="medium">
-                                                        {(forecast.precipitation_probability * 0.3).toFixed(1)}mm
+                                                        {(forecast.precipitation * 0.3).toFixed(1)}mm
                                                     </Typography>
                                                     <Typography variant="caption" color="text.secondary">
                                                         Expected
@@ -460,7 +416,7 @@ const Forecast: React.FC = () => {
                                     )}
                                     <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
                                         <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
-                                            {index === 0 ? 'Now' : formatTime(hour.forecast_time)}
+                                            {index === 0 ? 'Now' : formatTime(hour.hour)}
                                         </Typography>
 
                                         <Box sx={{ my: 2, color: getFloodRiskColor('low'), fontSize: '2.5rem' }}>
@@ -481,7 +437,7 @@ const Forecast: React.FC = () => {
                                             <Typography variant="caption" color="text.secondary">
                                                 Water Level
                                             </Typography>
-                                            {hour.precipitation_probability > 10 && (
+                                            {hour.precipitation > 10 && (
                                                 <Chip 
                                                     size="small" 
                                                     label="Rain Expected"

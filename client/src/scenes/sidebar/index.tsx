@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useTheme as useCustomTheme } from '../../contexts/ThemeContext'
 import {
     Box,
@@ -20,7 +20,6 @@ import {
     IconButton
 } from '@mui/material'
 import HomeIcon from '@mui/icons-material/Home';
-import MapIcon from '@mui/icons-material/Map'
 // import WaterIcon from '@mui/icons-material/Water'
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 // import PsychologyIcon from '@mui/icons-material/Psychology'
@@ -119,7 +118,7 @@ const NotificationBadge = styled(Box)(({ theme }) => ({
 //         boxShadow: `0 6px 16px ${theme.palette.secondary.main}30`,
 //     },
 // }));
-const WeatherWidget = styled(Box)(({ theme }) => ({
+const WeatherWidget = styled(Box)(() => ({
     padding: '16px 12px',
     borderTop: '1px solid rgba(255,255,255,0.12)',
     marginTop: 'auto',
@@ -291,9 +290,8 @@ const Sidebar = () => {
                             sx={{ display: 'block' }}
                         >
                             <MenuItemButton
-                                component={Link}
-                                to={item.path}
                                 isActive={isActive}
+                                onClick={() => window.location.pathname !== item.path && (window.location.href = item.path)}
                                 sx={{
                                     justifyContent: open ? 'initial' : 'center',
                                     px: open ? 2.5 : 0,

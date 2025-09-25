@@ -18,8 +18,6 @@ import {
 } from '@mui/material';
 import {
     Sensors as SensorsIcon,
-    Campaign as AlertsIcon,
-    Description as ReportsIcon,
     ExpandLess,
     ExpandMore,
     LocationOn,

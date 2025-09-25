@@ -31,7 +31,6 @@ import {
   Bar,
   PieChart,
   Pie,
-  Cell,
   ComposedChart,
   ReferenceLine
 } from 'recharts';
@@ -43,14 +42,12 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import FloodIcon from '@mui/icons-material/Flood';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import BarangaySelector from '@/components/BarangaySelector';
-import DataCard from '@/components/DataCard';
 import AlertBanner from '@/components/AlertBanner';
 import { useGetEnvironmentalDataQuery, useGetFloodCharacteristicsQuery } from '@/state/api';
 
@@ -104,12 +101,12 @@ const Analytics: React.FC = () => {
         hour: '2-digit',
         minute: '2-digit'
       }),
-      temperature: item.temperature_c,
-      humidity: item.humidity_percent,
-      rainfall: item.rainfall_mm,
-      waterLevel: item.water_level_m,
-      windSpeed: item.wind_speed_mps,
-      flowVelocity: item.flow_velocity_ms
+      temperature: item.temperature,
+      humidity: item.humidity,
+      rainfall: item.precipitation,
+      waterLevel: item.pressure,
+      windSpeed: item.windSpeed,
+      flowVelocity: item.visibility
     }));
   }, [environmentalData]);
 
@@ -132,16 +129,16 @@ const Analytics: React.FC = () => {
 
     return floodData.map(item => ({
       name: item.location,
-      value: item.maximum_depth,
-      riskLevel: item.flood_risk_level,
-      fill: riskColors[item.flood_risk_level as keyof typeof riskColors]
+      value: item.maximumDepth,
+      riskLevel: item.floodRiskLevel,
+      fill: riskColors[item.floodRiskLevel as keyof typeof riskColors]
     }));
   }, [floodData, theme.palette]);
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, minHeight: '100vh', backgroundColor: 'background.default', maxWidth: '100%' }}>
       {/* Header Section */}
-      <Paper elevation={0} sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #0277bd 0%, #01579b 100%)', color: 'white', borderRadius: 3 }}>
+      <Box sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #0277bd 0%, #01579b 100%)', color: 'white', borderRadius: 3, boxShadow: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box sx={{ 
@@ -206,7 +203,7 @@ const Analytics: React.FC = () => {
             </Typography>
           </Box>
         </Box>
-      </Paper>
+      </Box>
 
       {(envError || floodError) && (
         <AlertBanner
@@ -230,7 +227,7 @@ const Analytics: React.FC = () => {
                 <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'rgba(33, 150, 243, 0.1)', borderRadius: 2 }}>
                   <WaterIcon sx={{ fontSize: '2rem', color: '#2196F3', mb: 1 }} />
                   <Typography variant="h4" fontWeight="bold" color="#2196F3">
-                    {envLoading ? '--' : latestData?.water_level_m?.toFixed(2) || '1.45'}
+                    {envLoading ? '--' : latestData?.pressure?.toFixed(2) || '1.45'}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     Water Level (m)
@@ -241,7 +238,7 @@ const Analytics: React.FC = () => {
                 <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'rgba(76, 175, 80, 0.1)', borderRadius: 2 }}>
                   <SpeedIcon sx={{ fontSize: '2rem', color: '#4CAF50', mb: 1 }} />
                   <Typography variant="h4" fontWeight="bold" color="#4CAF50">
-                    {envLoading ? '--' : latestData?.flow_velocity_ms?.toFixed(1) || '2.1'}
+                    {envLoading ? '--' : latestData?.visibility?.toFixed(1) || '2.1'}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     Flow Speed (m/s)
@@ -263,7 +260,7 @@ const Analytics: React.FC = () => {
                 <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'rgba(255, 87, 34, 0.1)', borderRadius: 2 }}>
                   <ThermostatIcon sx={{ fontSize: '2rem', color: '#FF5722', mb: 1 }} />
                   <Typography variant="h4" fontWeight="bold" color="#FF5722">
-                    {envLoading ? '--' : latestData?.temperature_c?.toFixed(0) || '28'}
+                    {envLoading ? '--' : latestData?.temperature?.toFixed(0) || '28'}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     Temperature (°C)
@@ -388,7 +385,7 @@ const Analytics: React.FC = () => {
                       ✓ Current Status: SAFE
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Water level is at {latestData?.water_level_m?.toFixed(2) || '1.45'}m, well below warning threshold. 
+                      Water level is at {latestData?.pressure?.toFixed(2) || '1.45'}m, well below warning threshold.
                       River flow is normal with good drainage capacity.
                     </Typography>
                   </Box>
@@ -433,7 +430,7 @@ const Analytics: React.FC = () => {
                             border: `1px solid ${theme.palette.divider}`,
                             borderRadius: 8
                           }}
-                          formatter={(value, name, props) => [
+                          formatter={(value, _, props) => [
                             `${value} (${props.payload.riskLevel?.toUpperCase() || 'Unknown'})`,
                             'Risk Level'
                           ]}
@@ -474,7 +471,6 @@ const Analytics: React.FC = () => {
                             cy="50%"
                             outerRadius={80}
                             label={({ name, value }) => `${name}: ${value}`}
-                            labelStyle={{ fontSize: 12, fontWeight: 'bold' }}
                           />
                           <RechartsTooltip />
                         </PieChart>
