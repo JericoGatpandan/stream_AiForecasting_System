@@ -220,7 +220,7 @@ const Forecast: React.FC = () => {
                             Current Flood Risk Status
                         </Typography>
                         <Grid container spacing={3} alignItems="center">
-                            <Grid item xs={12} md={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <Box sx={{ textAlign: 'center' }}>
                                     <Box sx={{ fontSize: '4rem', color: getFloodRiskColor(floodRiskData.riskLevel), mb: 1 }}>
                                         {getFloodRiskIcon(floodRiskData.riskLevel)}
@@ -237,30 +237,30 @@ const Forecast: React.FC = () => {
                                 </Box>
                             </Grid>
                             
-                            <Grid item xs={12} md={8}>
+                            <Grid size={{ xs: 12, md: 8 }}>
                                 <Grid container spacing={2}>
-                                    <Grid item xs={6} sm={3}>
+                                    <Grid size={{ xs: 6, sm: 3 }}>
                                         <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
                                             <WaterIcon sx={{ color: '#2196F3', mb: 1 }} />
                                             <Typography variant="body2" color="text.secondary">Water Level</Typography>
                                             <Typography variant="h6" fontWeight="bold">{floodRiskData.currentWaterLevel || 'N/A'} m</Typography>
                                         </Box>
                                     </Grid>
-                                    <Grid item xs={6} sm={3}>
+                                    <Grid size={{ xs: 6, sm: 3 }}>
                                         <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
                                             <WaterDropIcon sx={{ color: '#FF9800', mb: 1 }} />
                                             <Typography variant="body2" color="text.secondary">Expected Rain</Typography>
                                             <Typography variant="h6" fontWeight="bold">{forecastData?.[0]?.precipitation_probability || 0}%</Typography>
                                         </Box>
                                     </Grid>
-                                    <Grid item xs={6} sm={3}>
+                                    <Grid size={{ xs: 6, sm: 3 }}>
                                         <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
                                             <SpeedIcon sx={{ color: '#4CAF50', mb: 1 }} />
                                             <Typography variant="body2" color="text.secondary">Flow Rate</Typography>
                                             <Typography variant="h6" fontWeight="bold">{floodRiskData.flowVelocity || 'N/A'} m/s</Typography>
                                         </Box>
                                     </Grid>
-                                    <Grid item xs={6} sm={3}>
+                                    <Grid size={{ xs: 6, sm: 3 }}>
                                         <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
                                             <WarningIcon sx={{ color: getFloodRiskColor(floodRiskData.riskLevel), mb: 1 }} />
                                             <Typography variant="body2" color="text.secondary">Alert Level</Typography>
@@ -306,7 +306,7 @@ const Forecast: React.FC = () => {
                                 <CardContent sx={{ py: 2 }}>
                                     <Grid container alignItems="center" spacing={2}>
                                         {/* Day */}
-                                        <Grid item xs={2}>
+                                        <Grid size={2}>
                                             <Box sx={{ textAlign: 'center' }}>
                                                 <Typography variant="subtitle1" fontWeight="bold">
                                                     {index === 0 ? 'Today' : new Date(forecast.forecast_date).toLocaleDateString('en-US', { weekday: 'short' })}
@@ -318,7 +318,7 @@ const Forecast: React.FC = () => {
                                         </Grid>
                                         
                                         {/* Flood Risk Indicator */}
-                                        <Grid item xs={3}>
+                                        <Grid size={3}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <Box sx={{ color: getFloodRiskColor('moderate'), fontSize: '2rem' }}>
                                                     {getFloodRiskIcon('moderate')}
@@ -335,7 +335,7 @@ const Forecast: React.FC = () => {
                                         </Grid>
                                         
                                         {/* Rainfall Amount */}
-                                        <Grid item xs={2}>
+                                        <Grid size={2}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                 <WaterDropIcon fontSize="small" sx={{ color: '#2196F3' }} />
                                                 <Box>
@@ -350,7 +350,7 @@ const Forecast: React.FC = () => {
                                         </Grid>
                                         
                                         {/* Water Level Trend */}
-                                        <Grid item xs={2}>
+                                        <Grid size={2}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                 <TrendingUpIcon fontSize="small" sx={{ color: '#FF9800' }} />
                                                 <Box>
@@ -365,7 +365,7 @@ const Forecast: React.FC = () => {
                                         </Grid>
                                         
                                         {/* Flood Alert */}
-                                        <Grid item xs={3}>
+                                        <Grid size={3}>
                                             <Box sx={{ textAlign: 'right' }}>
                                                 <Chip 
                                                     size="small"

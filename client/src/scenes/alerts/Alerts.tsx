@@ -232,20 +232,20 @@ function Alerts() {
                 }
                 secondary={
                     <Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        <Typography component="span" variant="body2" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
                             {alert.message}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography component="span" variant="caption" color="text.secondary">
                                 {formatTimestamp(alert.timestamp)}
                             </Typography>
                             {alert.waterLevel && (
-                                <Typography variant="caption" color="primary.main">
+                                <Typography component="span" variant="caption" color="primary.main">
                                     Water Level: {alert.waterLevel}m
                                 </Typography>
                             )}
                             {alert.affectedAreas && alert.affectedAreas.length > 0 && (
-                                <Typography variant="caption" color="warning.main">
+                                <Typography component="span" variant="caption" color="warning.main">
                                     Affects: {alert.affectedAreas.join(', ')}
                                 </Typography>
                             )}
@@ -295,25 +295,25 @@ function Alerts() {
                 }
                 secondary={
                     <Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        <Typography component="span" variant="body2" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
                             {report.description}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography component="span" variant="caption" color="text.secondary">
                                 {formatTimestamp(report.timestamp)}
                             </Typography>
                             {report.data?.waterLevel && (
-                                <Typography variant="caption" color="primary.main">
+                                <Typography component="span" variant="caption" color="primary.main">
                                     Water: {report.data.waterLevel}m
                                 </Typography>
                             )}
                             {report.data?.flowRate && (
-                                <Typography variant="caption" color="info.main">
+                                <Typography component="span" variant="caption" color="info.main">
                                     Flow: {report.data.flowRate}m/s
                                 </Typography>
                             )}
                             {report.data?.rainfall && (
-                                <Typography variant="caption" color="warning.main">
+                                <Typography component="span" variant="caption" color="warning.main">
                                     Rain: {report.data.rainfall}mm
                                 </Typography>
                             )}
@@ -346,10 +346,10 @@ function Alerts() {
                 
                 return (
                     <List sx={{ width: '100%' }}>
-                        {allItems.map((item) => 
+                        {allItems.map((item, index) => 
                             item.type === 'alert' 
-                                ? renderAlertItem(item as FloodAlert)
-                                : renderReportItem(item as FloodReport)
+                                ? renderAlertItem({ ...item, id: `alert-${item.id}` } as FloodAlert)
+                                : renderReportItem({ ...item, id: `report-${item.id}` } as FloodReport)
                         )}
                         {allItems.length === 0 && (
                             <Typography variant="body1" color="text.secondary" align="center" sx={{ mt: 4 }}>

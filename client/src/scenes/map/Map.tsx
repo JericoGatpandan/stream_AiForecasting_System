@@ -9,12 +9,17 @@ import AlertsPanel, { AlertsToggleButton } from './AlertsPanel';
 import WeatherLayerControls from './WeatherLayerControls';
 import WeatherDataDisplay from './WeatherDataDisplay';
 import MapDataOverlay from '@/components/MapDataOverlay';
+import TimeControl from '@/components/TimeControl';
+import FloodSimulation from '@/components/FloodSimulation';
+import { floodSimulationData, getSimulationTimeRange } from '@/data/floodSimulationData';
 import type { WeatherLayerType } from './weatherData';
 import { ThreeDRotation, ViewComfy, LocationOn, ExpandLess, ExpandMore, LocationCity } from "@mui/icons-material";
 import SatelliteIcon from '@mui/icons-material/Satellite';
 import TerrainIcon from '@mui/icons-material/Terrain';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 // Token from .env
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -68,6 +73,13 @@ export default function Map() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [alertsPanelOpen, setAlertsPanelOpen] = useState(false);
     const [activeWeatherLayer, setActiveWeatherLayer] = useState<WeatherLayerType | null>(null);
+    
+    // Flood simulation states
+    const [isSimulationActive, setIsSimulationActive] = useState(false);
+    const [isSimulationPlaying, setIsSimulationPlaying] = useState(false);
+    const [currentSimulationTime, setCurrentSimulationTime] = useState(new Date());
+    const [simulationSpeed, setSimulationSpeed] = useState(1);
+    const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Toggle alerts panel
     const toggleAlertsPanel = () => {
@@ -92,7 +104,38 @@ export default function Map() {
             // Future implementation: show sensor data popup or highlight sensor
             console.log(`Sensor selected: ${sensorId}`);
         }
-    };    // Function to add map layers
+    };
+
+    // Simulation control functions
+    const toggleSimulation = () => {
+        setIsSimulationActive(prev => {
+            if (!prev) {
+                // Initialize simulation time to the start of the data range
+                const timeRange = getSimulationTimeRange();
+                setCurrentSimulationTime(timeRange.min);
+            } else {
+                // Stop simulation when deactivating
+                setIsSimulationPlaying(false);
+                if (simulationIntervalRef.current) {
+                    clearInterval(simulationIntervalRef.current);
+                    simulationIntervalRef.current = null;
+                }
+            }
+            return !prev;
+        });
+    };
+
+    const handleSimulationPlayPause = (playing: boolean) => {
+        setIsSimulationPlaying(playing);
+    };
+
+    const handleSimulationTimeChange = (time: Date) => {
+        setCurrentSimulationTime(time);
+    };
+
+    const handleSimulationSpeedChange = (speed: number) => {
+        setSimulationSpeed(speed);
+    };
     const addMapLayers = (map: mapboxgl.Map) => {
         // Add barangay boundaries source
         if (!map.getSource('barangays')) {
@@ -203,6 +246,57 @@ export default function Map() {
                 addMapLayers(mapInstanceRef.current!);
             });
         }
+    };
+
+    // Simulation playback effect
+    useEffect(() => {
+        if (isSimulationPlaying && isSimulationActive) {
+            const interval = 2000 / simulationSpeed; // Base interval of 2 seconds, adjusted by speed
+            
+            simulationIntervalRef.current = setInterval(() => {
+                setCurrentSimulationTime(prevTime => {
+                    const timeRange = getSimulationTimeRange();
+                    const nextTime = new Date(prevTime.getTime() + (30 * 60 * 1000)); // 30 minutes forward
+                    
+                    if (nextTime > timeRange.max) {
+                        // Loop back to start
+                        return timeRange.min;
+                    }
+                    return nextTime;
+                });
+            }, interval);
+        } else {
+            if (simulationIntervalRef.current) {
+                clearInterval(simulationIntervalRef.current);
+                simulationIntervalRef.current = null;
+            }
+        }
+
+        return () => {
+            if (simulationIntervalRef.current) {
+                clearInterval(simulationIntervalRef.current);
+            }
+        };
+    }, [isSimulationPlaying, isSimulationActive, simulationSpeed]);
+
+    // Get current simulation data frame
+    const getCurrentTimeFrame = () => {
+        if (!isSimulationActive) return null;
+        
+        // Find the closest time frame to the current simulation time
+        const targetTime = currentSimulationTime.getTime();
+        let closestFrame = floodSimulationData[0];
+        let minDiff = Math.abs(floodSimulationData[0].timestamp.getTime() - targetTime);
+        
+        for (const frame of floodSimulationData) {
+            const diff = Math.abs(frame.timestamp.getTime() - targetTime);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestFrame = frame;
+            }
+        }
+        
+        return closestFrame;
     };
 
     // Load barangay data
@@ -624,6 +718,39 @@ export default function Map() {
 
             {/* Environmental Data Overlay - Right side */}
             <MapDataOverlay selectedLocation={selectedBarangay ? barangays.find(b => b.id === selectedBarangay)?.name : undefined} />
+            
+            {/* Flood Simulation Component */}
+            <FloodSimulation
+                map={mapInstanceRef.current}
+                isActive={isSimulationActive}
+                currentTimeFrame={getCurrentTimeFrame()}
+                opacity={0.7}
+            />
+            
+            {/* Time Control - Bottom center */}
+            {isSimulationActive && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: 20,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 1040
+                    }}
+                >
+                    <TimeControl
+                        isPlaying={isSimulationPlaying}
+                        onPlayPause={handleSimulationPlayPause}
+                        currentTime={currentSimulationTime}
+                        onTimeChange={handleSimulationTimeChange}
+                        minTime={getSimulationTimeRange().min}
+                        maxTime={getSimulationTimeRange().max}
+                        playbackSpeed={simulationSpeed}
+                        onSpeedChange={handleSimulationSpeedChange}
+                        disabled={false}
+                    />
+                </Box>
+            )}
 
             {/* Map Controls Panel */}
             <MapControlPanel elevation={3} sx={{ 
@@ -653,6 +780,25 @@ export default function Map() {
                         </Tooltip>
                     </ToggleButton>
                 </ToggleButtonGroup>
+
+                {/* Flood Simulation Toggle */}
+                <Button
+                    size="small"
+                    variant={isSimulationActive ? "contained" : "outlined"}
+                    onClick={toggleSimulation}
+                    startIcon={isSimulationActive ? <StopCircleIcon /> : <PlayCircleFilledIcon />}
+                    sx={{ 
+                        mt: 1, 
+                        textTransform: 'none',
+                        backgroundColor: isSimulationActive ? 'primary.main' : 'transparent',
+                        '&:hover': {
+                            backgroundColor: isSimulationActive ? 'primary.dark' : 'primary.light'
+                        }
+                    }}
+                    fullWidth
+                >
+                    {isSimulationActive ? 'Stop Simulation' : 'Flood Simulation'}
+                </Button>
 
                 {/* Reset View Button */}
                 {selectedBarangay && (

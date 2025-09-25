@@ -78,7 +78,7 @@ function Home() {
                     </Typography>
 
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6} md={2.4}>
+                        <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                             <DataCard
                                 title="Monitored Locations"
                                 value={summaryData.totalLocations}
@@ -87,7 +87,7 @@ function Home() {
                                 tooltip="Total barangays being monitored"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={2.4}>
+                        <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                             <DataCard
                                 title="Active Alerts"
                                 value={summaryData.activeAlerts}
@@ -96,7 +96,7 @@ function Home() {
                                 tooltip="Current weather and flood alerts"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={2.4}>
+                        <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                             <DataCard
                                 title="Avg Temperature"
                                 value={summaryData.avgTemperature}
@@ -106,7 +106,7 @@ function Home() {
                                 tooltip="Average temperature across all locations"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={2.4}>
+                        <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                             <DataCard
                                 title="Avg Humidity"
                                 value={summaryData.avgHumidity}
@@ -116,7 +116,7 @@ function Home() {
                                 tooltip="Average humidity level"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={2.4}>
+                        <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                             <DataCard
                                 title="High Risk Areas"
                                 value={summaryData.highRiskAreas}
