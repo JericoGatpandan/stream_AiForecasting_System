@@ -47,7 +47,7 @@ const MapDataOverlay: React.FC<MapDataOverlayProps> = ({ selectedLocation = 'Pac
                     position: 'absolute',
                     bottom: 60,
                     right: 16,
-                    zIndex: 1000
+                    zIndex: 1020
                 }}
             >
                 <Tooltip title="Show Data Panel">
@@ -75,7 +75,7 @@ const MapDataOverlay: React.FC<MapDataOverlayProps> = ({ selectedLocation = 'Pac
                     position: 'absolute',
                     bottom: 60,
                     right: 16,
-                    zIndex: 1000,
+                    zIndex: 1020,
                     maxWidth: 280
                 }}
             >
@@ -83,8 +83,12 @@ const MapDataOverlay: React.FC<MapDataOverlayProps> = ({ selectedLocation = 'Pac
                     elevation={3}
                     sx={{
                         p: 2,
-                        backgroundColor: theme.palette.background.overlay,
-                        borderRadius: 2
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(10px)',
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
                     }}
                 >
                     <Skeleton variant="text" width="60%" height={24} />
@@ -103,7 +107,7 @@ const MapDataOverlay: React.FC<MapDataOverlayProps> = ({ selectedLocation = 'Pac
                 position: 'absolute',
                 bottom: 60,
                 right: 16,
-                zIndex: 1000,
+                zIndex: 1020,
                 maxWidth: 280
             }}
         >
@@ -111,8 +115,12 @@ const MapDataOverlay: React.FC<MapDataOverlayProps> = ({ selectedLocation = 'Pac
                 elevation={3}
                 sx={{
                     p: 2,
-                    backgroundColor: theme.palette.background.overlay,
-                    borderRadius: 2
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
                 }}
             >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>

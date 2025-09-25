@@ -84,7 +84,7 @@ const WeatherLayerControls = ({ onLayerChange, position = 'top' }: WeatherLayerC
                 [position === 'top' ? 'top' : 'bottom']: '16px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                zIndex: 10,
+                zIndex: 1040,
                 padding: '4px',
                 backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 backdropFilter: 'blur(5px)',

@@ -32,18 +32,29 @@ type DataDisplayType = 'sensors' | 'alerts' | 'reports';
 
 const StyledDataControlPanel = styled(Paper)(({ theme }) => ({
     position: 'absolute',
-    bottom: '16px',
+    bottom: '60px', // Moved up to avoid status bar overlap
     left: '16px',
-    zIndex: 10,
+    zIndex: 1010, // Updated z-index
     padding: theme.spacing(1),
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(5px)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(8px)',
     borderRadius: theme.spacing(1),
     maxWidth: '320px',
-    maxHeight: 'calc(100% - 200px)',
+    maxHeight: 'calc(100% - 160px)', // Adjusted for new bottom position
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+    [theme.breakpoints.down('sm')]: {
+        maxWidth: '280px',
+        bottom: '50px',
+        left: '8px'
+    },
+    [theme.breakpoints.down('xs')]: {
+        maxWidth: 'calc(100vw - 32px)',
+        left: '16px',
+        bottom: '40px'
+    }
 }));
 
 interface WeatherDataDisplayProps {

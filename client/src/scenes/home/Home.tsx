@@ -133,11 +133,15 @@ function Home() {
             <Box
                 sx={{
                     position: 'absolute',
-                    top: showDashboard ? 'auto' : 10,
-                    right: 10,
-                    zIndex: 1001,
+                    top: showDashboard ? 'auto' : 16,
+                    right: 16,
+                    zIndex: 1100, // Higher than alerts button
                     display: 'flex',
-                    gap: 1
+                    gap: 1,
+                    '@media (max-width: 600px)': {
+                        top: showDashboard ? 'auto' : 8,
+                        right: 8,
+                    }
                 }}
             >
                 <Tooltip title={showDashboard ? 'Hide Dashboard' : 'Show System Overview'}>
@@ -181,21 +185,25 @@ function Home() {
             <Box
                 sx={{
                     position: 'absolute',
-                    bottom: 10,
-                    left: 10,
+                    bottom: 16,
+                    left: 16,
                     zIndex: 1000
                 }}
             >
                 <Paper
-                    elevation={2}
+                    elevation={3}
                     sx={{
                         px: 2,
                         py: 1,
-                        backgroundColor: theme.palette.background.overlay,
-                        borderRadius: 1
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(8px)',
+                        borderRadius: 1,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        boxShadow: '0 2px 12px rgba(0,0,0,0.1)'
                     }}
                 >
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
                         Real-time monitoring system • {summaryData.totalLocations} locations • Last update: {summaryData.lastUpdate}
                     </Typography>
                 </Paper>

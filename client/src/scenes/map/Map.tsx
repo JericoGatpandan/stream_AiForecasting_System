@@ -504,7 +504,7 @@ export default function Map() {
                 position: 'absolute',
                 top: '16px',
                 left: '16px',
-                zIndex: 10
+                zIndex: 1100
             }}>
                 <Button
                     variant="contained"
@@ -578,15 +578,16 @@ export default function Map() {
                     sx={{
                         position: 'absolute',
                         top: '16px',
-                        right: alertsPanelOpen ? '312px' : '16px', // Adjust position when alerts panel is open
-                        zIndex: 10,
+                        right: alertsPanelOpen ? '424px' : '178px', // Adjust position when alerts panel is open and avoid dashboard toggle
+                        zIndex: 1050,
                         p: 2,
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(5px)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(8px)',
                         borderRadius: 2,
                         maxWidth: '240px',
                         borderLeft: '4px solid #12EFC8',
-                        transition: 'right 0.3s ease'
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
                     }}
                 >
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -625,7 +626,12 @@ export default function Map() {
             <MapDataOverlay selectedLocation={selectedBarangay ? barangays.find(b => b.id === selectedBarangay)?.name : undefined} />
 
             {/* Map Controls Panel */}
-            <MapControlPanel elevation={3} sx={{ top: '76px' }}>
+            <MapControlPanel elevation={3} sx={{ 
+                top: '76px', 
+                zIndex: 1030,
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(8px)'
+            }}>
                 {/* 2D/3D Toggle */}
                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
                     Map View

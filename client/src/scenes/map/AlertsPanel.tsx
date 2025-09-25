@@ -32,14 +32,14 @@ const sampleAlerts: AlertItem[] = [
         id: '1',
         type: 'Alert',
         date: '07 May, 2025',
-        message: 'Temperature exceeds 10 °C at Location',
+        message: 'River exceed threshold limit',
         isAllDay: true
     },
     {
         id: '2',
         type: 'Alert',
         date: '06 May, 2025',
-        message: 'Temperature exceeds 10 °C at Location',
+        message: 'River exceed threshold limit',
         isAllDay: true
     },
     {
@@ -47,21 +47,21 @@ const sampleAlerts: AlertItem[] = [
         type: 'Report',
         date: '01 May, 2025',
         time: '16:16',
-        message: 'Weather forecast for London'
+        message: 'Weather forecast for Cararayan'
     },
     {
         id: '4',
         type: 'Report',
         date: '01 May, 2025',
         time: '14:03',
-        message: 'Weather forecast for New York'
+        message: 'Weather forecast for Caluag'
     },
     {
         id: '5',
         type: 'Report',
         date: '28 Mar, 2025',
         time: '15:18',
-        message: 'Weather forecast for Tokyo'
+        message: 'River exceed threshold limit'
     }
 ];
 
@@ -88,16 +88,18 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                 sx={{
                     position: 'absolute',
                     top: '16px',
-                    right: '16px',
+                    right: '124px', // Moved to avoid dashboard toggle button
                     width: '280px',
                     maxHeight: 'calc(100% - 32px)',
                     display: 'flex',
                     flexDirection: 'column',
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    bgcolor: '#212121',
+                    bgcolor: 'rgba(33, 33, 33, 0.95)',
+                    backdropFilter: 'blur(10px)',
                     color: 'white',
-                    zIndex: 10
+                    zIndex: 1200,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
                 }}
             >
                 {/* Header */}
@@ -308,13 +310,16 @@ export const AlertsToggleButton = ({ onClick, isPanelOpen }: { onClick: () => vo
             sx={{
                 position: 'absolute',
                 top: '16px',
-                right: isPanelOpen ? '300px' : '16px',
-                zIndex: 10,
-                bgcolor: isPanelOpen ? 'transparent' : 'rgba(33, 33, 33, 0.8)',
+                right: isPanelOpen ? '408px' : '124px', // Position next to alerts panel
+                zIndex: 1150,
+                bgcolor: isPanelOpen ? 'transparent' : 'rgba(33, 33, 33, 0.9)',
+                backdropFilter: isPanelOpen ? 'none' : 'blur(5px)',
                 color: 'white',
-                transition: 'right 0.3s ease',
+                transition: 'all 0.3s ease',
+                boxShadow: isPanelOpen ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
                 '&:hover': {
-                    bgcolor: isPanelOpen ? 'transparent' : 'rgba(33, 33, 33, 0.9)',
+                    bgcolor: isPanelOpen ? 'transparent' : 'rgba(33, 33, 33, 1)',
+                    transform: isPanelOpen ? 'none' : 'scale(1.1)'
                 }
             }}
         >

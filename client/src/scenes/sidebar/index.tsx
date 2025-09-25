@@ -158,7 +158,7 @@ const Sidebar = () => {
         {
             text: 'Weather Alerts',
             icon: <WarningIcon />,
-            path: '/weather-alerts',
+            path: '/alerts',
             badge: '1'
         },
         {
