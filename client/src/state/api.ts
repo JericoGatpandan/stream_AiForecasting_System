@@ -136,6 +136,13 @@ type BackendFloodRisk = {
 // Mock data fallback
 const useMockData = false; // Set to false to use backend API
 
+// Debug logging
+const debugLog = (message: string, data?: any) => {
+    if (import.meta.env.VITE_ENABLE_DEV_TOOLS === 'true' || import.meta.env.DEV) {
+        console.log('[API Debug]', message, data);
+    }
+};
+
 const mockBaseQuery = async (args: string | { url: string }) => {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
     
@@ -174,7 +181,15 @@ const mockBaseQuery = async (args: string | { url: string }) => {
 };
 
 export const api = createApi({
-    baseQuery: useMockData ? mockBaseQuery : fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
+    baseQuery: useMockData ? mockBaseQuery : fetchBaseQuery({ 
+        baseUrl: import.meta.env.VITE_BASE_URL,
+        prepareHeaders: (headers) => {
+            debugLog('Preparing headers for request', { baseUrl: import.meta.env.VITE_BASE_URL });
+            headers.set('content-type', 'application/json');
+            return headers;
+        },
+        timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '15000'),
+    }),
     reducerPath: 'main',
     tagTypes: ['WeatherAlert', 'UserLocation', 'WeatherTrigger', 'Notification', 'EnvironmentalData', 'FloodCharacteristics', 'FloodRiskAssessment', 'Sensor', 'SensorReading', 'Barangay'],
     endpoints: (build) => ({
