@@ -13,9 +13,15 @@ let sequelize;
 const envVarName = config.use_env_variable;
 const connectionUrl = envVarName ? process.env[envVarName] : undefined;
 
+// Build a minimal options object (avoid passing database/host/user when using URL)
+const buildOptions = (base) => {
+  const { dialect, dialectModule, dialectOptions, logging, timezone, pool, define, query, retry, isolationLevel } = base || {};
+  return { dialect, dialectModule, dialectOptions, logging, timezone, pool, define, query, retry, isolationLevel };
+};
+
 if (envVarName && connectionUrl && connectionUrl.trim()) {
   // Preferred: single connection URL (e.g., Railway MYSQL_URL via DB_URL)
-  sequelize = new Sequelize(connectionUrl, config);
+  sequelize = new Sequelize(connectionUrl, buildOptions(config));
 } else {
   // Fallback to discrete credentials
   sequelize = new Sequelize(config.database, config.username, config.password, config);
