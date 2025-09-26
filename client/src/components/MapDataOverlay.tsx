@@ -28,7 +28,9 @@ const MapDataOverlay: React.FC<MapDataOverlayProps> = ({ selectedLocation = 'Pac
 
     // Get latest environmental data
     const latestData = environmentalData && environmentalData.length > 0 ? environmentalData[environmentalData.length - 1] : null;
-    const latestFloodData = floodData && floodData.length > 0 ? floodData[0] : null;
+    const latestFloodData = Array.isArray(floodData)
+        ? (floodData.length > 0 ? floodData[0] : null)
+        : (floodData ?? null);
 
     const getRiskColor = (level?: string) => {
         switch (level) {

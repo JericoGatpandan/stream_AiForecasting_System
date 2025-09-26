@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
     Box,
+    Grid,
     Card,
     CardContent,
     Typography,
@@ -8,7 +9,6 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    Grid,
     CircularProgress,
     Alert,
 } from '@mui/material';
@@ -30,9 +30,9 @@ interface SensorReadingsChartProps {
     sensorName?: string;
 }
 
-const SensorReadingsChart: React.FC<SensorReadingsChartProps> = ({ 
-    sensorId, 
-    sensorName 
+const SensorReadingsChart: React.FC<SensorReadingsChartProps> = ({
+    sensorId,
+    sensorName
 }) => {
     const [selectedPeriod, setSelectedPeriod] = useState('24h');
     const [selectedParameter, setSelectedParameter] = useState('water_level');
@@ -94,7 +94,7 @@ const SensorReadingsChart: React.FC<SensorReadingsChartProps> = ({
 
     const selectedParamOption = parameterOptions.find(p => p.value === selectedParameter);
 
-    const CustomTooltip = ({ active, payload, label }: any) => {
+    const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value?: number }>; label?: string }) => {
         if (active && payload && payload.length) {
             return (
                 <div className="bg-white p-3 border rounded shadow">
@@ -144,7 +144,7 @@ const SensorReadingsChart: React.FC<SensorReadingsChartProps> = ({
                 </Box>
 
                 <Grid container spacing={2} mb={3}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <FormControl fullWidth size="small">
                             <InputLabel>Parameter</InputLabel>
                             <Select
@@ -160,7 +160,7 @@ const SensorReadingsChart: React.FC<SensorReadingsChartProps> = ({
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <FormControl fullWidth size="small">
                             <InputLabel>Time Period</InputLabel>
                             <Select
@@ -183,12 +183,12 @@ const SensorReadingsChart: React.FC<SensorReadingsChartProps> = ({
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis 
+                                <XAxis
                                     dataKey="timestamp"
                                     tick={{ fontSize: 12 }}
                                     interval="preserveStartEnd"
                                 />
-                                <YAxis 
+                                <YAxis
                                     tick={{ fontSize: 12 }}
                                     domain={['dataMin - 5%', 'dataMax + 5%']}
                                 />
@@ -215,7 +215,7 @@ const SensorReadingsChart: React.FC<SensorReadingsChartProps> = ({
 
                 <Box mt={2}>
                     <Typography variant="caption" color="textSecondary">
-                        Total readings: {readingsData?.total || 0} | 
+                        Total readings: {readingsData?.total || 0} |
                         Showing: {chartData.length} points
                     </Typography>
                 </Box>

@@ -6,18 +6,12 @@ import {
     CardContent,
     Typography,
     Chip,
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     TextField,
     FormControl,
     InputLabel,
     Select,
     MenuItem,
     Alert,
-    Divider,
     List,
     ListItem,
     ListItemText,
@@ -28,7 +22,7 @@ import {
     LocationOn,
     Sensors,
     Battery90,
-    SignalWifi4Bar,
+    // SignalWifi4Bar,
     AccessTime,
     Edit,
     Save,
@@ -44,7 +38,7 @@ interface SensorDetailViewProps {
     onClose?: () => void;
 }
 
-const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }) => {
+const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId }) => {
     const [editMode, setEditMode] = useState(false);
     const [editFormData, setEditFormData] = useState<Partial<Sensor>>({});
 
@@ -96,13 +90,13 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'active':
-                return 'success';
+                return 'success' as const;
             case 'maintenance':
-                return 'warning';
+                return 'warning' as const;
             case 'error':
-                return 'error';
+                return 'error' as const;
             default:
-                return 'default';
+                return 'default' as const;
         }
     };
 
@@ -126,7 +120,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
         <Box>
             <Grid container spacing={3}>
                 {/* Sensor Information Card */}
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Card>
                         <CardContent>
                             <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
@@ -140,7 +134,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                         </IconButton>
                                     </Tooltip>
                                     <Tooltip title={editMode ? "Cancel Edit" : "Edit Sensor"}>
-                                        <IconButton 
+                                        <IconButton
                                             onClick={editMode ? handleCancel : handleEdit}
                                             color={editMode ? "secondary" : "primary"}
                                         >
@@ -149,7 +143,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                     </Tooltip>
                                     {editMode && (
                                         <Tooltip title="Save Changes">
-                                            <IconButton 
+                                            <IconButton
                                                 onClick={handleSave}
                                                 color="primary"
                                                 disabled={isUpdating}
@@ -167,7 +161,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                         <InputLabel>Status</InputLabel>
                                         <Select
                                             value={editFormData.status || sensor.status}
-                                            onChange={(e) => setEditFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                                            onChange={(e) => setEditFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' | 'maintenance' | 'error' }))}
                                             label="Status"
                                         >
                                             <MenuItem value="active">Active</MenuItem>
@@ -179,7 +173,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                 ) : (
                                     <Chip
                                         label={sensor.status.toUpperCase()}
-                                        color={getStatusColor(sensor.status) as any}
+                                        color={getStatusColor(sensor.status)}
                                         variant="outlined"
                                     />
                                 )}
@@ -193,7 +187,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                         secondary={sensor.sensor_type.replace('_', ' ').toUpperCase()}
                                     />
                                 </ListItem>
-                                
+
                                 <ListItem>
                                     <LocationOn sx={{ mr: 2 }} />
                                     <ListItemText
@@ -221,9 +215,9 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                                 type="number"
                                                 size="small"
                                                 value={editFormData.battery_level || sensor.battery_level || ''}
-                                                onChange={(e) => setEditFormData(prev => ({ 
-                                                    ...prev, 
-                                                    battery_level: parseFloat(e.target.value) 
+                                                onChange={(e) => setEditFormData(prev => ({
+                                                    ...prev,
+                                                    battery_level: parseFloat(e.target.value)
                                                 }))}
                                                 inputProps={{ min: 0, max: 100 }}
                                                 sx={{ width: 100 }}
@@ -243,9 +237,9 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                                 type="number"
                                                 size="small"
                                                 value={editFormData.transmission_interval || sensor.transmission_interval}
-                                                onChange={(e) => setEditFormData(prev => ({ 
-                                                    ...prev, 
-                                                    transmission_interval: parseInt(e.target.value) 
+                                                onChange={(e) => setEditFormData(prev => ({
+                                                    ...prev,
+                                                    transmission_interval: parseInt(e.target.value)
                                                 }))}
                                                 inputProps={{ min: 60 }}
                                                 sx={{ width: 120 }}
@@ -264,9 +258,9 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                                 <TextField
                                                     size="small"
                                                     value={editFormData.watershed_zone || sensor.watershed_zone || ''}
-                                                    onChange={(e) => setEditFormData(prev => ({ 
-                                                        ...prev, 
-                                                        watershed_zone: e.target.value 
+                                                    onChange={(e) => setEditFormData(prev => ({
+                                                        ...prev,
+                                                        watershed_zone: e.target.value
                                                     }))}
                                                     sx={{ width: 200 }}
                                                 />
@@ -286,9 +280,9 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                                 <TextField
                                                     size="small"
                                                     value={editFormData.river_section || sensor.river_section || ''}
-                                                    onChange={(e) => setEditFormData(prev => ({ 
-                                                        ...prev, 
-                                                        river_section: e.target.value 
+                                                    onChange={(e) => setEditFormData(prev => ({
+                                                        ...prev,
+                                                        river_section: e.target.value
                                                     }))}
                                                     sx={{ width: 200 }}
                                                 />
@@ -305,13 +299,13 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                 </Grid>
 
                 {/* Maintenance Information */}
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Card>
                         <CardContent>
                             <Typography variant="h6" mb={2}>
                                 Maintenance Information
                             </Typography>
-                            
+
                             <List dense>
                                 <ListItem>
                                     <ListItemText
@@ -319,28 +313,28 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                         secondary={formatTimestamp(sensor.installation_date)}
                                     />
                                 </ListItem>
-                                
+
                                 <ListItem>
                                     <ListItemText
                                         primary="Last Maintenance"
                                         secondary={formatTimestamp(sensor.last_maintenance)}
                                     />
                                 </ListItem>
-                                
+
                                 <ListItem>
                                     <ListItemText
                                         primary="Last Calibration"
                                         secondary={formatTimestamp(sensor.calibration_date)}
                                     />
                                 </ListItem>
-                                
+
                                 <ListItem>
                                     <ListItemText
                                         primary="Created"
                                         secondary={formatTimestamp(sensor.createdAt)}
                                     />
                                 </ListItem>
-                                
+
                                 <ListItem>
                                     <ListItemText
                                         primary="Last Updated"
@@ -354,24 +348,24 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
 
                 {/* Recent Readings Summary */}
                 {sensor.readings && sensor.readings.length > 0 && (
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" mb={2}>
                                     Recent Readings (Last 24 Hours)
                                 </Typography>
-                                
+
                                 <Grid container spacing={2}>
                                     {sensor.readings.slice(0, 5).map((reading, index) => (
-                                        <Grid item xs={12} sm={6} md={4} key={index}>
+                                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                                             <Box border={1} borderColor="grey.300" borderRadius={1} p={2}>
                                                 <Typography variant="caption" color="textSecondary">
                                                     {formatTimestamp(reading.timestamp)}
                                                 </Typography>
-                                                
+
                                                 <Grid container spacing={1} mt={1}>
                                                     {reading.water_level !== null && (
-                                                        <Grid item xs={6}>
+                                                        <Grid size={6}>
                                                             <Typography variant="body2">
                                                                 <strong>Water Level:</strong><br />
                                                                 {reading.water_level?.toFixed(2)} m
@@ -379,7 +373,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                                         </Grid>
                                                     )}
                                                     {reading.rainfall !== null && (
-                                                        <Grid item xs={6}>
+                                                        <Grid size={6}>
                                                             <Typography variant="body2">
                                                                 <strong>Rainfall:</strong><br />
                                                                 {reading.rainfall?.toFixed(2)} mm
@@ -387,7 +381,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                                         </Grid>
                                                     )}
                                                     {reading.air_temperature !== null && (
-                                                        <Grid item xs={6}>
+                                                        <Grid size={6}>
                                                             <Typography variant="body2">
                                                                 <strong>Temperature:</strong><br />
                                                                 {reading.air_temperature?.toFixed(1)} °C
@@ -395,7 +389,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                                         </Grid>
                                                     )}
                                                     {reading.humidity !== null && (
-                                                        <Grid item xs={6}>
+                                                        <Grid size={6}>
                                                             <Typography variant="body2">
                                                                 <strong>Humidity:</strong><br />
                                                                 {reading.humidity?.toFixed(1)} %
@@ -403,13 +397,13 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                                                         </Grid>
                                                     )}
                                                 </Grid>
-                                                
+
                                                 <Chip
                                                     label={reading.data_quality.toUpperCase()}
                                                     size="small"
-                                                    color={reading.data_quality === 'excellent' ? 'success' : 
-                                                           reading.data_quality === 'good' ? 'primary' : 
-                                                           reading.data_quality === 'fair' ? 'warning' : 'error'}
+                                                    color={reading.data_quality === 'excellent' ? 'success' :
+                                                        reading.data_quality === 'good' ? 'primary' :
+                                                            reading.data_quality === 'fair' ? 'warning' : 'error'}
                                                     sx={{ mt: 1 }}
                                                 />
                                             </Box>
@@ -422,7 +416,7 @@ const SensorDetailView: React.FC<SensorDetailViewProps> = ({ sensorId, onClose }
                 )}
 
                 {/* Sensor Readings Chart */}
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <SensorReadingsChart sensorId={sensorId} sensorName={sensor.name} />
                 </Grid>
             </Grid>

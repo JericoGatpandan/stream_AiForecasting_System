@@ -28,8 +28,7 @@ import {
     Error,
     Build,
 } from '@mui/icons-material';
-import { useGetLatestSensorReadingsQuery, useGetAllSensorsQuery } from '../state/api';
-import type { Sensor, SensorReading } from '../state/types';
+import { useGetLatestSensorReadingsQuery } from '../state/api';
 
 const SensorDashboard: React.FC = () => {
     const [selectedBarangay, setSelectedBarangay] = useState<string>('');
@@ -52,8 +51,8 @@ const SensorDashboard: React.FC = () => {
         }
     );
 
-    // Fetch all sensors for filter options
-    const { data: sensorsData } = useGetAllSensorsQuery({});
+    // Fetch all sensors metadata if needed (not used currently)
+    // const { data: sensorsData } = useGetAllSensorsQuery({});
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -180,7 +179,7 @@ const SensorDashboard: React.FC = () => {
             {/* Summary Stats */}
             <Box mb={3}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Card>
                             <CardContent>
                                 <Typography color="textSecondary" gutterBottom>
@@ -192,7 +191,7 @@ const SensorDashboard: React.FC = () => {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Card>
                             <CardContent>
                                 <Typography color="textSecondary" gutterBottom>
@@ -204,7 +203,7 @@ const SensorDashboard: React.FC = () => {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Card>
                             <CardContent>
                                 <Typography color="textSecondary" gutterBottom>
@@ -216,7 +215,7 @@ const SensorDashboard: React.FC = () => {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Card>
                             <CardContent>
                                 <Typography color="textSecondary" gutterBottom>
@@ -234,7 +233,7 @@ const SensorDashboard: React.FC = () => {
             {/* Sensor Cards */}
             <Grid container spacing={3}>
                 {sensors.map((sensor) => (
-                    <Grid item xs={12} sm={6} lg={4} key={sensor.sensor_id}>
+                    <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={sensor.sensor_id}>
                         <Card>
                             <CardContent>
                                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
@@ -281,28 +280,28 @@ const SensorDashboard: React.FC = () => {
                                         </Typography>
                                         <Grid container spacing={1}>
                                             {sensor.latest_reading.water_level !== null && (
-                                                <Grid item xs={6}>
+                                                <Grid size={6}>
                                                     <Typography variant="body2">
                                                         Water Level: {formatValue(sensor.latest_reading.water_level, 'm')}
                                                     </Typography>
                                                 </Grid>
                                             )}
                                             {sensor.latest_reading.rainfall !== null && (
-                                                <Grid item xs={6}>
+                                                <Grid size={6}>
                                                     <Typography variant="body2">
                                                         Rainfall: {formatValue(sensor.latest_reading.rainfall, 'mm')}
                                                     </Typography>
                                                 </Grid>
                                             )}
                                             {sensor.latest_reading.air_temperature !== null && (
-                                                <Grid item xs={6}>
+                                                <Grid size={6}>
                                                     <Typography variant="body2">
                                                         Temp: {formatValue(sensor.latest_reading.air_temperature, '°C')}
                                                     </Typography>
                                                 </Grid>
                                             )}
                                             {sensor.latest_reading.humidity !== null && (
-                                                <Grid item xs={6}>
+                                                <Grid size={6}>
                                                     <Typography variant="body2">
                                                         Humidity: {formatValue(sensor.latest_reading.humidity, '%')}
                                                     </Typography>
