@@ -26,6 +26,8 @@ app.use('/environmental', require('./routes/environmentalData'));
 app.use('/weather', require('./routes/weather'));
 app.use('/barangays', require('./routes/barangays'));
 app.use('/flood', require('./routes/floodCharacteristics'));
+app.use('/sensors', require('./routes/sensors'));
+app.use('/predictions', require('./routes/predictions'));
 
 app.get('/health', async (req, res) => {
   const uptime = process.uptime();

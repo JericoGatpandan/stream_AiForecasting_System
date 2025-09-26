@@ -8,7 +8,10 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "start:prod": "NODE_ENV=production node index.js",
-    "build": "npm install --production"
+    "build": "npm install --production",
+    "seed": "node seedMVP.js",
+    "seed:dev": "NODE_ENV=development node seedMVP.js",
+    "seed:prod": "NODE_ENV=production node seedMVP.js"
   },
   "author": "",
   "license": "ISC",
