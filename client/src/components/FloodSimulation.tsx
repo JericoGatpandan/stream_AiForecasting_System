@@ -2,8 +2,17 @@ import { useEffect, useRef } from 'react';
 import { getFloodRiskColor } from '../data/floodSimulationData';
 import type { FloodTimeFrame } from '../data/floodSimulationData';
 
+// Mapbox Map type definition
+interface MapboxMap {
+    getLayer: (layerId: string) => any;
+    setPaintProperty: (layerId: string, property: string, value: any) => void;
+}
+
+// Mapbox expression type
+type MapboxExpression = (string | number | boolean | any[])[];
+
 export interface FloodSimulationProps {
-    map: any;
+    map: MapboxMap | null;
     isActive: boolean;
     currentTimeFrame: FloodTimeFrame | null;
 }
@@ -65,7 +74,7 @@ const FloodSimulation: React.FC<FloodSimulationProps> = ({
             
             if (map.getLayer(barangayFillLayer)) {
                 // Create flood risk color expression
-                const colorExpression: any = ['case'];
+                const colorExpression: MapboxExpression = ['case'];
                 
                 Object.entries(sampleData).forEach(([barangayId, risk]) => {
                     const color = getFloodRiskColor(risk);
@@ -85,8 +94,8 @@ const FloodSimulation: React.FC<FloodSimulationProps> = ({
             
             if (map.getLayer(barangayBorderLayer)) {
                 // Also update border colors for high-risk areas
-                const borderColorExpression: any = ['case'];
-                const borderWidthExpression: any = ['case'];
+                const borderColorExpression: MapboxExpression = ['case'];
+                const borderWidthExpression: MapboxExpression = ['case'];
                 
                 Object.entries(sampleData).forEach(([barangayId, risk]) => {
                     if (risk > 0.5) { // High risk areas get different borders

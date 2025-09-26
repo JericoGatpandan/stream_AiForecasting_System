@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, type ReactNode } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+import { designTokens } from '../design/tokens';
 
 interface ThemeContextType {
   isDarkMode: boolean;
@@ -21,25 +22,168 @@ interface CustomThemeProviderProps {
   children: ReactNode;
 }
 
-// Figma design color palette
-const figmaColors = {
-  light: {
-    background: '#FFFFFF',
-    selection: '#5D7285',
-    primary: '#0C7FDA',
-    secondary: '#E9F5FE',
-    text: '#1E252B',
-    textSecondary: '#667A8A',
-  },
-  dark: {
-    background: '#031C30',
-    selection: '#5D7285',
-    primary: '#0C7FDA',
-    secondary: '#E9F5FE',
-    text: '#FFFFFF',
-    textSecondary: '#667A8A',
-    paper: '#EFF2F4',
-  },
+// Enhanced theme creation function
+const createEnhancedTheme = (isDarkMode: boolean) => {
+  return createTheme({
+    palette: {
+      mode: isDarkMode ? 'dark' : 'light',
+      primary: {
+        main: designTokens.colors.primary[500],
+        light: designTokens.colors.primary[400],
+        dark: designTokens.colors.primary[700],
+        contrastText: '#ffffff',
+      },
+      secondary: {
+        main: designTokens.colors.gray[600],
+        light: designTokens.colors.gray[400],
+        dark: designTokens.colors.gray[800],
+        contrastText: '#ffffff',
+      },
+      success: {
+        main: designTokens.colors.success[500],
+        light: designTokens.colors.success[200],
+        dark: designTokens.colors.success[700],
+      },
+      warning: {
+        main: designTokens.colors.warning[500],
+        light: designTokens.colors.warning[200],
+        dark: designTokens.colors.warning[700],
+      },
+      error: {
+        main: designTokens.colors.error[500],
+        light: designTokens.colors.error[200],
+        dark: designTokens.colors.error[700],
+      },
+      background: {
+        default: isDarkMode 
+          ? designTokens.colors.background.dark 
+          : designTokens.colors.background.light,
+        paper: isDarkMode 
+          ? designTokens.colors.background.darkSecondary 
+          : designTokens.colors.background.light,
+      },
+      text: {
+        primary: isDarkMode ? '#FFFFFF' : designTokens.colors.gray[900],
+        secondary: isDarkMode ? designTokens.colors.gray[400] : designTokens.colors.gray[600],
+      },
+    },
+    
+    typography: {
+      fontFamily: designTokens.typography.fontFamily.primary,
+      h1: {
+        fontSize: designTokens.typography.fontSize['5xl'],
+        fontWeight: designTokens.typography.fontWeight.bold,
+        lineHeight: designTokens.typography.lineHeight.tight,
+      },
+      h2: {
+        fontSize: designTokens.typography.fontSize['4xl'],
+        fontWeight: designTokens.typography.fontWeight.bold,
+        lineHeight: designTokens.typography.lineHeight.tight,
+      },
+      h3: {
+        fontSize: designTokens.typography.fontSize['3xl'],
+        fontWeight: designTokens.typography.fontWeight.semibold,
+        lineHeight: designTokens.typography.lineHeight.tight,
+      },
+      h4: {
+        fontSize: designTokens.typography.fontSize['2xl'],
+        fontWeight: designTokens.typography.fontWeight.semibold,
+        lineHeight: designTokens.typography.lineHeight.normal,
+      },
+      h5: {
+        fontSize: designTokens.typography.fontSize.xl,
+        fontWeight: designTokens.typography.fontWeight.medium,
+        lineHeight: designTokens.typography.lineHeight.normal,
+      },
+      h6: {
+        fontSize: designTokens.typography.fontSize.lg,
+        fontWeight: designTokens.typography.fontWeight.medium,
+        lineHeight: designTokens.typography.lineHeight.normal,
+      },
+      body1: {
+        fontSize: designTokens.typography.fontSize.base,
+        lineHeight: designTokens.typography.lineHeight.normal,
+      },
+      body2: {
+        fontSize: designTokens.typography.fontSize.sm,
+        lineHeight: designTokens.typography.lineHeight.normal,
+      },
+    },
+    
+    shape: {
+      borderRadius: parseInt(designTokens.borderRadius.base),
+    },
+    
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            fontWeight: designTokens.typography.fontWeight.medium,
+            borderRadius: designTokens.borderRadius.md,
+            padding: `${designTokens.spacing.sm} ${designTokens.spacing.lg}`,
+            transition: `all ${designTokens.animation.duration.base} ${designTokens.animation.easing.easeOut}`,
+            '&:hover': {
+              transform: 'translateY(-1px)',
+              boxShadow: designTokens.shadows.md,
+            },
+          },
+          contained: {
+            boxShadow: designTokens.shadows.sm,
+            '&:hover': {
+              boxShadow: designTokens.shadows.lg,
+            },
+          },
+        },
+      },
+      
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            borderRadius: designTokens.borderRadius.lg,
+            boxShadow: isDarkMode ? designTokens.shadows.xl : designTokens.shadows.md,
+            border: isDarkMode 
+              ? `1px solid ${designTokens.colors.gray[800]}` 
+              : `1px solid ${designTokens.colors.gray[200]}`,
+          },
+        },
+      },
+      
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: designTokens.borderRadius.xl,
+            transition: `all ${designTokens.animation.duration.base} ${designTokens.animation.easing.easeOut}`,
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: designTokens.shadows['2xl'],
+            },
+          },
+        },
+      },
+      
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            borderRadius: designTokens.borderRadius.full,
+            fontWeight: designTokens.typography.fontWeight.medium,
+          },
+        },
+      },
+      
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: designTokens.borderRadius.md,
+            transition: `all ${designTokens.animation.duration.base} ${designTokens.animation.easing.easeOut}`,
+            '&:hover': {
+              transform: 'scale(1.05)',
+            },
+          },
+        },
+      },
+    },
+  });
 };
 
 export const CustomThemeProvider: React.FC<CustomThemeProviderProps> = ({ children }) => {
@@ -57,141 +201,7 @@ export const CustomThemeProvider: React.FC<CustomThemeProviderProps> = ({ childr
     });
   };
 
-  const colors = isDarkMode ? figmaColors.dark : figmaColors.light;
-  
-  const theme = createTheme({
-    palette: {
-      mode: isDarkMode ? 'dark' : 'light',
-      primary: {
-        main: colors.primary,
-        dark: '#0A6BC7',
-        light: '#4A9EFF',
-        contrastText: '#ffffff',
-      },
-      secondary: {
-        main: colors.selection,
-        dark: '#4A5F71',
-        light: '#7A8F9F',
-        contrastText: '#ffffff',
-      },
-      background: {
-        default: colors.background,
-        paper: isDarkMode ? figmaColors.dark.paper || '#1A2332' : '#ffffff',
-      },
-      text: {
-        primary: colors.text,
-        secondary: colors.textSecondary,
-      },
-      action: {
-        hover: isDarkMode ? 'rgba(93, 114, 133, 0.1)' : 'rgba(12, 127, 218, 0.08)',
-        selected: colors.secondary,
-      },
-    },
-    typography: {
-      fontFamily: [
-        '"Inter"',
-        '"Roboto"',
-        '"Helvetica Neue"',
-        'Arial',
-        'sans-serif'
-      ].join(','),
-      h1: {
-        fontSize: '2.5rem',
-        fontWeight: 700,
-        lineHeight: 1.2,
-      },
-      h2: {
-        fontSize: '2rem',
-        fontWeight: 600,
-        lineHeight: 1.25,
-      },
-      h3: {
-        fontSize: '1.5rem',
-        fontWeight: 600,
-        lineHeight: 1.3,
-      },
-      h4: {
-        fontSize: '1.25rem',
-        fontWeight: 500,
-        lineHeight: 1.4,
-      },
-      h5: {
-        fontSize: '1.125rem',
-        fontWeight: 500,
-        lineHeight: 1.4,
-      },
-      h6: {
-        fontSize: '1rem',
-        fontWeight: 500,
-        lineHeight: 1.5,
-      },
-      body1: {
-        fontSize: '1rem',
-        lineHeight: 1.6,
-      },
-      body2: {
-        fontSize: '0.875rem',
-        lineHeight: 1.5,
-      },
-    },
-    shape: {
-      borderRadius: 8,
-    },
-    components: {
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            textTransform: 'none',
-            borderRadius: 8,
-            fontWeight: 500,
-            transition: 'all 0.2s ease-in-out',
-            '&:hover': {
-              transform: 'translateY(-1px)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            },
-          },
-        },
-      },
-      MuiPaper: {
-        styleOverrides: {
-          root: {
-            borderRadius: 12,
-            boxShadow: isDarkMode 
-              ? '0 4px 20px rgba(0,0,0,0.3)' 
-              : '0 4px 20px rgba(0,0,0,0.08)',
-          },
-        },
-      },
-      MuiCard: {
-        styleOverrides: {
-          root: {
-            borderRadius: 12,
-            boxShadow: isDarkMode 
-              ? '0 4px 16px rgba(0,0,0,0.3)' 
-              : '0 4px 16px rgba(0,0,0,0.08)',
-            transition: 'all 0.2s ease-in-out',
-            '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: isDarkMode 
-                ? '0 8px 32px rgba(0,0,0,0.4)' 
-                : '0 8px 32px rgba(0,0,0,0.12)',
-            },
-          },
-        },
-      },
-      MuiIconButton: {
-        styleOverrides: {
-          root: {
-            borderRadius: 8,
-            transition: 'all 0.2s ease-in-out',
-            '&:hover': {
-              transform: 'scale(1.05)',
-            },
-          },
-        },
-      },
-    },
-  });
+  const theme = createEnhancedTheme(isDarkMode);
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>

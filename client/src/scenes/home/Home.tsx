@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import Map from '../map/Map'
+import { useState, Suspense, lazy } from 'react'
 import {
     Box,
     Paper,
@@ -8,8 +7,12 @@ import {
     Collapse,
     IconButton,
     Tooltip,
-    Chip
+    Chip,
+    CircularProgress
 } from '@mui/material'
+
+// Lazy load the Map component
+const Map = lazy(() => import('../map/Map'));
 import { useTheme } from '@mui/material/styles'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
@@ -177,7 +180,26 @@ function Home() {
                 }}
             >
                 <Box sx={{ height: '100%', width: '100%' }}>
-                    <Map />
+                    <Suspense 
+                        fallback={
+                            <Box 
+                                sx={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'center', 
+                                    alignItems: 'center', 
+                                    height: '100%',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                    color: 'text.secondary'
+                                }}
+                            >
+                                <CircularProgress size={40} />
+                                <Typography variant="body2">Loading Map...</Typography>
+                            </Box>
+                        }
+                    >
+                        <Map />
+                    </Suspense>
                 </Box>
             </Paper>
 

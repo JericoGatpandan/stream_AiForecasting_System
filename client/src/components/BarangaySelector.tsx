@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
     FormControl,
     InputLabel,
@@ -26,18 +26,18 @@ const BARANGAYS = [
     'Tabuco', 'Tinago', 'Triangulo'
 ];
 
-const BarangaySelector: React.FC<BarangaySelectorProps> = ({
+const BarangaySelector: React.FC<BarangaySelectorProps> = React.memo(({
     selectedBarangay,
     onBarangayChange,
     size = 'medium',
     variant = 'outlined',
     whiteTheme = false
 }) => {
-    const handleChange = (event: { target: { value: string } }) => {
+    const handleChange = useCallback((event: { target: { value: string } }) => {
         onBarangayChange(event.target.value);
-    };
+    }, [onBarangayChange]);
 
-    const whiteThemeStyles = whiteTheme ? {
+    const whiteThemeStyles = useMemo(() => whiteTheme ? {
         '& .MuiInputLabel-root': { 
             color: 'white',
             '&.Mui-focused': { color: 'white' }
@@ -57,19 +57,31 @@ const BarangaySelector: React.FC<BarangaySelectorProps> = ({
         '& .MuiSvgIcon-root': { 
             color: 'white' 
         }
-    } : {};
+    } : {}, [whiteTheme]);
 
-    const chipStyles = whiteTheme ? {
+    const chipStyles = useMemo(() => whiteTheme ? {
         backgroundColor: 'rgba(255,255,255,0.15)',
         color: 'white',
         borderColor: 'rgba(255,255,255,0.3)',
         '& .MuiChip-icon': {
             color: 'white'
         }
-    } : {};
+    } : {}, [whiteTheme]);
+
+    const barangayItems = useMemo(() => 
+        BARANGAYS.map((barangay) => (
+            <MenuItem key={barangay} value={barangay}>
+                {barangay}
+            </MenuItem>
+        )), []
+    );
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box 
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            role="region"
+            aria-label="Barangay selection"
+        >
             {selectedBarangay && (
                 <Chip
                     icon={<LocationOnIcon />}
@@ -78,25 +90,35 @@ const BarangaySelector: React.FC<BarangaySelectorProps> = ({
                     variant="outlined"
                     size={size}
                     sx={chipStyles}
+                    aria-label={`Currently selected barangay: ${selectedBarangay}`}
                 />
             )}
             <FormControl variant={variant} size={size} sx={{ minWidth: 200, ...whiteThemeStyles }}>
-                <InputLabel id="barangay-select-label">Select Barangay</InputLabel>
+                <InputLabel 
+                    id="barangay-select-label"
+                    shrink={!!selectedBarangay}
+                >
+                    Select Barangay
+                </InputLabel>
                 <Select
                     labelId="barangay-select-label"
                     value={selectedBarangay}
                     onChange={handleChange}
                     label="Select Barangay"
+                    aria-describedby="barangay-helper-text"
+                    MenuProps={{
+                        PaperProps: {
+                            'aria-label': 'Barangay options'
+                        }
+                    }}
                 >
-                    {BARANGAYS.map((barangay) => (
-                        <MenuItem key={barangay} value={barangay}>
-                            {barangay}
-                        </MenuItem>
-                    ))}
+                    {barangayItems}
                 </Select>
             </FormControl>
         </Box>
     );
-};
+});
+
+BarangaySelector.displayName = 'BarangaySelector';
 
 export default BarangaySelector;

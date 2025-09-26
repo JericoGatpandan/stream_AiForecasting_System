@@ -27,6 +27,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SpeedIcon from '@mui/icons-material/Speed';
 import BarangaySelector from '@/components/BarangaySelector';
 import AlertBanner from '@/components/AlertBanner';
+import LoadingSkeleton from '@/components/LoadingSkeleton';
 import { useGetWeatherForecastQuery, useGetHourlyForecastQuery, useGetFloodCharacteristicsQuery, useGetCurrentFloodRiskQuery } from '@/state/api';
 
 const Forecast: React.FC = () => {
@@ -47,7 +48,6 @@ const Forecast: React.FC = () => {
     } = useGetHourlyForecastQuery(selectedBarangay);
 
     const {
-        data: _floodData,
         isLoading: floodLoading,
         refetch: refetchFlood
     } = useGetFloodCharacteristicsQuery(selectedBarangay);
@@ -164,9 +164,11 @@ const Forecast: React.FC = () => {
             {/* Current Flood Risk Assessment */}
             <Paper elevation={2} sx={{ p: 0, mb: 3, borderRadius: 3, overflow: 'hidden' }}>
                 {riskLoading || floodLoading ? (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
-                        <Skeleton variant="rectangular" width="100%" height={200} />
-                    </Box>
+                    <LoadingSkeleton 
+                        variant="card" 
+                        height={280}
+                        animation="wave"
+                    />
                 ) : floodRiskData ? (
                     <Box sx={{ 
                         background: `linear-gradient(135deg, ${getFloodRiskColor(floodRiskData.currentRiskLevel)}22 0%, ${getFloodRiskColor(floodRiskData.currentRiskLevel)}11 100%)`,

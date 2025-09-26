@@ -207,6 +207,17 @@
       "center": [123.19, 13.62],
       "zoom_level": 15,
       "status": "active"
+    }, 
+    {
+      "id": "cararayan",
+      "name": "Cararayan",
+      "file": "cararayan.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
     }
+    
+   
+    
   ]
 }

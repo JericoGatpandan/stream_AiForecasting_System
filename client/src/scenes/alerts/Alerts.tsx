@@ -66,7 +66,7 @@ function Alerts() {
 
     // Filter and sort alerts
     const filteredAlerts = React.useMemo(() => {
-        let filtered = alerts.filter(alert => {
+        const filtered = alerts.filter(alert => {
             const matchesSearch = alert.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 alert.message.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesSeverity = severityFilter === 'all' || alert.severity === severityFilter;
@@ -87,7 +87,7 @@ function Alerts() {
 
     // Filter and sort reports
     const filteredReports = React.useMemo(() => {
-        let filtered = reports.filter(report => {
+        const filtered = reports.filter(report => {
             const matchesSearch = report.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 report.description.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
@@ -120,7 +120,7 @@ function Alerts() {
         return <WaterDropIcon />;
     };
 
-    const getSeverityColor = (severity: string) => {
+    const getSeverityColor = (severity: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
         switch (severity) {
             case 'extreme': return 'error';
             case 'high': return 'warning';
@@ -129,7 +129,7 @@ function Alerts() {
         }
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
         switch (status) {
             case 'critical': return 'error';
             case 'elevated': return 'warning';
@@ -218,7 +218,7 @@ function Alerts() {
                         <Chip
                             label={alert.severity}
                             size="small"
-                            color={getSeverityColor(alert.severity) as any}
+                            color={getSeverityColor(alert.severity)}
                             variant="outlined"
                         />
                         <Chip
@@ -281,7 +281,7 @@ function Alerts() {
                         <Chip
                             label={report.status}
                             size="small"
-                            color={getStatusColor(report.status) as any}
+                            color={getStatusColor(report.status)}
                             variant="outlined"
                         />
                         <Chip
@@ -337,7 +337,7 @@ function Alerts() {
 
     const getTabContent = () => {
         switch (tabValue) {
-            case 0: // All
+            case 0: { // All
                 const allItems = [
                     ...filteredAlerts.map(alert => ({ ...alert, type: 'alert' })),
                     ...filteredReports.map(report => ({ ...report, type: 'report' }))
@@ -357,6 +357,7 @@ function Alerts() {
                         )}
                     </List>
                 );
+            }
 
             case 1: // Alerts
                 return (
