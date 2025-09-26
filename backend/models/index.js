@@ -15,8 +15,27 @@ const connectionUrl = envVarName ? process.env[envVarName] : undefined;
 
 // Build a minimal options object (avoid passing database/host/user when using URL)
 const buildOptions = (base) => {
-  const { dialect, dialectModule, dialectOptions, logging, timezone, pool, define, query, retry, isolationLevel } = base || {};
-  return { dialect, dialectModule, dialectOptions, logging, timezone, pool, define, query, retry, isolationLevel };
+  const src = base || {};
+  const picked = {
+    dialect: src.dialect,
+    dialectModule: src.dialectModule,
+    dialectOptions: src.dialectOptions,
+    logging: src.logging,
+    timezone: src.timezone,
+    pool: src.pool,
+    define: src.define,
+    query: src.query,
+    retry: src.retry,
+    isolationLevel: src.isolationLevel,
+  };
+  // Remove undefined or literal 'undefined' values to prevent queries like SET time_zone = 'undefined'
+  Object.keys(picked).forEach((k) => {
+    const v = picked[k];
+    if (v === undefined || v === null || v === 'undefined') {
+      delete picked[k];
+    }
+  });
+  return picked;
 };
 
 if (envVarName && connectionUrl && connectionUrl.trim()) {
