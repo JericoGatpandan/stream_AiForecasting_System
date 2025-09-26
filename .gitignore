@@ -1,4 +1,3 @@
-Instruction.md
 backup
 *.bak
 *.tmp
@@ -15,6 +14,3 @@ frontend/dist/
 *.log
 coverage/
 *.class
-WARP.md
-UI_ENHANCEMENT_README.md
-BACKEND_POLISH_GUIDE.md
