@@ -18,7 +18,7 @@ async function seedDatabase() {
     console.log('🌱 Starting database seeding for MVP...');
 
     // Sync database models
-    await db.sequelize.sync({ force: true });
+    await db.sequelize.sync({ force: process.env.NODE_ENV !== 'production' });
     console.log('✅ Database synced successfully');
 
     // Seed barangays
@@ -48,13 +48,19 @@ async function seedBarangays() {
   console.log('📍 Seeding barangays...');
   
   try {
-    // Try to read barangay data from client directory
-    const barangayFilePath = path.join(__dirname, '../client/data/barangays.json');
-    
-    if (!fs.existsSync(barangayFilePath)) {
-      throw new Error(`Barangay data file not found at: ${barangayFilePath}`);
+    // Resolve barangay data JSON path with fallbacks
+    const barangayCandidates = [
+      process.env.BARANGAYS_JSON_PATH,
+      path.join(__dirname, '../client/data/barangays.json'),
+      path.join(process.cwd(), 'client/data/barangays.json'),
+      path.join(process.cwd(), '../client/data/barangays.json')
+    ].filter(Boolean);
+
+    const barangayFilePath = barangayCandidates.find(p => fs.existsSync(p));
+    if (!barangayFilePath) {
+      throw new Error(`Barangay data file not found. Tried: \n- ${barangayCandidates.join('\n- ')}`);
     }
-    
+
     const barangayData = JSON.parse(fs.readFileSync(barangayFilePath, 'utf8'));
     
     const barangaysToSeed = barangayData.barangays.map(barangay => ({
@@ -85,11 +91,17 @@ async function seedSensors() {
   console.log('🔧 Seeding sensors...');
   
   try {
-    // Try to read existing sensor data
-    const sensorFilePath = path.join(__dirname, '../client/data/sensors.json');
+    // Try to read existing sensor data with fallbacks
+    const sensorCandidates = [
+      process.env.SENSORS_JSON_PATH,
+      path.join(__dirname, '../client/data/sensors.json'),
+      path.join(process.cwd(), 'client/data/sensors.json'),
+      path.join(process.cwd(), '../client/data/sensors.json')
+    ].filter(Boolean);
+
     let existingSensors = [];
-    
-    if (fs.existsSync(sensorFilePath)) {
+    const sensorFilePath = sensorCandidates.find(p => fs.existsSync(p));
+    if (sensorFilePath) {
       const sensorData = JSON.parse(fs.readFileSync(sensorFilePath, 'utf8'));
       existingSensors = sensorData.sensors || [];
     }
