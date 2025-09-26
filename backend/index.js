@@ -51,8 +51,25 @@ function startServer() {
     logger.info('Running in Vercel mode (no explicit listen).');
     return app;
   }
+  const maybeAutoSeed = async () => {
+    try {
+      const count = await db.Barangay.count();
+      if (count === 0) {
+        logger.info('No barangays found. Auto-seeding database...');
+        const { seedDatabase } = require('./seedMVP');
+        await seedDatabase();
+        logger.info('Auto-seed complete.');
+      } else {
+        logger.info(`Database already seeded (Barangays: ${count}). Skipping auto-seed.`);
+      }
+    } catch (e) {
+      logger.warn(`Auto-seed skipped: ${e.message}`);
+    }
+  };
+
   db.sequelize.sync({ force: false })
-    .then(() => {
+    .then(async () => {
+      await maybeAutoSeed();
       app.listen(config.port, () => {
         logger.info(`Server listening on http://localhost:${config.port}`);
         logger.info(`Environment: ${config.env}`);

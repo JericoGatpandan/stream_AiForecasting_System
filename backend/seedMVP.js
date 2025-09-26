@@ -51,9 +51,11 @@ async function seedBarangays() {
     // Resolve barangay data JSON path with fallbacks
     const barangayCandidates = [
       process.env.BARANGAYS_JSON_PATH,
-      path.join(__dirname, '../client/data/barangays.json'),
-      path.join(process.cwd(), 'client/data/barangays.json'),
-      path.join(process.cwd(), '../client/data/barangays.json')
+      path.join(__dirname, 'data/barangays.json'),
+      path.join(process.cwd(), 'backend/data/barangays.json'),
+      // path.join(__dirname, '../client/data/barangays.json'),
+      // path.join(process.cwd(), 'client/data/barangays.json'),
+      // path.join(process.cwd(), '../client/data/barangays.json')
     ].filter(Boolean);
 
     const barangayFilePath = barangayCandidates.find(p => fs.existsSync(p));
@@ -94,9 +96,11 @@ async function seedSensors() {
     // Try to read existing sensor data with fallbacks
     const sensorCandidates = [
       process.env.SENSORS_JSON_PATH,
-      path.join(__dirname, '../client/data/sensors.json'),
-      path.join(process.cwd(), 'client/data/sensors.json'),
-      path.join(process.cwd(), '../client/data/sensors.json')
+      path.join(__dirname, 'data/sensors.json'),
+      path.join(process.cwd(), 'backend/data/sensors.json'),
+      // path.join(__dirname, '../client/data/sensors.json'),
+      // path.join(process.cwd(), 'client/data/sensors.json'),
+      // path.join(process.cwd(), '../client/data/sensors.json')
     ].filter(Boolean);
 
     let existingSensors = [];

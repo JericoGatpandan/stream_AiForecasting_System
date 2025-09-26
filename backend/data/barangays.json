@@ -1,0 +1,220 @@
+{
+  "barangays": [
+    {
+      "id": "abella",
+      "name": "Abella",
+      "file": "abella.geojson",
+      "center": [123.1850318, 13.6240122],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "calauag",
+      "name": "Calauag",
+      "file": "calauag.geojson",
+      "center": [123.1905, 13.6189],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "dinaga",
+      "name": "Dinaga",
+      "file": "dinaga.geojson",
+      "center": [123.1932, 13.6245],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "lerma",
+      "name": "Lerma",
+      "file": "lerma.geojson",
+      "center": [123.1812, 13.6261],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "liboton",
+      "name": "Liboton",
+      "file": "liboton.geojson",
+      "center": [123.1867, 13.6208],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "santacruz",
+      "name": "Santa Cruz",
+      "file": "santacruz.geojson",
+      "center": [123.1895, 13.6292],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "tabuco",
+      "name": "Tabuco",
+      "file": "tabuco.geojson",
+      "center": [123.1964, 13.6169],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "bagumbayannorte",
+      "name": "Bagumbayan Norte",
+      "file": "bagumbayannorte.geojson",
+      "center": [123.18503330356216, 13.635688369322462],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "bagumbayansur",
+      "name": "Bagumbayan Sur",
+      "file": "bagumbayansur.geojson",
+      "center": [123.18525927340391, 13.631532785924186],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "mabolo",
+      "name": "Mabolo",
+      "file": "mabolo.geojson",
+      "center": [123.18206551146446, 13.612534072462813],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "panicuason",
+      "name": "Panicuason",
+      "file": "panicuason.geojson",
+      "center": [123.32864487013232, 13.661065711390384],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "peñafrancia",
+      "name": "Peñafrancia",
+      "file": "peñafrancia.geojson",
+      "center": [123.19218318869747, 13.631791221241476],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "sabang",
+      "name": "Sabang",
+      "file": "sabang.geojson",
+      "center": [123.18005721133243, 13.618983605654453],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "sanfelipe",
+      "name": "San Felipe",
+      "file": "sanfelipe.geojson",
+      "center": [123.20948488516856, 13.644652848295829],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "sanisidro",
+      "name": "San Isidro",
+      "file": "sanisidro.geojson",
+      "center": [123.26569007849614, 13.628098011611671],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "tinago",
+      "name": "Tinago",
+      "file": "tinago.geojson",
+      "center": [123.19140279861857, 13.624379775070956],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "balatas",
+      "name": "Balatas",
+      "file": "balatas.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "carolina",
+      "name": "Carolina",
+      "file": "carolina.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "concepciongrande",
+      "name": "Concepcion Grande",
+      "file": "concepciongrande.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "concepcionpequeña",
+      "name": "Concepcion Pequeña",
+      "file": "concepcionpequeña.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "dayangdang",
+      "name": "Dayangdang",
+      "file": "dayangdang.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "igualdadinterior",
+      "name": "Igualdad Interior",
+      "file": "igualdadinterior.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "triangulo",
+      "name": "Triangulo",
+      "file": "triangulo.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "pacol",
+      "name": "Pacol",
+      "file": "pacol.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "sanfrancisco",
+      "name": "San Francisco",
+      "file": "sanfrancisco.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "delrosario",
+      "name": "Del Rosario",
+      "file": "delrosario.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    },
+    {
+      "id": "cararayan",
+      "name": "Cararayan",
+      "file": "cararayan.geojson",
+      "center": [123.19, 13.62],
+      "zoom_level": 15,
+      "status": "active"
+    }
+  ]
+}
