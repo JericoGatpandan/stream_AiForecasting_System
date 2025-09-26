@@ -10,9 +10,14 @@ const config = require(__dirname + '/../config/config.js')[env];
 const db = {};
 
 let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+const envVarName = config.use_env_variable;
+const connectionUrl = envVarName ? process.env[envVarName] : undefined;
+
+if (envVarName && connectionUrl && connectionUrl.trim()) {
+  // Preferred: single connection URL (e.g., Railway MYSQL_URL via DB_URL)
+  sequelize = new Sequelize(connectionUrl, config);
 } else {
+  // Fallback to discrete credentials
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
