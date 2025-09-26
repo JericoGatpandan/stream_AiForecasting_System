@@ -121,11 +121,11 @@ const Forecast: React.FC = () => {
                                 Real-time flood monitoring and predictions
                             </Typography>
                             <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                                {new Date().toLocaleDateString('en-US', { 
-                                    weekday: 'long', 
-                                    year: 'numeric', 
-                                    month: 'long', 
-                                    day: 'numeric' 
+                                {new Date().toLocaleDateString('en-US', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
                                 })}
                             </Typography>
                         </Box>
@@ -143,7 +143,7 @@ const Forecast: React.FC = () => {
                         </Tooltip>
                     </Box>
                 </Box>
-                
+
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <LocationOnIcon fontSize="small" sx={{ color: 'white' }} />
                     <Typography variant="body1" sx={{ fontWeight: 500, color: 'white' }}>
@@ -164,13 +164,13 @@ const Forecast: React.FC = () => {
             {/* Current Flood Risk Assessment */}
             <Paper elevation={2} sx={{ p: 0, mb: 3, borderRadius: 3, overflow: 'hidden' }}>
                 {riskLoading || floodLoading ? (
-                    <LoadingSkeleton 
-                        variant="card" 
+                    <LoadingSkeleton
+                        variant="card"
                         height={280}
                         animation="wave"
                     />
                 ) : floodRiskData ? (
-                    <Box sx={{ 
+                    <Box sx={{
                         background: `linear-gradient(135deg, ${getFloodRiskColor(floodRiskData.currentRiskLevel)}22 0%, ${getFloodRiskColor(floodRiskData.currentRiskLevel)}11 100%)`,
                         p: 4
                     }}>
@@ -178,7 +178,28 @@ const Forecast: React.FC = () => {
                             Current Flood Risk Status
                         </Typography>
                         <Grid container spacing={3} alignItems="center">
-                            <Grid size={{ xs: 12, md: 4 }}>
+                            <Grid
+                                size={{ xs: 12, md: 4 }}
+                                sx={{
+                                    p: 3,
+                                    borderRadius: 3,
+                                    background: `linear-gradient(135deg, ${getFloodRiskColor(floodRiskData.currentRiskLevel)}22 0%, ${getFloodRiskColor(floodRiskData.currentRiskLevel)}11 100%)`,
+                                    border: `1px solid ${getFloodRiskColor(floodRiskData.currentRiskLevel)}33`,
+                                    boxShadow: `0 10px 30px ${getFloodRiskColor(floodRiskData.currentRiskLevel)}1f`,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    textAlign: 'center',
+                                    minHeight: 240,
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    transition: 'all 0.2s ease',
+                                    // '&:hover': {
+                                    //     transform: 'translateY(-2px)',
+                                    //     boxShadow: `0 14px 36px ${getFloodRiskColor(floodRiskData.currentRiskLevel)}33`,
+                                    // },
+                                }}
+                            >
                                 <Box sx={{ textAlign: 'center' }}>
                                     <Box sx={{ fontSize: '4rem', color: getFloodRiskColor(floodRiskData.currentRiskLevel), mb: 1 }}>
                                         {getFloodRiskIcon(floodRiskData.currentRiskLevel)}
@@ -194,7 +215,7 @@ const Forecast: React.FC = () => {
                                     </Typography>
                                 </Box>
                             </Grid>
-                            
+
                             <Grid size={{ xs: 12, md: 8 }}>
                                 <Grid container spacing={2}>
                                     <Grid size={{ xs: 6, sm: 3 }}>
@@ -243,7 +264,7 @@ const Forecast: React.FC = () => {
                 <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
                     7-Day Flood Risk Forecast
                 </Typography>
-                
+
                 {forecastLoading ? (
                     <Stack spacing={1}>
                         {Array.from({ length: 7 }).map((_, index) => (
@@ -274,7 +295,7 @@ const Forecast: React.FC = () => {
                                                 </Typography>
                                             </Box>
                                         </Grid>
-                                        
+
                                         {/* Flood Risk Indicator */}
                                         <Grid size={3}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -291,7 +312,7 @@ const Forecast: React.FC = () => {
                                                 </Box>
                                             </Box>
                                         </Grid>
-                                        
+
                                         {/* Rainfall Amount */}
                                         <Grid size={2}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -306,7 +327,7 @@ const Forecast: React.FC = () => {
                                                 </Box>
                                             </Box>
                                         </Grid>
-                                        
+
                                         {/* Water Level Trend */}
                                         <Grid size={2}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -321,11 +342,11 @@ const Forecast: React.FC = () => {
                                                 </Box>
                                             </Box>
                                         </Grid>
-                                        
+
                                         {/* Flood Alert */}
                                         <Grid size={3}>
                                             <Box sx={{ textAlign: 'right' }}>
-                                                <Chip 
+                                                <Chip
                                                     size="small"
                                                     label="MONITOR"
                                                     sx={{
@@ -353,7 +374,7 @@ const Forecast: React.FC = () => {
                 <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
                     24-Hour Flood Risk Monitoring
                 </Typography>
-                
+
                 <Box sx={{
                     display: 'flex',
                     gap: 2,
@@ -387,8 +408,8 @@ const Forecast: React.FC = () => {
                         hourlyData?.slice(0, 24).map((hour, index) => {
                             const isCurrentHour = index === 0;
                             return (
-                                <Card key={index} sx={{ 
-                                    minWidth: 120, 
+                                <Card key={index} sx={{
+                                    minWidth: 120,
                                     textAlign: 'center',
                                     border: isCurrentHour ? '2px solid' : '1px solid',
                                     borderColor: isCurrentHour ? 'primary.main' : 'divider',
@@ -401,12 +422,12 @@ const Forecast: React.FC = () => {
                                     }
                                 }}>
                                     {isCurrentHour && (
-                                        <Box sx={{ 
-                                            position: 'absolute', 
-                                            top: -1, 
-                                            right: -1, 
-                                            bgcolor: 'primary.main', 
-                                            color: 'white', 
+                                        <Box sx={{
+                                            position: 'absolute',
+                                            top: -1,
+                                            right: -1,
+                                            bgcolor: 'primary.main',
+                                            color: 'white',
                                             borderRadius: '0 8px 0 8px',
                                             px: 1,
                                             py: 0.5,
@@ -440,15 +461,15 @@ const Forecast: React.FC = () => {
                                                 Water Level
                                             </Typography>
                                             {hour.precipitation > 10 && (
-                                                <Chip 
-                                                    size="small" 
+                                                <Chip
+                                                    size="small"
                                                     label="Rain Expected"
-                                                    sx={{ 
-                                                        bgcolor: '#E3F2FD', 
-                                                        color: '#1976D2', 
+                                                    sx={{
+                                                        bgcolor: '#E3F2FD',
+                                                        color: '#1976D2',
                                                         fontSize: '0.7rem',
                                                         height: 20
-                                                    }} 
+                                                    }}
                                                 />
                                             )}
                                         </Box>

@@ -5,7 +5,6 @@ const { Op } = require('sequelize');
 
 /**
  * Flood Predictions API Routes for Stream AI Forecasting System
- * Provides AI-powered flood prediction endpoints for MVP demonstration
  */
 
 // Get all flood predictions with filtering

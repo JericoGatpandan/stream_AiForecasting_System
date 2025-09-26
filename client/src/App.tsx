@@ -42,11 +42,11 @@ function App() {
                 <Main>
                   <ErrorBoundary>
                     <Suspense fallback={
-                      <Box 
-                        sx={{ 
-                          display: 'flex', 
-                          justifyContent: 'center', 
-                          alignItems: 'center', 
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
                           height: '100vh',
                           flexDirection: 'column',
                           gap: 2
@@ -63,6 +63,7 @@ function App() {
                         <Route path='/forecast' element={<Forecast />} />
                         <Route path='/alerts' element={<Alerts />} />
                         <Route path='/analytics' element={<Analytics />} />
+
                       </Routes>
                     </Suspense>
                   </ErrorBoundary>

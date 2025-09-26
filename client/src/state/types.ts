@@ -151,3 +151,132 @@ export interface FloodAlert extends WeatherAlert {
         estimatedArrival: string;
     };
 }
+
+// Sensor-related interfaces
+export interface Sensor {
+    id: string;
+    name: string;
+    barangay_id: string;
+    sensor_type: 'water_level' | 'rainfall' | 'weather_station' | 'flow_meter' | 'multi_parameter';
+    latitude: number;
+    longitude: number;
+    altitude?: number;
+    status: 'active' | 'inactive' | 'maintenance' | 'error';
+    installation_date?: string;
+    last_maintenance?: string;
+    calibration_date?: string;
+    battery_level?: number;
+    transmission_interval: number;
+    watershed_zone?: string;
+    river_section?: string;
+    barangay?: Barangay;
+    readings?: SensorReading[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface SensorReading {
+    id: number;
+    sensor_id: string;
+    timestamp: string;
+    // Water monitoring parameters
+    water_level?: number;
+    flow_velocity?: number;
+    flow_rate?: number;
+    water_temperature?: number;
+    turbidity?: number;
+    ph_level?: number;
+    dissolved_oxygen?: number;
+    // Weather parameters
+    rainfall?: number;
+    air_temperature?: number;
+    humidity?: number;
+    wind_speed?: number;
+    wind_direction?: string;
+    atmospheric_pressure?: number;
+    visibility?: number;
+    uv_index?: number;
+    // System parameters
+    battery_voltage?: number;
+    signal_strength?: number;
+    data_quality: 'excellent' | 'good' | 'fair' | 'poor';
+    is_validated: boolean;
+    validation_notes?: string;
+    sensor?: Sensor;
+}
+
+export interface Barangay {
+    id: string;
+    name: string;
+    center_lat: number;
+    center_lng: number;
+    flood_risk_level: 'low' | 'moderate' | 'high' | 'extreme';
+    watershed_zone?: string;
+    area_km2?: number;
+    population?: number;
+    sensors?: Sensor[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface SensorStatistics {
+    sensor_id: string;
+    period: string;
+    time_range: {
+        start: string;
+        end: string;
+    };
+    statistics: {
+        [parameter: string]: {
+            count: number;
+            min: number | null;
+            max: number | null;
+            avg: number | null;
+            latest: number | null;
+        };
+    };
+    total_readings: number;
+}
+
+export interface LatestReadingsResponse {
+    timestamp: string;
+    sensors: {
+        sensor_id: string;
+        sensor_name: string;
+        sensor_type: string;
+        barangay: Barangay;
+        location: {
+            latitude: number;
+            longitude: number;
+        };
+        watershed_zone?: string;
+        river_section?: string;
+        battery_level?: number;
+        status: string;
+        latest_reading: SensorReading | null;
+    }[];
+    total_sensors: number;
+}
+
+export interface SensorReadingsResponse {
+    sensor_id: string;
+    readings: SensorReading[];
+    total: number;
+    pagination: {
+        limit: number;
+        offset: number;
+        has_more: boolean;
+    };
+    aggregation: string;
+    parameters: string[] | string;
+}
+
+export interface SensorsResponse {
+    sensors: Sensor[];
+    total: number;
+    pagination: {
+        limit: number;
+        offset: number;
+        has_more: boolean;
+    };
+}

@@ -49,7 +49,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import BarangaySelector from '@/components/BarangaySelector';
 import AlertBanner from '@/components/AlertBanner';
-import { useGetEnvironmentalDataQuery, useGetFloodCharacteristicsQuery } from '@/state/api';
+import { useGetEnvironmentalDataQuery, useGetAllFloodCharacteristicsQuery } from '@/state/api';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -81,7 +81,7 @@ const Analytics: React.FC = () => {
     isLoading: floodLoading,
     error: floodError,
     refetch: refetchFlood
-  } = useGetFloodCharacteristicsQuery(selectedBarangay);
+  } = useGetAllFloodCharacteristicsQuery();
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -119,6 +119,10 @@ const Analytics: React.FC = () => {
   const floodRiskData = useMemo(() => {
     if (!floodData || floodData.length === 0) return [];
 
+    // Filter by selected barangay
+    const filteredData = floodData.filter(item => item.location === selectedBarangay);
+    if (filteredData.length === 0) return [];
+
     // Risk level colors
     const riskColors = {
       low: theme.palette.success.main,
@@ -127,13 +131,13 @@ const Analytics: React.FC = () => {
       extreme: theme.palette.error.dark
     };
 
-    return floodData.map(item => ({
+    return filteredData.map(item => ({
       name: item.location,
       value: item.maximumDepth,
       riskLevel: item.floodRiskLevel,
       fill: riskColors[item.floodRiskLevel as keyof typeof riskColors]
     }));
-  }, [floodData, theme.palette]);
+  }, [floodData, selectedBarangay, theme.palette]);
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, minHeight: '100vh', backgroundColor: 'background.default', maxWidth: '100%' }}>
@@ -141,14 +145,14 @@ const Analytics: React.FC = () => {
       <Box sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #0277bd 0%, #01579b 100%)', color: 'white', borderRadius: 3, boxShadow: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box sx={{ 
-              bgcolor: 'rgba(255,255,255,0.2)', 
-              width: 56, 
-              height: 56, 
-              borderRadius: '50%', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center' 
+            <Box sx={{
+              bgcolor: 'rgba(255,255,255,0.2)',
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
               <DashboardIcon sx={{ fontSize: '2rem', color: 'white' }} />
             </Box>
@@ -162,25 +166,25 @@ const Analytics: React.FC = () => {
             </Box>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 120, '& .MuiInputLabel-root': { color: 'white' }, '& .MuiOutlinedInput-root': { color: 'white', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.3)' }, '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.5)' } }, '& .MuiSvgIcon-root': { color: 'white' } }}>
-            <InputLabel sx={{ color: 'white' }}>Time Range</InputLabel>
-            <Select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              label="Time Range"
-              sx={{ color: 'white' }}
-            >
-              <MenuItem value="1h">Last Hour</MenuItem>
-              <MenuItem value="24h">Last 24 Hours</MenuItem>
-              <MenuItem value="7d">Last 7 Days</MenuItem>
-              <MenuItem value="30d">Last 30 Days</MenuItem>
-            </Select>
-          </FormControl>
-          <BarangaySelector
-            selectedBarangay={selectedBarangay}
-            onBarangayChange={setSelectedBarangay}
-            whiteTheme={true}
-          />
+            <FormControl size="small" sx={{ minWidth: 120, '& .MuiInputLabel-root': { color: 'white' }, '& .MuiOutlinedInput-root': { color: 'white', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.3)' }, '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.5)' } }, '& .MuiSvgIcon-root': { color: 'white' } }}>
+              <InputLabel sx={{ color: 'white' }}>Time Range</InputLabel>
+              <Select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                label="Time Range"
+                sx={{ color: 'white' }}
+              >
+                <MenuItem value="1h">Last Hour</MenuItem>
+                <MenuItem value="24h">Last 24 Hours</MenuItem>
+                <MenuItem value="7d">Last 7 Days</MenuItem>
+                <MenuItem value="30d">Last 30 Days</MenuItem>
+              </Select>
+            </FormControl>
+            <BarangaySelector
+              selectedBarangay={selectedBarangay}
+              onBarangayChange={setSelectedBarangay}
+              whiteTheme={true}
+            />
             <Tooltip title="Refresh Data">
               <IconButton onClick={handleRefresh} sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.1)' }}>
                 <RefreshIcon />
@@ -188,7 +192,7 @@ const Analytics: React.FC = () => {
             </Tooltip>
           </Box>
         </Box>
-        
+
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <SensorsIcon fontSize="small" sx={{ color: 'white' }} />
@@ -270,7 +274,7 @@ const Analytics: React.FC = () => {
             </Grid>
           </Paper>
         </Grid>
-        
+
         <Grid size={{ xs: 12, lg: 4 }}>
           <Paper elevation={2} sx={{ p: 3, borderRadius: 3, height: '100%', textAlign: 'center' }}>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -313,84 +317,84 @@ const Analytics: React.FC = () => {
           <Box sx={{ p: { xs: 2, sm: 3 }, width: '100%' }}>
             <Grid container spacing={3}>
               <Grid size={12}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" fontWeight="bold">
-                      Water Level Over Time
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Box sx={{ width: 12, height: 3, bgcolor: '#2196F3', borderRadius: 1 }} />
-                        <Typography variant="caption">Current Level</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Box sx={{ width: 12, height: 3, bgcolor: '#FF9800', borderRadius: 1 }} />
-                        <Typography variant="caption">Warning Level (2.5m)</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Box sx={{ width: 12, height: 3, bgcolor: '#F44336', borderRadius: 1 }} />
-                        <Typography variant="caption">Danger Level (3.0m)</Typography>
+                <Card>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6" fontWeight="bold">
+                        Water Level Over Time
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Box sx={{ width: 12, height: 3, bgcolor: '#2196F3', borderRadius: 1 }} />
+                          <Typography variant="caption">Current Level</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Box sx={{ width: 12, height: 3, bgcolor: '#FF9800', borderRadius: 1 }} />
+                          <Typography variant="caption">Warning Level (2.5m)</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Box sx={{ width: 12, height: 3, bgcolor: '#F44336', borderRadius: 1 }} />
+                          <Typography variant="caption">Danger Level (3.0m)</Typography>
+                        </Box>
                       </Box>
                     </Box>
-                  </Box>
-                  {envLoading ? (
-                    <Skeleton variant="rectangular" height={450} />
-                  ) : (
-                    <ResponsiveContainer width="100%" height={450}>
-                      <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} opacity={0.3} />
-                        <XAxis 
-                          dataKey="time" 
-                          tick={{ fontSize: 12 }}
-                          interval="preserveStartEnd"
-                        />
-                        <YAxis 
-                          tick={{ fontSize: 12 }} 
-                          domain={[0, 4]}
-                          label={{ value: 'Water Level (m)', angle: -90, position: 'insideLeft' }}
-                        />
-                        <RechartsTooltip 
-                          contentStyle={{
-                            backgroundColor: theme.palette.background.paper,
-                            border: `1px solid ${theme.palette.divider}`,
-                            borderRadius: 8
-                          }}
-                          formatter={(value, name) => [
-                            `${value} m`,
-                            name === 'waterLevel' ? 'Water Level' : name
-                          ]}
-                        />
-                        <ReferenceLine y={2.5} stroke="#FF9800" strokeDasharray="5 5" label="Warning" />
-                        <ReferenceLine y={3.0} stroke="#F44336" strokeDasharray="5 5" label="Danger" />
-                        <Area
-                          type="monotone"
-                          dataKey="waterLevel"
-                          stroke="#2196F3"
-                          fill="rgba(33, 150, 243, 0.1)"
-                          strokeWidth={3}
-                          name="Water Level"
-                        />
-                        <Bar
-                          dataKey="rainfall"
-                          fill="rgba(76, 175, 80, 0.6)"
-                          name="Rainfall (mm)"
-                          yAxisId="right"
-                        />
-                      </ComposedChart>
-                    </ResponsiveContainer>
-                  )}
-                  <Box sx={{ mt: 2, p: 2, bgcolor: 'rgba(76, 175, 80, 0.1)', borderRadius: 2 }}>
-                    <Typography variant="body2" fontWeight="bold" sx={{ color: '#4CAF50', mb: 1 }}>
-                      ✓ Current Status: SAFE
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Water level is at {latestData?.pressure?.toFixed(2) || '1.45'}m, well below warning threshold.
-                      River flow is normal with good drainage capacity.
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
+                    {envLoading ? (
+                      <Skeleton variant="rectangular" height={450} />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={450}>
+                        <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} opacity={0.3} />
+                          <XAxis
+                            dataKey="time"
+                            tick={{ fontSize: 12 }}
+                            interval="preserveStartEnd"
+                          />
+                          <YAxis
+                            tick={{ fontSize: 12 }}
+                            domain={[0, 4]}
+                            label={{ value: 'Water Level (m)', angle: -90, position: 'insideLeft' }}
+                          />
+                          <RechartsTooltip
+                            contentStyle={{
+                              backgroundColor: theme.palette.background.paper,
+                              border: `1px solid ${theme.palette.divider}`,
+                              borderRadius: 8
+                            }}
+                            formatter={(value, name) => [
+                              `${value} m`,
+                              name === 'waterLevel' ? 'Water Level' : name
+                            ]}
+                          />
+                          <ReferenceLine y={2.5} stroke="#FF9800" strokeDasharray="5 5" label="Warning" />
+                          <ReferenceLine y={3.0} stroke="#F44336" strokeDasharray="5 5" label="Danger" />
+                          <Area
+                            type="monotone"
+                            dataKey="waterLevel"
+                            stroke="#2196F3"
+                            fill="rgba(33, 150, 243, 0.1)"
+                            strokeWidth={3}
+                            name="Water Level"
+                          />
+                          <Bar
+                            dataKey="rainfall"
+                            fill="rgba(76, 175, 80, 0.6)"
+                            name="Rainfall (mm)"
+                            yAxisId="right"
+                          />
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    )}
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'rgba(76, 175, 80, 0.1)', borderRadius: 2 }}>
+                      <Typography variant="body2" fontWeight="bold" sx={{ color: '#4CAF50', mb: 1 }}>
+                        ✓ Current Status: SAFE
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Water level is at {latestData?.pressure?.toFixed(2) || '1.45'}m, well below warning threshold.
+                        River flow is normal with good drainage capacity.
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
               </Grid>
             </Grid>
           </Box>
@@ -401,113 +405,113 @@ const Analytics: React.FC = () => {
           <Box sx={{ p: { xs: 2, sm: 3 }, width: '100%' }}>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, lg: 6 }}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <FloodIcon sx={{ color: '#2196F3' }} />
-                    Flood Risk Levels by Area
-                  </Typography>
-                  {floodLoading ? (
-                    <Skeleton variant="rectangular" height={350} />
-                  ) : (
-                    <ResponsiveContainer width="100%" height={350}>
-                      <BarChart data={floodRiskData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} opacity={0.3} />
-                        <XAxis 
-                          dataKey="name" 
-                          tick={{ fontSize: 11 }}
-                          angle={-45}
-                          textAnchor="end"
-                          height={60}
-                        />
-                        <YAxis 
-                          tick={{ fontSize: 12 }} 
-                          label={{ value: 'Risk Score', angle: -90, position: 'insideLeft' }}
-                        />
-                        <RechartsTooltip 
-                          contentStyle={{
-                            backgroundColor: theme.palette.background.paper,
-                            border: `1px solid ${theme.palette.divider}`,
-                            borderRadius: 8
-                          }}
-                          formatter={(value, _, props) => [
-                            `${value} (${props.payload.riskLevel?.toUpperCase() || 'Unknown'})`,
-                            'Risk Level'
-                          ]}
-                        />
-                        <Bar 
-                          dataKey="value" 
-                          name="Max Depth (m)" 
-                          radius={[4, 4, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, lg: 6 }}>
-              <Card sx={{ height: '100%' }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Risk Distribution
-                  </Typography>
-                  {floodLoading ? (
-                    <Skeleton variant="rectangular" height={300} />
-                  ) : (
-                    <Box>
-                      <ResponsiveContainer width="100%" height={200}>
-                        <PieChart>
-                          <Pie
-                            data={[
-                              { name: 'Low Risk', value: 8, fill: '#4CAF50' },
-                              { name: 'Moderate Risk', value: 3, fill: '#FFC107' },
-                              { name: 'High Risk', value: 1, fill: '#FF9800' },
-                              { name: 'Extreme Risk', value: 0, fill: '#F44336' }
-                            ]}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={80}
-                            label={({ name, value }) => `${name}: ${value}`}
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <FloodIcon sx={{ color: '#2196F3' }} />
+                      Flood Risk Levels by Area
+                    </Typography>
+                    {floodLoading ? (
+                      <Skeleton variant="rectangular" height={350} />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={350}>
+                        <BarChart data={floodRiskData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} opacity={0.3} />
+                          <XAxis
+                            dataKey="name"
+                            tick={{ fontSize: 11 }}
+                            angle={-45}
+                            textAnchor="end"
+                            height={60}
                           />
-                          <RechartsTooltip />
-                        </PieChart>
+                          <YAxis
+                            tick={{ fontSize: 12 }}
+                            label={{ value: 'Risk Score', angle: -90, position: 'insideLeft' }}
+                          />
+                          <RechartsTooltip
+                            contentStyle={{
+                              backgroundColor: theme.palette.background.paper,
+                              border: `1px solid ${theme.palette.divider}`,
+                              borderRadius: 8
+                            }}
+                            formatter={(value, _, props) => [
+                              `${value} (${props.payload.riskLevel?.toUpperCase() || 'Unknown'})`,
+                              'Risk Level'
+                            ]}
+                          />
+                          <Bar
+                            dataKey="value"
+                            name="Max Depth (m)"
+                            radius={[4, 4, 0, 0]}
+                          />
+                        </BarChart>
                       </ResponsiveContainer>
-                      
-                      <Box sx={{ mt: 2 }}>
-                        <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                          Risk Assessment Summary
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Box sx={{ width: 12, height: 12, bgcolor: '#4CAF50', borderRadius: '50%' }} />
-                              <Typography variant="body2">Safe Areas</Typography>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={{ xs: 12, lg: 6 }}>
+                <Card sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Risk Distribution
+                    </Typography>
+                    {floodLoading ? (
+                      <Skeleton variant="rectangular" height={300} />
+                    ) : (
+                      <Box>
+                        <ResponsiveContainer width="100%" height={200}>
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: 'Low Risk', value: 8, fill: '#4CAF50' },
+                                { name: 'Moderate Risk', value: 3, fill: '#FFC107' },
+                                { name: 'High Risk', value: 1, fill: '#FF9800' },
+                                { name: 'Extreme Risk', value: 0, fill: '#F44336' }
+                              ]}
+                              dataKey="value"
+                              nameKey="name"
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={80}
+                              label={({ name, value }) => `${name}: ${value}`}
+                            />
+                            <RechartsTooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+
+                        <Box sx={{ mt: 2 }}>
+                          <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                            Risk Assessment Summary
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ width: 12, height: 12, bgcolor: '#4CAF50', borderRadius: '50%' }} />
+                                <Typography variant="body2">Safe Areas</Typography>
+                              </Box>
+                              <Typography variant="body2" fontWeight="bold">8 locations</Typography>
                             </Box>
-                            <Typography variant="body2" fontWeight="bold">8 locations</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Box sx={{ width: 12, height: 12, bgcolor: '#FFC107', borderRadius: '50%' }} />
-                              <Typography variant="body2">Monitor Areas</Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ width: 12, height: 12, bgcolor: '#FFC107', borderRadius: '50%' }} />
+                                <Typography variant="body2">Monitor Areas</Typography>
+                              </Box>
+                              <Typography variant="body2" fontWeight="bold">3 locations</Typography>
                             </Box>
-                            <Typography variant="body2" fontWeight="bold">3 locations</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Box sx={{ width: 12, height: 12, bgcolor: '#FF9800', borderRadius: '50%' }} />
-                              <Typography variant="body2">Alert Areas</Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ width: 12, height: 12, bgcolor: '#FF9800', borderRadius: '50%' }} />
+                                <Typography variant="body2">Alert Areas</Typography>
+                              </Box>
+                              <Typography variant="body2" fontWeight="bold">1 location</Typography>
                             </Box>
-                            <Typography variant="body2" fontWeight="bold">1 location</Typography>
                           </Box>
                         </Box>
                       </Box>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
+                    )}
+                  </CardContent>
+                </Card>
               </Grid>
             </Grid>
           </Box>
@@ -585,17 +589,17 @@ const Analytics: React.FC = () => {
                       <ResponsiveContainer width="100%" height={350}>
                         <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} opacity={0.3} />
-                          <XAxis 
-                            dataKey="time" 
+                          <XAxis
+                            dataKey="time"
                             tick={{ fontSize: 12 }}
                             interval="preserveStartEnd"
                           />
-                          <YAxis 
-                            tick={{ fontSize: 12 }} 
+                          <YAxis
+                            tick={{ fontSize: 12 }}
                             domain={[0, 100]}
                             label={{ value: 'Data Quality (%)', angle: -90, position: 'insideLeft' }}
                           />
-                          <RechartsTooltip 
+                          <RechartsTooltip
                             contentStyle={{
                               backgroundColor: theme.palette.background.paper,
                               border: `1px solid ${theme.palette.divider}`,
@@ -636,7 +640,7 @@ const Analytics: React.FC = () => {
                       <Skeleton variant="rectangular" height={350} />
                     ) : (
                       <ResponsiveContainer width="100%" height={350}>
-                        <AreaChart 
+                        <AreaChart
                           data={[
                             { time: 'Now', level: 1.45, predicted: null },
                             { time: '1h', level: null, predicted: 1.52 },
@@ -645,20 +649,20 @@ const Analytics: React.FC = () => {
                             { time: '4h', level: null, predicted: 1.62 },
                             { time: '5h', level: null, predicted: 1.58 },
                             { time: '6h', level: null, predicted: 1.51 }
-                          ]} 
+                          ]}
                           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                         >
                           <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} opacity={0.3} />
-                          <XAxis 
-                            dataKey="time" 
+                          <XAxis
+                            dataKey="time"
                             tick={{ fontSize: 12 }}
                           />
-                          <YAxis 
-                            tick={{ fontSize: 12 }} 
+                          <YAxis
+                            tick={{ fontSize: 12 }}
                             domain={[1.0, 2.0]}
                             label={{ value: 'Water Level (m)', angle: -90, position: 'insideLeft' }}
                           />
-                          <RechartsTooltip 
+                          <RechartsTooltip
                             contentStyle={{
                               backgroundColor: theme.palette.background.paper,
                               border: `1px solid ${theme.palette.divider}`,
@@ -682,7 +686,7 @@ const Analytics: React.FC = () => {
                         ⚠ Prediction Alert
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Water levels expected to rise by 0.17m over next 4 hours due to upstream rainfall. 
+                        Water levels expected to rise by 0.17m over next 4 hours due to upstream rainfall.
                         Monitor closely for potential warnings.
                       </Typography>
                     </Box>
@@ -712,7 +716,7 @@ const Analytics: React.FC = () => {
                         <Typography variant="body2" fontWeight="bold">Next 12 Hours:</Typography>
                         <Typography variant="body2" sx={{ color: '#4CAF50' }}>LOW RISK</Typography>
                       </Box>
-                      
+
                       <Box sx={{ mt: 'auto', p: 2, bgcolor: 'rgba(33, 150, 243, 0.1)', borderRadius: 2 }}>
                         <Typography variant="body2" fontWeight="bold" sx={{ color: '#2196F3', mb: 1 }}>
                           ℹ Confidence Level: 87%
