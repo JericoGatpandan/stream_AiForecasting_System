@@ -26,6 +26,7 @@ const BARANGAYS = [
     'Tabuco', 'Tinago', 'Triangulo'
 ];
 
+
 const BarangaySelector: React.FC<BarangaySelectorProps> = React.memo(({
     selectedBarangay,
     onBarangayChange,

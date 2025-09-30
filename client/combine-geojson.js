@@ -9,28 +9,33 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Read the barangays.json to get the list of barangay files
-const barangaysFile = path.join(__dirname, 'data/barangays.json');
-const outputFile = path.join(__dirname, 'data/barangays-combined.geojson');
-const dataDir = path.join(__dirname, 'data/barangays');
+const barangaysFile = path.join(__dirname, '/public/data/barangays.json');
+const outputFile = path.join(__dirname, '/public/data/barangays-combined.geojson');
+const dataDir = path.join(__dirname, '/public/data/barangays');
 
 async function combineBarangayGeoJSON() {
   try {
     console.log('🗺️  Combining barangay GeoJSON files...');
-    
+
     // Read barangays list
     const barangaysData = JSON.parse(fs.readFileSync(barangaysFile, 'utf8'));
     const barangays = barangaysData.barangays;
-    
+
     const combinedFeatures = [];
     let processedCount = 0;
-    
+
     for (const barangay of barangays) {
       const geojsonPath = path.join(dataDir, `${barangay.id}.geojson`);
-      
+      // Read Barangay center
+      // barangayFile.features.forEach(feature => {
+
+      // })
+
       try {
         if (fs.existsSync(geojsonPath)) {
           const geojsonData = JSON.parse(fs.readFileSync(geojsonPath, 'utf8'));
-          
+
+
           if (geojsonData.features && Array.isArray(geojsonData.features)) {
             // Add barangay metadata to each feature
             geojsonData.features.forEach(feature => {
@@ -44,7 +49,7 @@ async function combineBarangayGeoJSON() {
               };
               combinedFeatures.push(feature);
             });
-            
+
             processedCount++;
             console.log(`✅ Processed ${barangay.name} (${geojsonData.features.length} features)`);
           }
@@ -55,7 +60,7 @@ async function combineBarangayGeoJSON() {
         console.error(`❌ Error processing ${barangay.name}:`, error.message);
       }
     }
-    
+
     // Create combined GeoJSON
     const combinedGeoJSON = {
       type: 'FeatureCollection',
@@ -67,20 +72,20 @@ async function combineBarangayGeoJSON() {
       },
       features: combinedFeatures
     };
-    
+
     // Write combined file
     fs.writeFileSync(outputFile, JSON.stringify(combinedGeoJSON, null, 2));
-    
+
     console.log(`🎉 Successfully combined ${processedCount} barangays with ${combinedFeatures.length} features`);
     console.log(`📄 Output file: ${outputFile}`);
     console.log(`📊 File size: ${(fs.statSync(outputFile).size / 1024).toFixed(2)} KB`);
-    
+
     // Calculate potential performance improvement
     const individualRequests = barangays.length;
     const savedRequests = individualRequests - 1;
     console.log(`⚡ Performance improvement: Reduced from ${individualRequests} HTTP requests to 1 request`);
     console.log(`🚀 Estimated load time reduction: ${savedRequests * 100}ms - ${savedRequests * 500}ms`);
-    
+
   } catch (error) {
     console.error('❌ Error combining GeoJSON files:', error);
     process.exit(1);
