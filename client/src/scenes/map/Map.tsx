@@ -13,6 +13,7 @@ import TimeControl from '@/components/TimeControl';
 import FloodSimulation from '@/components/FloodSimulation';
 import { floodSimulationData, getSimulationTimeRange } from '@/data/floodSimulationData';
 import type { WeatherLayerType } from './weatherData';
+import { sampleSensors } from './weatherData';
 import { ThreeDRotation, ViewComfy, LocationOn, ExpandLess, ExpandMore, LocationCity } from "@mui/icons-material";
 import SatelliteIcon from '@mui/icons-material/Satellite';
 import TerrainIcon from '@mui/icons-material/Terrain';
@@ -22,7 +23,7 @@ import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 // Token from .env
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 // Map style types
 type MapStyle = 'satellite' | 'terrain' | 'dark' | 'light';
@@ -73,12 +74,13 @@ export default function Map() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [alertsPanelOpen, setAlertsPanelOpen] = useState(false);
     const [activeWeatherLayer, setActiveWeatherLayer] = useState<WeatherLayerType | null>(null);
-    
+    const clickPopupRef = useRef<mapboxgl.Popup | null>(null);
+
     // Flood simulation states
     const [isSimulationActive, setIsSimulationActive] = useState(false);
     const [isSimulationPlaying, setIsSimulationPlaying] = useState(false);
     const [currentSimulationTime, setCurrentSimulationTime] = useState(new Date());
-    const [simulationSpeed, setSimulationSpeed] = useState(1);
+    const [timeJumpMinutes, setTimeJumpMinutes] = useState(30);
     const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Toggle alerts panel
@@ -133,8 +135,21 @@ export default function Map() {
         setCurrentSimulationTime(time);
     };
 
-    const handleSimulationSpeedChange = (speed: number) => {
-        setSimulationSpeed(speed);
+    const handleTimeJumpChange = (minutes: number) => {
+        setTimeJumpMinutes(minutes);
+        // If minutes is 0 (Current), jump to current time
+        if (minutes === 0) {
+            setCurrentSimulationTime(new Date());
+        } else {
+            // Jump forward by the specified minutes
+            const newTime = new Date(currentSimulationTime.getTime() + (minutes * 60 * 1000));
+            const timeRange = getSimulationTimeRange();
+            if (newTime <= timeRange.max) {
+                setCurrentSimulationTime(newTime);
+            } else {
+                setCurrentSimulationTime(timeRange.max);
+            }
+        }
     };
     const addMapLayers = (map: mapboxgl.Map) => {
         // Add barangay boundaries source
@@ -217,6 +232,196 @@ export default function Map() {
             map.getCanvas().style.cursor = '';
             popup.remove();
         });
+
+        // Add click handler for barangay polygons
+        map.on('click', 'barangay-fills', (e) => {
+            if (e.features && e.features.length > 0) {
+                const feature = e.features[0];
+                const barangayName = feature.properties?.barangay_name;
+
+                if (!barangayName) return;
+
+                // Get coordinates for the popup
+                const coordinates = e.lngLat;
+
+                // Find sensor data for this barangay
+                const barangaySensor = sampleSensors.find(s =>
+                    s.barangay.toLowerCase() === barangayName.toLowerCase()
+                );
+
+                // Create popup content with loading state
+                const popupContent = `
+                    <div style="
+                        padding: 12px;
+                        min-width: 280px;
+                        max-width: 320px;
+                        font-family: 'Roboto', sans-serif;
+                    ">
+                        <h3 style="
+                            margin: 0 0 12px 0;
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: #1976d2;
+                            border-bottom: 2px solid #1976d2;
+                            padding-bottom: 8px;
+                        ">${barangayName}</h3>
+                        
+                        <div style="margin-bottom: 8px;">
+                            <p style="
+                                margin: 0 0 8px 0;
+                                font-size: 11px;
+                                color: #666;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                font-weight: 500;
+                            ">Current Conditions</p>
+                        </div>
+                        
+                        ${barangaySensor ? `
+                            <div style="
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 10px;
+                                margin-bottom: 12px;
+                            ">
+                                <div style="
+                                    background-color: #e3f2fd;
+                                    padding: 10px;
+                                    border-radius: 6px;
+                                    border-left: 3px solid #2196f3;
+                                ">
+                                    <div style="font-size: 10px; color: #666; margin-bottom: 4px;">💧 Water Level</div>
+                                    <div style="font-size: 16px; font-weight: 600; color: #1976d2;">
+                                        ${barangaySensor.readings.water_level?.toFixed(2) || 'N/A'} m
+                                    </div>
+                                </div>
+                                
+                                <div style="
+                                    background-color: #e8f5e9;
+                                    padding: 10px;
+                                    border-radius: 6px;
+                                    border-left: 3px solid #4caf50;
+                                ">
+                                    <div style="font-size: 10px; color: #666; margin-bottom: 4px;">🌧️ Rainfall</div>
+                                    <div style="font-size: 16px; font-weight: 600; color: #388e3c;">
+                                        ${barangaySensor.readings.rainfall?.toFixed(1) || 'N/A'} mm
+                                    </div>
+                                </div>
+                                
+                                <div style="
+                                    background-color: #fff3e0;
+                                    padding: 10px;
+                                    border-radius: 6px;
+                                    border-left: 3px solid #ff9800;
+                                ">
+                                    <div style="font-size: 10px; color: #666; margin-bottom: 4px;">🌡️ Temperature</div>
+                                    <div style="font-size: 16px; font-weight: 600; color: #f57c00;">
+                                        ${barangaySensor.readings.temperature?.toFixed(1) || 'N/A'}°C
+                                    </div>
+                                </div>
+                                
+                                <div style="
+                                    background-color: #f3e5f5;
+                                    padding: 10px;
+                                    border-radius: 6px;
+                                    border-left: 3px solid #9c27b0;
+                                ">
+                                    <div style="font-size: 10px; color: #666; margin-bottom: 4px;">💨 Humidity</div>
+                                    <div style="font-size: 16px; font-weight: 600; color: #7b1fa2;">
+                                        ${barangaySensor.readings.humidity || 'N/A'}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="
+                                background-color: ${barangaySensor.status === 'warning' ? '#fff3e0' : '#e8f5e9'};
+                                padding: 10px;
+                                border-radius: 6px;
+                                border-left: 3px solid ${barangaySensor.status === 'warning' ? '#ff9800' : '#4caf50'};
+                                margin-bottom: 8px;
+                            ">
+                                <div style="font-size: 10px; color: #666; margin-bottom: 4px;">⚠️ Flood Risk Status</div>
+                                <div style="
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    color: ${barangaySensor.status === 'warning' ? '#f57c00' : '#388e3c'};
+                                    text-transform: capitalize;
+                                ">
+                                    ${barangaySensor.status === 'warning' ? '⚠️ Warning Level' : '✅ Normal Level'}
+                                </div>
+                                ${barangaySensor.status === 'warning' ? `
+                                    <div style="
+                                        font-size: 11px;
+                                        color: #666;
+                                        margin-top: 6px;
+                                        padding: 6px;
+                                        background-color: rgba(255, 255, 255, 0.7);
+                                        border-radius: 4px;
+                                    ">
+                                        Predicted water level may rise to <strong>${(barangaySensor.readings.water_level! + 0.5).toFixed(2)}m</strong> in next 6 hours.
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            <div style="
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 8px;
+                                font-size: 11px;
+                                color: #666;
+                            ">
+                                <div>🌬️ Wind: ${barangaySensor.readings.wind_speed?.toFixed(1) || 'N/A'} km/h ${barangaySensor.readings.wind_direction || ''}</div>
+                                <div>👁️ Visibility: ${barangaySensor.readings.visibility?.toFixed(1) || 'N/A'} km</div>
+                            </div>
+                        ` : `
+                            <div style="
+                                padding: 20px;
+                                text-align: center;
+                                color: #999;
+                                font-size: 13px;
+                            ">
+                                <p style="margin: 0;">No sensor data available for this barangay</p>
+                            </div>
+                        `}
+                        
+                        <div style="
+                            margin-top: 12px;
+                            padding-top: 10px;
+                            border-top: 1px solid #e0e0e0;
+                            font-size: 10px;
+                            color: #999;
+                            text-align: center;
+                        ">
+                            Click on barangay name above for detailed information
+                        </div>
+                    </div>
+                `;
+
+                // Remove existing popup if any
+                if (clickPopupRef.current) {
+                    clickPopupRef.current.remove();
+                }
+
+                // Create and show new popup
+                const newPopup = new mapboxgl.Popup({
+                    closeButton: true,
+                    closeOnClick: true,
+                    maxWidth: '350px',
+                    className: 'barangay-weather-popup',
+                    offset: 15
+                })
+                    .setLngLat(coordinates)
+                    .setHTML(popupContent)
+                    .addTo(map);
+
+                clickPopupRef.current = newPopup;
+
+                // Clean up on popup close
+                newPopup.on('close', () => {
+                    clickPopupRef.current = null;
+                });
+            }
+        });
     };
 
     // Handle map style change with proper handling for mapbox-gl
@@ -251,18 +456,20 @@ export default function Map() {
     // Simulation playback effect
     useEffect(() => {
         if (isSimulationPlaying && isSimulationActive) {
-            const interval = 2000 / simulationSpeed; // Base interval of 2 seconds, adjusted by speed
-            
+            const interval = 1000; // Fixed 1 second interval for smooth playback
+
             simulationIntervalRef.current = setInterval(() => {
                 setCurrentSimulationTime(prevTime => {
                     const timeRange = getSimulationTimeRange();
-                    const nextTime = new Date(prevTime.getTime() + (30 * 60 * 1000)); // 30 minutes forward
-                    
-                    if (nextTime > timeRange.max) {
-                        // Loop back to start
-                        return timeRange.min;
+                    // Advance by 15 minutes per tick (1 second real time = 15 minutes simulation time)
+                    const newTime = new Date(prevTime.getTime() + (15 * 60 * 1000));
+
+                    if (newTime >= timeRange.max) {
+                        setIsSimulationPlaying(false);
+                        return timeRange.max;
                     }
-                    return nextTime;
+
+                    return newTime;
                 });
             }, interval);
         } else {
@@ -277,17 +484,17 @@ export default function Map() {
                 clearInterval(simulationIntervalRef.current);
             }
         };
-    }, [isSimulationPlaying, isSimulationActive, simulationSpeed]);
+    }, [isSimulationPlaying, isSimulationActive]);
 
     // Get current simulation data frame
     const getCurrentTimeFrame = () => {
         if (!isSimulationActive) return null;
-        
+
         // Find the closest time frame to the current simulation time
         const targetTime = currentSimulationTime.getTime();
         let closestFrame = floodSimulationData[0];
         let minDiff = Math.abs(floodSimulationData[0].timestamp.getTime() - targetTime);
-        
+
         for (const frame of floodSimulationData) {
             const diff = Math.abs(frame.timestamp.getTime() - targetTime);
             if (diff < minDiff) {
@@ -295,7 +502,7 @@ export default function Map() {
                 closestFrame = frame;
             }
         }
-        
+
         return closestFrame;
     };
 
@@ -533,6 +740,20 @@ export default function Map() {
                     font-size: 14px;
                     color: #333;
                 }
+                .barangay-weather-popup .mapboxgl-popup-content {
+                    padding: 0;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+                }
+                .barangay-weather-popup .mapboxgl-popup-close-button {
+                    font-size: 20px;
+                    padding: 8px;
+                    color: #666;
+                }
+                .barangay-weather-popup .mapboxgl-popup-close-button:hover {
+                    background-color: #f5f5f5;
+                    color: #333;
+                }
             `;
             document.head.appendChild(style);
         });
@@ -718,14 +939,14 @@ export default function Map() {
 
             {/* Environmental Data Overlay - Right side */}
             <MapDataOverlay selectedLocation={selectedBarangay ? barangays.find(b => b.id === selectedBarangay)?.name : undefined} />
-            
+
             {/* Flood Simulation Component */}
             <FloodSimulation
                 map={mapInstanceRef.current}
                 isActive={isSimulationActive}
                 currentTimeFrame={getCurrentTimeFrame()}
             />
-            
+
             {/* Time Control - Bottom center */}
             {isSimulationActive && (
                 <Box
@@ -744,16 +965,16 @@ export default function Map() {
                         onTimeChange={handleSimulationTimeChange}
                         minTime={getSimulationTimeRange().min}
                         maxTime={getSimulationTimeRange().max}
-                        playbackSpeed={simulationSpeed}
-                        onSpeedChange={handleSimulationSpeedChange}
+                        timeJumpMinutes={timeJumpMinutes}
+                        onTimeJumpChange={handleTimeJumpChange}
                         disabled={false}
                     />
                 </Box>
             )}
 
             {/* Map Controls Panel */}
-            <MapControlPanel elevation={3} sx={{ 
-                top: '76px', 
+            <MapControlPanel elevation={3} sx={{
+                top: '76px',
                 zIndex: 1030,
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(8px)'
@@ -786,8 +1007,8 @@ export default function Map() {
                     variant={isSimulationActive ? "contained" : "outlined"}
                     onClick={toggleSimulation}
                     startIcon={isSimulationActive ? <StopCircleIcon /> : <PlayCircleFilledIcon />}
-                    sx={{ 
-                        mt: 1, 
+                    sx={{
+                        mt: 1,
                         textTransform: 'none',
                         backgroundColor: isSimulationActive ? 'primary.main' : 'transparent',
                         '&:hover': {

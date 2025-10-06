@@ -27,8 +27,8 @@ export interface TimeControlProps {
     onTimeChange: (time: Date) => void;
     minTime: Date;
     maxTime: Date;
-    playbackSpeed: number;
-    onSpeedChange: (speed: number) => void;
+    timeJumpMinutes?: number; // Current selected time jump in minutes
+    onTimeJumpChange?: (minutes: number) => void;
     disabled?: boolean;
 }
 
@@ -39,8 +39,8 @@ const TimeControl: React.FC<TimeControlProps> = ({
     onTimeChange,
     minTime,
     maxTime,
-    playbackSpeed,
-    onSpeedChange,
+    timeJumpMinutes = 30,
+    onTimeJumpChange,
     disabled = false
 }) => {
     const [sliderValue, setSliderValue] = useState(0);
@@ -104,9 +104,6 @@ const TimeControl: React.FC<TimeControlProps> = ({
         }
     };
 
-    // Speed options
-    const speedOptions = [0.5, 1, 2, 4, 8];
-
     // Format time display
     const formatTime = (date: Date) => {
         return date.toLocaleString('en-US', {
@@ -123,14 +120,14 @@ const TimeControl: React.FC<TimeControlProps> = ({
         const marks = [];
         const totalHours = (maxTime.getTime() - minTime.getTime()) / (60 * 60 * 1000);
         const markInterval = totalHours > 48 ? 12 : totalHours > 24 ? 6 : 3; // hours between marks
-        
+
         for (let i = 0; i <= totalHours; i += markInterval) {
             const markTime = new Date(minTime.getTime() + (i * 60 * 60 * 1000));
             const value = dateToSliderValue(markTime);
             marks.push({
                 value,
-                label: markTime.toLocaleString('en-US', { 
-                    month: 'numeric', 
+                label: markTime.toLocaleString('en-US', {
+                    month: 'numeric',
                     day: 'numeric',
                     hour: 'numeric'
                 })
@@ -211,7 +208,7 @@ const TimeControl: React.FC<TimeControlProps> = ({
                         </IconButton>
                     </span>
                 </Tooltip>
-                
+
                 <Tooltip title="Back 30 minutes">
                     <span>
                         <IconButton onClick={stepBackward} disabled={currentTime <= minTime}>
@@ -219,12 +216,12 @@ const TimeControl: React.FC<TimeControlProps> = ({
                         </IconButton>
                     </span>
                 </Tooltip>
-                
+
                 <Tooltip title={isPlaying ? "Pause" : "Play"}>
-                    <IconButton 
+                    <IconButton
                         onClick={() => onPlayPause(!isPlaying)}
                         color="primary"
-                        sx={{ 
+                        sx={{
                             backgroundColor: 'primary.light',
                             '&:hover': { backgroundColor: 'primary.main' },
                             mx: 1
@@ -233,7 +230,7 @@ const TimeControl: React.FC<TimeControlProps> = ({
                         {isPlaying ? <Pause /> : <PlayArrow />}
                     </IconButton>
                 </Tooltip>
-                
+
                 <Tooltip title="Forward 30 minutes">
                     <span>
                         <IconButton onClick={stepForward} disabled={currentTime >= maxTime}>
@@ -241,7 +238,7 @@ const TimeControl: React.FC<TimeControlProps> = ({
                         </IconButton>
                     </span>
                 </Tooltip>
-                
+
                 <Tooltip title="Fast forward 3 hours">
                     <span>
                         <IconButton onClick={fastForward} disabled={currentTime >= maxTime}>
@@ -251,34 +248,51 @@ const TimeControl: React.FC<TimeControlProps> = ({
                 </Tooltip>
             </Box>
 
-            {/* Speed Control */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+            {/* Time Jump Control */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Speed fontSize="small" color="action" />
                     <Typography variant="caption" color="text.secondary">
-                        Speed:
+                        Jump to:
                     </Typography>
                 </Box>
-                
+
                 <ToggleButtonGroup
-                    value={playbackSpeed}
+                    value={timeJumpMinutes}
                     exclusive
-                    onChange={(_, speed) => speed && onSpeedChange(speed)}
+                    onChange={(_, minutes) => minutes !== null && onTimeJumpChange?.(minutes)}
                     size="small"
-                    sx={{ 
+                    sx={{
                         '& .MuiToggleButton-root': {
-                            px: 1.5,
+                            px: 1.2,
                             py: 0.5,
-                            fontSize: '0.75rem',
-                            minWidth: 40
+                            fontSize: '0.7rem',
+                            minWidth: 55,
+                            textTransform: 'none'
                         }
                     }}
                 >
-                    {speedOptions.map(speed => (
-                        <ToggleButton key={speed} value={speed}>
-                            {speed}x
-                        </ToggleButton>
-                    ))}
+                    <ToggleButton value={0}>
+                        Current
+                    </ToggleButton>
+                    <ToggleButton value={30}>
+                        +30min
+                    </ToggleButton>
+                    <ToggleButton value={60}>
+                        +1h
+                    </ToggleButton>
+                    <ToggleButton value={120}>
+                        +2h
+                    </ToggleButton>
+                    <ToggleButton value={360}>
+                        +6h
+                    </ToggleButton>
+                    <ToggleButton value={720}>
+                        +12h
+                    </ToggleButton>
+                    <ToggleButton value={1440}>
+                        +24h
+                    </ToggleButton>
                 </ToggleButtonGroup>
             </Box>
         </Paper>

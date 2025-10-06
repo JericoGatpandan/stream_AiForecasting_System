@@ -1,16 +1,18 @@
 # Stream AI Forecasting System
 
-## Website Link: https://stream-ai-forecasting-system-1huwz63js.vercel.app/
+## Website Link: <https://stream-ai-forecasting-system-1huwz63js.vercel.app/>
+
 - I deploy this using vercel.com
 
-## Backend Link: https://streamaiforecastingsystem-production.up.railway.app/ 
+## Backend Link: <https://streamaiforecastingsystem-production.up.railway.app/>
+
 - I deploy this using railway.com
 
 ## Overview
 
 The Stream AI Forecasting System is designed for real-time watershed monitoring and flood prediction, focusing on river and stream systems. This MVP demonstrates the core capabilities of sensor data collection, environmental monitoring, and AI-powered flood forecasting for effective disaster preparedness.
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 Frontend (React + TypeScript)
@@ -23,18 +25,20 @@ Database (MySQL)
 ### Technology Stack
 
 **Backend:**
+
 - Node.js + Express.js
 - MySQL database with Sequelize ORM
 - RESTful API architecture
 - Docker support for deployment
 
 **Frontend:**
+
 - React 19 with TypeScript
 - Material-UI components
 - Redux Toolkit for state management
 - Mapbox GL for geographic visualization
 - Recharts for data visualization
-    
+
 ## Installation
 
 ### Prerequisites
@@ -46,24 +50,28 @@ Database (MySQL)
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd stream_AiForecasting_System
    ```
 
 2. **Backend Setup**
+
    ```bash
    cd backend
    npm install
    ```
 
 3. **Frontend Setup**
+
    ```bash
    cd ../client
    npm install
    ```
 
 4. **Database Configuration**
+
    ```bash
    cd ../backend
    cp .env.example .env
@@ -71,12 +79,14 @@ Database (MySQL)
    ```
 
 5. **Initialize Database and Seed Data**
+
    ```bash
    # Start your MySQL server first
    node seedMVP.js
    ```
 
 6. **Start Development Servers**
+
    ```bash
    # Terminal 1 - Backend
    cd backend
@@ -89,10 +99,10 @@ Database (MySQL)
 
 Access the application at `http://localhost:5173` (frontend) with API at `http://localhost:5500` (backend).
 
-
 ## API Documentation
 
 ### Base URL
+
 ```
 Development: http://localhost:5500
 ```
@@ -100,12 +110,14 @@ Development: http://localhost:5500
 ### Core Endpoints
 
 #### Barangays
+
 ```http
 GET /barangays                    # List all barangays
 GET /barangays/:id               # Get specific barangay data
 ```
 
 #### Sensors
+
 ```http
 GET /sensors                     # List all sensors with filtering
 GET /sensors/:id                 # Get specific sensor details
@@ -116,12 +128,14 @@ PUT /sensors/:id                 # Update sensor configuration
 ```
 
 #### Environmental Data
+
 ```http
 GET /environmental               # Get environmental data
 GET /environmental/:barangay     # Get barangay-specific data
 ```
 
 #### Flood Predictions
+
 ```http
 GET /predictions                 # List predictions with filtering
 GET /predictions/current         # Current predictions for all barangays
@@ -150,12 +164,12 @@ node seedMVP.js
 
 **⚠️ Warning**: This will reset your database. Use `{ force: false }` in the script for production.
 
-
 ## Configuration
 
 ### Environment Variables
 
 **Backend (.env)**
+
 ```env
 NODE_ENV=development
 PORT=5500
@@ -171,6 +185,7 @@ LOG_LEVEL=debug
 ```
 
 **Frontend (via Vite)**
+
 ```env
 VITE_API_BASE_URL=http://localhost:5500
 VITE_MAPBOX_TOKEN=your_mapbox_token
@@ -179,7 +194,6 @@ VITE_MAPBOX_TOKEN=your_mapbox_token
 ### Database Configuration
 
 Edit `backend/config/config.js` for database connection settings across environments.
-
 
 ## Testing
 
