@@ -1,6 +1,6 @@
 # Stream AI Forecasting System
 
-## Website Link: <https://stream-ai-forecasting-system-1huwz63js.vercel.app/>
+## Website Link: https://stream-ai-forecasting-system-otk4pgd72.vercel.app/
 
 - I deploy this using vercel.com
 
