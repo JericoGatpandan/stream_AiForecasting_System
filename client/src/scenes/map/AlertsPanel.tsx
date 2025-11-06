@@ -87,19 +87,20 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                 elevation={3}
                 sx={{
                     position: 'absolute',
-                    top: '16px',
-                    right: '124px', // Moved to avoid dashboard toggle button
+                    top: '84px',
+                    right: '16px',
                     width: '280px',
                     maxHeight: 'calc(100% - 32px)',
                     display: 'flex',
                     flexDirection: 'column',
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    bgcolor: 'rgba(33, 33, 33, 0.95)',
-                    backdropFilter: 'blur(10px)',
+                    bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(22,22,24,0.9)' : 'rgba(20,21,23,0.92)',
+                    backdropFilter: 'blur(12px)',
                     color: 'white',
+                    border: '1px solid #333',
                     zIndex: 1200,
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                    boxShadow: '0 12px 40px rgba(0,0,0,0.35)'
                 }}
             >
                 {/* Header */}
@@ -134,11 +135,11 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                         onClick={() => setFilter('All')}
                         sx={{
                             borderRadius: '50px',
-                            bgcolor: filter === 'All' ? '#963B32' : 'transparent',
-                            borderColor: '#963B32',
+                            bgcolor: filter === 'All' ? '#1976d2' : 'transparent',
+                            borderColor: '#1976d2',
                             color: 'white',
                             '&:hover': {
-                                bgcolor: filter === 'All' ? '#7F332B' : 'rgba(150, 59, 50, 0.1)',
+                                bgcolor: filter === 'All' ? '#1565c0' : 'rgba(25, 118, 210, 0.12)',
                             }
                         }}
                     >
@@ -150,11 +151,11 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                         onClick={() => setFilter('Alerts')}
                         sx={{
                             borderRadius: '50px',
-                            bgcolor: filter === 'Alerts' ? '#963B32' : 'transparent',
-                            borderColor: '#963B32',
+                            bgcolor: filter === 'Alerts' ? '#1976d2' : 'transparent',
+                            borderColor: '#1976d2',
                             color: 'white',
                             '&:hover': {
-                                bgcolor: filter === 'Alerts' ? '#7F332B' : 'rgba(150, 59, 50, 0.1)',
+                                bgcolor: filter === 'Alerts' ? '#1565c0' : 'rgba(25, 118, 210, 0.12)',
                             }
                         }}
                     >
@@ -164,7 +165,7 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                                 ml: 0.5,
                                 width: 8,
                                 height: 8,
-                                bgcolor: '#FF5722',
+                                bgcolor: '#FFB300',
                                 borderRadius: '50%'
                             }}
                         />
@@ -175,11 +176,11 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                         onClick={() => setFilter('Reports')}
                         sx={{
                             borderRadius: '50px',
-                            bgcolor: filter === 'Reports' ? '#963B32' : 'transparent',
-                            borderColor: '#963B32',
+                            bgcolor: filter === 'Reports' ? '#1976d2' : 'transparent',
+                            borderColor: '#1976d2',
                             color: 'white',
                             '&:hover': {
-                                bgcolor: filter === 'Reports' ? '#7F332B' : 'rgba(150, 59, 50, 0.1)',
+                                bgcolor: filter === 'Reports' ? '#1565c0' : 'rgba(25, 118, 210, 0.12)',
                             }
                         }}
                     >
@@ -189,7 +190,7 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                                 ml: 0.5,
                                 width: 8,
                                 height: 8,
-                                bgcolor: '#FF5722',
+                                bgcolor: '#66BB6A',
                                 borderRadius: '50%'
                             }}
                         />
@@ -309,8 +310,8 @@ export const AlertsToggleButton = ({ onClick, isPanelOpen }: { onClick: () => vo
             onClick={onClick}
             sx={{
                 position: 'absolute',
-                top: '16px',
-                right: isPanelOpen ? '408px' : '124px', // Position next to alerts panel
+                top: '84px',
+                right: isPanelOpen ? '316px' : '16px',
                 zIndex: 1150,
                 bgcolor: isPanelOpen ? 'transparent' : 'rgba(33, 33, 33, 0.9)',
                 backdropFilter: isPanelOpen ? 'none' : 'blur(5px)',

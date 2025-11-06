@@ -30,19 +30,21 @@ type DataDisplayType = 'sensors' | 'alerts' | 'reports';
 
 const StyledDataControlPanel = styled(Paper)(({ theme }) => ({
     position: 'absolute',
-    bottom: '60px', // Moved up to avoid status bar overlap
+    bottom: '60px',
     left: '16px',
-    zIndex: 1010, // Updated z-index
+    zIndex: 1010,
     padding: theme.spacing(1),
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(8px)',
-    borderRadius: theme.spacing(1),
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(24,24,27,0.7)' : 'rgba(255,255,255,0.92)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: 12,
+    border: '1px solid',
+    borderColor: theme.palette.divider,
     maxWidth: '320px',
-    maxHeight: 'calc(100% - 160px)', // Adjusted for new bottom position
+    maxHeight: 'calc(100% - 160px)',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+    boxShadow: '0 8px 28px rgba(0,0,0,0.12)',
     [theme.breakpoints.down('sm')]: {
         maxWidth: '280px',
         bottom: '50px',
@@ -197,7 +199,10 @@ const WeatherDataDisplay = ({ onSensorSelect }: WeatherDataDisplayProps) => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                mb: 1
+                mb: 1,
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                pb: 1
             }}>
                 <Typography variant="subtitle1" fontWeight="medium">
                     Weather Data

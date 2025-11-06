@@ -1,5 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 const config = require('./config/env');
 const { createLogger } = require('./utils/logger');
 const db = require('./models');
@@ -8,8 +11,32 @@ const errorHandler = require('./middleware/errorHandler');
 const logger = createLogger(config.log.level);
 const app = express();
 
+app.set('trust proxy', 1);
 app.use(express.json({ limit: '512kb' }));
-app.use(cors());
+app.use(cookieParser());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
+// CORS configuration to allow client
+const allowedOrigin = process.env.CLIENT_ORIGIN || process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    if ([allowedOrigin].includes(origin)) return cb(null, true);
+    return cb(null, false);
+  },
+  credentials: true,
+}));
+
+// Global basic rate limiter
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(globalLimiter);
 
 if (!config.isProd) {
   app.use((req, res, next) => {
@@ -28,6 +55,7 @@ app.use('/barangays', require('./routes/barangays'));
 app.use('/flood', require('./routes/floodCharacteristics'));
 app.use('/sensors', require('./routes/sensors'));
 app.use('/predictions', require('./routes/predictions'));
+app.use('/auth', require('./routes/auth'));
 
 app.get('/health', async (req, res) => {
   const uptime = process.uptime();

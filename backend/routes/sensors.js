@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { auth, requireRole } = require('../middleware/auth');
 const { Sensor, Barangay, SensorReading } = require('../models');
 const { Op } = require('sequelize');
 
@@ -324,7 +325,7 @@ router.get('/:sensorId/statistics', async (req, res) => {
 });
 
 // Update sensor status or configuration
-router.put('/:sensorId', async (req, res) => {
+router.put('/:sensorId', auth(true), requireRole(['admin']), async (req, res) => {
   try {
     const { sensorId } = req.params;
     const updates = req.body;

@@ -183,6 +183,7 @@ const mockBaseQuery = async (args: string | { url: string }) => {
 export const api = createApi({
     baseQuery: useMockData ? mockBaseQuery : fetchBaseQuery({ 
         baseUrl: import.meta.env.VITE_BASE_URL,
+        credentials: 'include',
         prepareHeaders: (headers) => {
             debugLog('Preparing headers for request', { baseUrl: import.meta.env.VITE_BASE_URL });
             headers.set('content-type', 'application/json');
@@ -191,8 +192,25 @@ export const api = createApi({
         timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '15000'),
     }),
     reducerPath: 'main',
-    tagTypes: ['WeatherAlert', 'UserLocation', 'WeatherTrigger', 'Notification', 'EnvironmentalData', 'FloodCharacteristics', 'FloodRiskAssessment', 'Sensor', 'SensorReading', 'Barangay'],
+    tagTypes: ['Auth', 'WeatherAlert', 'UserLocation', 'WeatherTrigger', 'Notification', 'EnvironmentalData', 'FloodCharacteristics', 'FloodRiskAssessment', 'Sensor', 'SensorReading', 'Barangay'],
     endpoints: (build) => ({
+        // Auth Endpoints
+        getMe: build.query<{ id: number; name: string; email: string; role: string }, void>({
+            query: () => 'auth/me',
+            providesTags: ['Auth']
+        }),
+        login: build.mutation<{ id: number; name: string; email: string; role: string }, { email: string; password: string }>({
+            query: (body) => ({ url: 'auth/login', method: 'POST', body }),
+            invalidatesTags: ['Auth']
+        }),
+        register: build.mutation<{ id: number; name: string; email: string; role: string }, { name: string; email: string; password: string }>({
+            query: (body) => ({ url: 'auth/register', method: 'POST', body }),
+            invalidatesTags: ['Auth']
+        }),
+        logout: build.mutation<{ message: string }, void>({
+            query: () => ({ url: 'auth/logout', method: 'POST' }),
+            invalidatesTags: ['Auth']
+        }),
         // Weather Data Endpoints
         getWeatherForecast: build.query<WeatherForecast[], string>({
             query: (location) => `weather/forecast/${location}`,
@@ -763,6 +781,11 @@ export const api = createApi({
 
 // Export hooks for usage in functional components
 export const {
+    // Auth Hooks
+    useGetMeQuery,
+    useLoginMutation,
+    useRegisterMutation,
+    useLogoutMutation,
     // Weather Data Hooks
     useGetWeatherForecastQuery,
     useGetHourlyForecastQuery,

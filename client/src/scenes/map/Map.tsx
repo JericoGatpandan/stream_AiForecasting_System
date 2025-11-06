@@ -773,6 +773,7 @@ export default function Map() {
 
         // Add navigation controls
         map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+        map.addControl(new mapboxgl.ScaleControl({ unit: 'metric' }), 'bottom-left');
         map.addControl(new mapboxgl.GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
@@ -892,17 +893,19 @@ export default function Map() {
                     elevation={3}
                     sx={{
                         position: 'absolute',
-                        top: '16px',
-                        right: alertsPanelOpen ? '424px' : '178px', // Adjust position when alerts panel is open and avoid dashboard toggle
+                        top: '84px',
+                        right: alertsPanelOpen ? '312px' : '80px',
                         zIndex: 1050,
                         p: 2,
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(8px)',
+                        backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(24,24,27,0.7)' : 'rgba(255,255,255,0.92)',
+                        backdropFilter: 'blur(10px)',
                         borderRadius: 2,
                         maxWidth: '240px',
                         borderLeft: '4px solid #12EFC8',
                         transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        boxShadow: '0 8px 28px rgba(0,0,0,0.12)'
                     }}
                 >
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -976,8 +979,11 @@ export default function Map() {
             <MapControlPanel elevation={3} sx={{
                 top: '76px',
                 zIndex: 1030,
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(8px)'
+                backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(24,24,27,0.7)' : 'rgba(255,255,255,0.92)',
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: '0 8px 28px rgba(0,0,0,0.12)',
+                backdropFilter: 'blur(10px)'
             }}>
                 {/* 2D/3D Toggle */}
                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>

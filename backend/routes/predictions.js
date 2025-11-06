@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { auth, requireRole } = require('../middleware/auth');
 const { FloodPrediction, Barangay, EnvironmentalData, SensorReading } = require('../models');
 const { Op } = require('sequelize');
 
@@ -213,7 +214,7 @@ router.get('/barangay/:barangayId', async (req, res) => {
 });
 
 // Generate new prediction (AI model endpoint - mock for MVP)
-router.post('/generate', async (req, res) => {
+router.post('/generate', auth(true), requireRole(['admin']), async (req, res) => {
   try {
     const {
       barangay_id,
@@ -384,7 +385,7 @@ router.get('/accuracy', async (req, res) => {
 });
 
 // Update prediction validation status (for model learning)
-router.put('/:predictionId/validate', async (req, res) => {
+router.put('/:predictionId/validate', auth(true), requireRole(['admin']), async (req, res) => {
   try {
     const { predictionId } = req.params;
     const { validation_status, actual_outcome, notes } = req.body;

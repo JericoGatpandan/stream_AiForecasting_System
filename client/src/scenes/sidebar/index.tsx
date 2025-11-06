@@ -27,6 +27,8 @@ import FloodIcon from '@mui/icons-material/Flood';
 import WarningIcon from '@mui/icons-material/Warning'
 import SettingsIcon from '@mui/icons-material/Settings'
 import LogoutIcon from '@mui/icons-material/Logout'
+import { useLogoutMutation } from '@/state/api'
+import { useNavigate } from 'react-router-dom'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
@@ -130,6 +132,8 @@ const Sidebar = () => {
     const { isDarkMode, toggleDarkMode } = useCustomTheme();
     const [open, setOpen] = useState(false);
     const location = useLocation();
+    const [logout] = useLogoutMutation();
+    const navigate = useNavigate();
 
     const handleDrawerToggle = () => {
         setOpen(!open);
@@ -139,7 +143,7 @@ const Sidebar = () => {
         {
             text: 'Home',
             icon: <HomeIcon />,
-            path: '/',
+            path: '/home',
             badge: '1'
         },
         {
@@ -196,6 +200,7 @@ const Sidebar = () => {
                         py: 2,
                         position: 'relative'
                     }}
+                onClick={async () => { try { await logout().unwrap(); navigate('/'); } catch {} }}
                 >
                     <Box
                         component="img"

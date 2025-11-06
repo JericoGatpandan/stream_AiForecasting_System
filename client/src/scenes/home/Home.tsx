@@ -26,7 +26,7 @@ import DataCard from '@/components/DataCard'
 
 function Home() {
     const theme = useTheme();
-    const [showDashboard, setShowDashboard] = useState(false);
+    const [showDashboard, setShowDashboard] = useState(true);
 
     // Mock data for summary - in real implementation, you'd get this from API
     const summaryData = {
@@ -52,12 +52,14 @@ function Home() {
             {/* Collapsible Dashboard Summary */}
             <Collapse in={showDashboard}>
                 <Paper
-                    elevation={2}
+                    elevation={0}
                     sx={{
                         p: 2,
                         borderRadius: 0,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                        backgroundColor: theme.palette.background.paper,
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(24,24,27,0.6)' : 'rgba(255,255,255,0.9)',
+                        backdropFilter: 'blur(10px)',
                         position: 'relative',
                         zIndex: 1000
                     }}
@@ -136,13 +138,13 @@ function Home() {
             <Box
                 sx={{
                     position: 'absolute',
-                    top: showDashboard ? 'auto' : 16,
+                    top: 84,
                     right: 16,
                     zIndex: 1100, // Higher than alerts button
                     display: 'flex',
                     gap: 1,
                     '@media (max-width: 600px)': {
-                        top: showDashboard ? 'auto' : 8,
+                        top: 84,
                         right: 8,
                     }
                 }}
@@ -151,9 +153,12 @@ function Home() {
                     <Paper
                         elevation={3}
                         sx={{
-                            backgroundColor: theme.palette.background.paper,
+                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(24,24,27,0.7)' : 'rgba(255,255,255,0.92)',
                             borderRadius: 1,
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            backdropFilter: 'blur(10px)'
                         }}
                     >
                         <IconButton
@@ -217,7 +222,7 @@ function Home() {
                     sx={{
                         px: 2,
                         py: 1,
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
                         backdropFilter: 'blur(8px)',
                         borderRadius: 1,
                         border: '1px solid',
@@ -228,6 +233,23 @@ function Home() {
                     <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
                         Real-time monitoring system • {summaryData.totalLocations} locations • Last update: {summaryData.lastUpdate}
                     </Typography>
+                </Paper>
+            </Box>
+
+            {/* Risk Legend */}
+            <Box sx={{ position: 'absolute', bottom: 16, right: 16, zIndex: 1000 }}>
+                <Paper elevation={3} sx={{ p: 1.5, borderRadius: 1, backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', border: '1px solid', borderColor: 'divider' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>Risk Legend</Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: 1, rowGap: 0.5, alignItems: 'center' }}>
+                        <Box sx={{ width: 12, height: 12, bgcolor: '#4CAF50', borderRadius: 0.5 }} />
+                        <Typography variant="caption">Low</Typography>
+                        <Box sx={{ width: 12, height: 12, bgcolor: '#FFC107', borderRadius: 0.5 }} />
+                        <Typography variant="caption">Moderate</Typography>
+                        <Box sx={{ width: 12, height: 12, bgcolor: '#FF9800', borderRadius: 0.5 }} />
+                        <Typography variant="caption">High</Typography>
+                        <Box sx={{ width: 12, height: 12, bgcolor: '#F44336', borderRadius: 0.5 }} />
+                        <Typography variant="caption">Extreme</Typography>
+                    </Box>
                 </Paper>
             </Box>
         </Box>

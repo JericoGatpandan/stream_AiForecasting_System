@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { auth, requireRole } = require('../middleware/auth');
 const { FloodCharacteristics } = require("../models");
 const { Op } = require('sequelize');
 
@@ -128,7 +129,7 @@ router.get("/risk/:riskLevel", async (req, res) => {
 });
 
 // Create new flood characteristics
-router.post("/", async (req, res) => {
+router.post("/", auth(true), requireRole(['admin']), async (req, res) => {
   try {
     const floodData = await FloodCharacteristics.create(req.body);
     res.status(201).json(floodData);
@@ -139,7 +140,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update flood characteristics
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth(true), requireRole(['admin']), async (req, res) => {
   const { id } = req.params;
   try {
     const [updatedRows] = await FloodCharacteristics.update(
@@ -160,7 +161,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete flood characteristics
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth(true), requireRole(['admin']), async (req, res) => {
   const { id } = req.params;
   try {
     const deletedRows = await FloodCharacteristics.destroy({ where: { id } });

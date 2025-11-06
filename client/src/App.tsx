@@ -1,16 +1,20 @@
 import { Box, styled, CircularProgress } from '@mui/material';
 import { CustomThemeProvider } from './contexts/ThemeContext';
 import { FloodMonitoringProvider } from './contexts/FloodMonitoringContext';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Sidebar from '@/scenes/sidebar';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Lazy load route components for code splitting
 const Home = lazy(() => import('./scenes/home/Home'));
 const Forecast = lazy(() => import('./scenes/forecast/Forecast'));
 const Alerts = lazy(() => import('./scenes/alerts/Alerts'));
 const Analytics = lazy(() => import('./scenes/analytics/Analytics'));
+const Landing = lazy(() => import('./scenes/landing/Landing'));
+const Login = lazy(() => import('./scenes/auth/Login'));
+const Register = lazy(() => import('./scenes/auth/Register'));
 
 const Main = styled('main')(({ theme }) => ({
   flexGrow: 1,
@@ -26,19 +30,21 @@ const Main = styled('main')(({ theme }) => ({
   },
 }));
 
-function App() {
+function AppShell() {
+  const location = useLocation();
+  const publicRoutes = ['/', '/login', '/register'];
+  const isPublic = publicRoutes.includes(location.pathname);
   return (
     <div className='app'>
       <ErrorBoundary>
         <CustomThemeProvider>
           <FloodMonitoringProvider>
-            <BrowserRouter>
               <Box sx={{
                 display: 'flex',
                 height: '100vh',
                 backgroundColor: theme => theme.palette.background.default
               }}>
-                <Sidebar />
+                {!isPublic && <Sidebar />}
                 <Main>
                   <ErrorBoundary>
                     <Suspense fallback={
@@ -59,22 +65,35 @@ function App() {
                       </Box>
                     }>
                       <Routes>
-                        <Route path='/' element={<Home />} />
-                        <Route path='/forecast' element={<Forecast />} />
-                        <Route path='/alerts' element={<Alerts />} />
-                        <Route path='/analytics' element={<Analytics />} />
+                        <Route path='/' element={<Landing />} />
+                        <Route path='/login' element={<Login />} />
+                        <Route path='/register' element={<Register />} />
+
+                        <Route element={<ProtectedRoute />}>
+                          <Route path='/home' element={<Home />} />
+                          <Route path='/forecast' element={<Forecast />} />
+                          <Route path='/alerts' element={<Alerts />} />
+                          <Route path='/analytics' element={<Analytics />} />
+                        </Route>
 
                       </Routes>
                     </Suspense>
                   </ErrorBoundary>
                 </Main>
               </Box>
-            </BrowserRouter>
           </FloodMonitoringProvider>
         </CustomThemeProvider>
       </ErrorBoundary>
     </div>
   )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
+  );
 }
 
 export default App;

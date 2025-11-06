@@ -19,9 +19,11 @@ import type { WeatherLayerType, WeatherLayer } from './weatherData';
 import { weatherLayers } from './weatherData';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(5px)',
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(24,24,27,0.7)' : 'rgba(255,255,255,0.85)',
+    backdropFilter: 'blur(10px)',
     borderRadius: 24,
+    border: '1px solid',
+    borderColor: theme.palette.divider,
     '& .MuiToggleButtonGroup-grouped': {
         margin: theme.spacing(0.5),
         borderRadius: 20,
@@ -40,9 +42,10 @@ const StyledToggleButton = styled(ToggleButton)<{ layercolor?: string }>(({ them
             backgroundColor: layercolor ? `${layercolor}dd` : theme.palette.primary.dark,
         },
     },
-    width: 42,
-    height: 42,
+    width: 40,
+    height: 40,
     minWidth: 'unset',
+    borderRadius: 14,
 }));
 
 // Map icon component based on string name
@@ -81,14 +84,16 @@ const WeatherLayerControls = ({ onLayerChange, position = 'top' }: WeatherLayerC
             elevation={3}
             sx={{
                 position: 'absolute',
-                [position === 'top' ? 'top' : 'bottom']: '16px',
+                [position === 'top' ? 'top' : 'bottom']: position === 'top' ? '16px' : '84px',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 zIndex: 1040,
-                padding: '4px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(5px)',
-                borderRadius: 6,
+                p: 0.5,
+                backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(24,24,27,0.6)' : 'rgba(255,255,255,0.9)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
             }}
         >
             <StyledToggleButtonGroup
