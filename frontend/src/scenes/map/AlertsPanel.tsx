@@ -85,39 +85,44 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
         <Slide direction="left" in={isOpen} mountOnEnter unmountOnExit>
             <Paper
                 elevation={3}
-                sx={{
+                sx={(theme) => ({
                     position: 'absolute',
-                    top: '84px',
-                    right: '16px',
-                    width: '280px',
+                    top: theme.spacing(7),
+                    right: theme.spacing(2),
+                    width: 280,
                     maxHeight: 'calc(100% - 32px)',
                     display: 'flex',
                     flexDirection: 'column',
-                    borderRadius: '12px',
+                    borderRadius: 2,
                     overflow: 'hidden',
-                    bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(22,22,24,0.9)' : 'rgba(20,21,23,0.92)',
+                    bgcolor: theme.palette.mode === 'dark'
+                        ? 'rgba(15,23,42,0.96)'
+                        : 'rgba(255,255,255,0.98)',
                     backdropFilter: 'blur(12px)',
-                    color: 'white',
-                    border: '1px solid #333',
-                    zIndex: 1200,
-                    boxShadow: '0 12px 40px rgba(0,0,0,0.35)'
-                }}
+                    color: theme.palette.text.primary,
+                    border: `1px solid ${theme.palette.divider}`,
+                    zIndex: 1400,
+                    boxShadow: '0 12px 40px rgba(15,23,42,0.35)'
+                })}
             >
                 {/* Header */}
                 <Box
-                    sx={{
+                    sx={(theme) => ({
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         p: 1.5,
-                        borderBottom: '1px solid #333'
-                    }}
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        bgcolor: theme.palette.mode === 'dark'
+                            ? 'rgba(15,23,42,0.98)'
+                            : 'rgba(248,250,252,0.98)',
+                    })}
                 >
                     <Typography variant="subtitle1" fontWeight="bold">
                         06 May 2025
                     </Typography>
-                    <IconButton size="small" onClick={onClose} sx={{ color: 'white' }}>
-                        <CloseIcon />
+                    <IconButton size="small" onClick={onClose}>
+                        <CloseIcon fontSize="small" />
                     </IconButton>
                 </Box>
 
@@ -206,34 +211,32 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                     }}
                 >
                     {filteredAlerts.map((alert, index) => {
-                        // Group alerts by date
-                        const showDate = index === 0 ||
-                            alert.date !== filteredAlerts[index - 1]?.date;
+                        const showDate = index === 0 || alert.date !== filteredAlerts[index - 1]?.date;
 
                         return (
                             <Box key={alert.id}>
                                 {showDate && (
-                                    <Box sx={{ p: 1, pl: 2, bgcolor: '#1A1A1A' }}>
+                                    <Box sx={(theme) => ({ p: 1, pl: 2, bgcolor: theme.palette.action.hover })}>
                                         <Typography variant="body2" color="text.secondary">
                                             {alert.date}
                                         </Typography>
                                     </Box>
                                 )}
                                 <ListItem
-                                    sx={{
+                                    sx={(theme) => ({
                                         px: 2,
                                         py: 1.5,
-                                        borderBottom: '1px solid #333',
+                                        borderBottom: `1px solid ${theme.palette.divider}`,
                                         '&:last-child': {
                                             borderBottom: 'none'
                                         }
-                                    }}
+                                    })}
                                 >
                                     <ListItemText
                                         primary={
                                             <Typography
                                                 variant="body2"
-                                                color={alert.type === 'Alert' ? '#2196F3' : '#4CAF50'}
+                                                color={alert.type === 'Alert' ? 'primary.main' : 'success.main'}
                                             >
                                                 {alert.type}
                                             </Typography>
@@ -242,8 +245,8 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
                                             <>
                                                 <Typography
                                                     component="span"
-                                                    variant="body1"
-                                                    sx={{ display: 'block', color: 'white', mb: 1 }}
+                                                    variant="body2"
+                                                    sx={{ display: 'block', color: 'text.primary', mb: 1 }}
                                                 >
                                                     {alert.message}
                                                 </Typography>
@@ -281,19 +284,22 @@ const AlertsPanel = ({ isOpen, onClose }: AlertsPanelProps) => {
 
                 {/* Footer with View All link */}
                 <Box
-                    sx={{
+                    sx={(theme) => ({
                         p: 1.5,
-                        borderTop: '1px solid #333',
+                        borderTop: `1px solid ${theme.palette.divider}`,
                         display: 'flex',
-                        justifyContent: 'center'
-                    }}
+                        justifyContent: 'center',
+                        bgcolor: theme.palette.mode === 'dark'
+                            ? 'rgba(15,23,42,0.98)'
+                            : 'rgba(248,250,252,0.98)',
+                    })}
                 >
                     <Button
                         component={Link}
                         to="/alerts"
                         variant="text"
                         size="small"
-                        sx={{ color: '#2196F3' }}
+                        sx={{ color: 'primary.main' }}
                     >
                         View All Alerts
                     </Button>
@@ -308,26 +314,32 @@ export const AlertsToggleButton = ({ onClick, isPanelOpen }: { onClick: () => vo
     return (
         <IconButton
             onClick={onClick}
-            sx={{
-                position: 'absolute',
-                top: '84px',
-                right: isPanelOpen ? '316px' : '16px',
-                zIndex: 1150,
-                bgcolor: isPanelOpen ? 'transparent' : 'rgba(33, 33, 33, 0.9)',
-                backdropFilter: isPanelOpen ? 'none' : 'blur(5px)',
-                color: 'white',
-                transition: 'all 0.3s ease',
-                boxShadow: isPanelOpen ? 'none' : '0 2px 12px rgba(0,0,0,0.2)',
+            sx={(theme) => ({
+                borderRadius: 999,
+                border: `1px solid ${theme.palette.divider}`,
+                bgcolor: isPanelOpen
+                    ? theme.palette.primary.light
+                    : (theme.palette.mode === 'dark'
+                        ? 'rgba(15,23,42,0.9)'
+                        : 'rgba(248,250,252,0.9)'),
+                color: isPanelOpen ? theme.palette.primary.contrastText : theme.palette.text.primary,
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                    bgcolor: isPanelOpen ? 'transparent' : 'rgba(33, 33, 33, 1)',
-                    transform: isPanelOpen ? 'none' : 'scale(1.1)'
-                }
-            }}
+                    bgcolor: isPanelOpen
+                        ? theme.palette.primary.main
+                        : (theme.palette.mode === 'dark'
+                            ? 'rgba(15,23,42,1)'
+                            : 'rgba(241,245,249,1)'),
+                    boxShadow: '0 4px 12px rgba(15,23,42,0.25)',
+                },
+                width: 36,
+                height: 36,
+            })}
         >
             {isPanelOpen ? (
-                <KeyboardArrowLeftIcon fontSize="medium" />
+                <KeyboardArrowLeftIcon fontSize="small" />
             ) : (
-                <NotificationsActiveIcon fontSize="medium" />
+                <NotificationsActiveIcon fontSize="small" />
             )}
         </IconButton>
     );

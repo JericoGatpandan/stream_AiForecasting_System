@@ -68,7 +68,7 @@ interface WeatherLayerControlsProps {
     position?: 'top' | 'bottom';
 }
 
-const WeatherLayerControls = ({ onLayerChange, position = 'top' }: WeatherLayerControlsProps) => {
+const WeatherLayerControls = ({ onLayerChange }: WeatherLayerControlsProps) => {
     const [selectedLayer, setSelectedLayer] = useState<WeatherLayerType | null>(null);
 
     const handleLayerChange = (
@@ -79,43 +79,27 @@ const WeatherLayerControls = ({ onLayerChange, position = 'top' }: WeatherLayerC
         onLayerChange(newLayer);
     };
 
+    // Render as an inline control group so Map decides placement; no absolute positioning here
     return (
-        <Paper
-            elevation={3}
-            sx={{
-                position: 'absolute',
-                [position === 'top' ? 'top' : 'bottom']: position === 'top' ? '16px' : '84px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 1040,
-                p: 0.5,
-                backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(24,24,27,0.6)' : 'rgba(255,255,255,0.9)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: 3,
-                border: '1px solid',
-                borderColor: 'divider',
-            }}
+        <StyledToggleButtonGroup
+            value={selectedLayer}
+            exclusive
+            onChange={handleLayerChange}
+            aria-label="weather layer"
+            size="small"
         >
-            <StyledToggleButtonGroup
-                value={selectedLayer}
-                exclusive
-                onChange={handleLayerChange}
-                aria-label="weather layer"
-                size="small"
-            >
-                {weatherLayers.map((layer: WeatherLayer) => (
-                    <Tooltip key={layer.id} title={`${layer.name}${layer.unit ? ` (${layer.unit})` : ''}`}>
-                        <StyledToggleButton
-                            value={layer.id}
-                            aria-label={layer.name}
-                            layercolor={layer.color}
-                        >
-                            {getIconComponent(layer.icon)}
-                        </StyledToggleButton>
-                    </Tooltip>
-                ))}
-            </StyledToggleButtonGroup>
-        </Paper>
+            {weatherLayers.map((layer: WeatherLayer) => (
+                <Tooltip key={layer.id} title={`${layer.name}${layer.unit ? ` (${layer.unit})` : ''}`}>
+                    <StyledToggleButton
+                        value={layer.id}
+                        aria-label={layer.name}
+                        layercolor={layer.color}
+                    >
+                        {getIconComponent(layer.icon)}
+                    </StyledToggleButton>
+                </Tooltip>
+            ))}
+        </StyledToggleButtonGroup>
     );
 };
 

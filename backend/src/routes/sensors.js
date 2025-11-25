@@ -13,46 +13,46 @@ router.get('/', async (req, res) => {
   try {
     const {
       status,
+      // adapt sensor_type -> type in schema
       sensor_type,
       barangay_id,
-      watershed_zone,
       include_readings = 'false',
       limit = 50,
       offset = 0
     } = req.query;
 
     const whereClause = {};
-    
-    // Apply filters
+
     if (status) whereClause.status = status;
-    if (sensor_type) whereClause.sensor_type = sensor_type;
+    if (sensor_type) whereClause.type = sensor_type;
     if (barangay_id) whereClause.barangay_id = barangay_id;
-    if (watershed_zone) whereClause.watershed_zone = watershed_zone;
+
+    const limitNum = Math.min(parseInt(limit, 10) || 50, 500);
+    const offsetNum = Math.max(parseInt(offset, 10) || 0, 0);
 
     const includeOptions = [
       {
         model: Barangay,
         as: 'barangay',
-        attributes: ['id', 'name', 'center_lat', 'center_lng', 'flood_risk_level', 'watershed_zone']
+        attributes: ['id', 'code', 'name', 'latitude', 'longitude']
       }
     ];
 
-    // Include recent readings if requested
     if (include_readings === 'true') {
       includeOptions.push({
         model: SensorReading,
         as: 'readings',
         limit: 10,
         order: [['timestamp', 'DESC']],
-        attributes: ['timestamp', 'water_level', 'rainfall', 'air_temperature', 'humidity', 'data_quality']
+        attributes: ['timestamp', 'value', 'quality_flag']
       });
     }
 
     const sensors = await Sensor.findAndCountAll({
       where: whereClause,
       include: includeOptions,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
+      limit: limitNum,
+      offset: offsetNum,
       order: [['name', 'ASC']]
     });
 
@@ -60,15 +60,14 @@ router.get('/', async (req, res) => {
       sensors: sensors.rows,
       total: sensors.count,
       pagination: {
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        has_more: sensors.count > parseInt(offset) + parseInt(limit)
+        limit: limitNum,
+        offset: offsetNum,
+        has_more: sensors.count > offsetNum + limitNum
       }
     });
-
   } catch (error) {
     console.error('Error fetching sensors:', error);
-    res.status(500).json({ error: 'Failed to fetch sensors', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch sensors' });
   }
 });
 
@@ -78,23 +77,23 @@ router.get('/:sensorId', async (req, res) => {
     const { sensorId } = req.params;
     const { include_readings_hours = 24 } = req.query;
 
+    const hours = parseInt(include_readings_hours, 10) || 24;
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+
     const sensor = await Sensor.findByPk(sensorId, {
       include: [
         {
           model: Barangay,
           as: 'barangay',
-          attributes: ['id', 'name', 'center_lat', 'center_lng', 'flood_risk_level', 'watershed_zone', 'area_km2', 'population']
+          attributes: ['id', 'code', 'name', 'latitude', 'longitude']
         },
         {
           model: SensorReading,
           as: 'readings',
-          where: {
-            timestamp: {
-              [Op.gte]: new Date(Date.now() - parseInt(include_readings_hours) * 60 * 60 * 1000)
-            }
-          },
+          where: { timestamp: { [Op.gte]: since } },
           order: [['timestamp', 'DESC']],
-          required: false
+          required: false,
+          attributes: ['timestamp', 'value', 'quality_flag']
         }
       ]
     });
@@ -104,10 +103,9 @@ router.get('/:sensorId', async (req, res) => {
     }
 
     res.json(sensor);
-
   } catch (error) {
     console.error('Error fetching sensor:', error);
-    res.status(500).json({ error: 'Failed to fetch sensor', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch sensor' });
   }
 });
 
@@ -120,44 +118,30 @@ router.get('/:sensorId/readings', async (req, res) => {
       end_time,
       limit = 100,
       offset = 0,
-      aggregation = 'raw', // raw, hourly, daily
-      parameters = 'all' // comma-separated list or 'all'
+      aggregation = 'raw'
     } = req.query;
 
-    // Verify sensor exists
     const sensor = await Sensor.findByPk(sensorId);
     if (!sensor) {
       return res.status(404).json({ error: 'Sensor not found' });
     }
 
     const whereClause = { sensor_id: sensorId };
-    
-    // Apply time filtering
+
     if (start_time || end_time) {
       whereClause.timestamp = {};
       if (start_time) whereClause.timestamp[Op.gte] = new Date(start_time);
       if (end_time) whereClause.timestamp[Op.lte] = new Date(end_time);
     }
 
-    let attributes = ['timestamp', 'data_quality', 'is_validated'];
-    
-    // Add specific parameters or all
-    if (parameters === 'all') {
-      attributes.push(
-        'water_level', 'flow_velocity', 'flow_rate', 'water_temperature', 'turbidity', 'ph_level',
-        'dissolved_oxygen', 'rainfall', 'air_temperature', 'humidity', 'wind_speed', 'wind_direction',
-        'atmospheric_pressure', 'visibility', 'uv_index', 'battery_voltage', 'signal_strength'
-      );
-    } else {
-      const requestedParams = parameters.split(',').map(p => p.trim());
-      attributes.push(...requestedParams);
-    }
+    const limitNum = Math.min(parseInt(limit, 10) || 100, 1000);
+    const offsetNum = Math.max(parseInt(offset, 10) || 0, 0);
 
     const readings = await SensorReading.findAndCountAll({
       where: whereClause,
-      attributes,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
+      attributes: ['timestamp', 'value', 'quality_flag'],
+      limit: limitNum,
+      offset: offsetNum,
       order: [['timestamp', 'DESC']]
     });
 
@@ -166,29 +150,26 @@ router.get('/:sensorId/readings', async (req, res) => {
       readings: readings.rows,
       total: readings.count,
       pagination: {
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        has_more: readings.count > parseInt(offset) + parseInt(limit)
+        limit: limitNum,
+        offset: offsetNum,
+        has_more: readings.count > offsetNum + limitNum
       },
-      aggregation,
-      parameters: parameters === 'all' ? 'all' : parameters.split(',')
+      aggregation
     });
-
   } catch (error) {
     console.error('Error fetching sensor readings:', error);
-    res.status(500).json({ error: 'Failed to fetch sensor readings', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch sensor readings' });
   }
 });
 
 // Get latest readings for all active sensors (dashboard view)
 router.get('/readings/latest', async (req, res) => {
   try {
-    const { watershed_zone, barangay_id, sensor_type } = req.query;
+    const { barangay_id, sensor_type } = req.query;
 
     const sensorWhereClause = { status: 'active' };
-    if (watershed_zone) sensorWhereClause.watershed_zone = watershed_zone;
     if (barangay_id) sensorWhereClause.barangay_id = barangay_id;
-    if (sensor_type) sensorWhereClause.sensor_type = sensor_type;
+    if (sensor_type) sensorWhereClause.type = sensor_type;
 
     const sensors = await Sensor.findAll({
       where: sensorWhereClause,
@@ -196,17 +177,14 @@ router.get('/readings/latest', async (req, res) => {
         {
           model: Barangay,
           as: 'barangay',
-          attributes: ['id', 'name', 'flood_risk_level']
+          attributes: ['id', 'code', 'name', 'latitude', 'longitude']
         },
         {
           model: SensorReading,
           as: 'readings',
           limit: 1,
           order: [['timestamp', 'DESC']],
-          attributes: [
-            'timestamp', 'water_level', 'rainfall', 'air_temperature', 'humidity',
-            'wind_speed', 'wind_direction', 'data_quality', 'battery_voltage'
-          ]
+          attributes: ['timestamp', 'value', 'quality_flag']
         }
       ],
       order: [['name', 'ASC']]
@@ -215,15 +193,13 @@ router.get('/readings/latest', async (req, res) => {
     const latestReadings = sensors.map(sensor => ({
       sensor_id: sensor.id,
       sensor_name: sensor.name,
-      sensor_type: sensor.sensor_type,
+      type: sensor.type,
+      unit: sensor.unit,
       barangay: sensor.barangay,
       location: {
         latitude: sensor.latitude,
         longitude: sensor.longitude
       },
-      watershed_zone: sensor.watershed_zone,
-      river_section: sensor.river_section,
-      battery_level: sensor.battery_level,
       status: sensor.status,
       latest_reading: sensor.readings && sensor.readings.length > 0 ? sensor.readings[0] : null
     }));
@@ -233,29 +209,23 @@ router.get('/readings/latest', async (req, res) => {
       sensors: latestReadings,
       total_sensors: latestReadings.length
     });
-
   } catch (error) {
     console.error('Error fetching latest readings:', error);
-    res.status(500).json({ error: 'Failed to fetch latest readings', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch latest readings' });
   }
 });
 
-// Get sensor statistics (aggregated data)
+// Get sensor statistics (aggregated data over value)
 router.get('/:sensorId/statistics', async (req, res) => {
   try {
     const { sensorId } = req.params;
-    const { 
-      period = '24h', // 1h, 6h, 24h, 7d, 30d
-      parameters = 'water_level,rainfall,air_temperature'
-    } = req.query;
+    const { period = '24h' } = req.query;
 
-    // Verify sensor exists
     const sensor = await Sensor.findByPk(sensorId);
     if (!sensor) {
       return res.status(404).json({ error: 'Sensor not found' });
     }
 
-    // Calculate time range based on period
     const periodMap = {
       '1h': 1 * 60 * 60 * 1000,
       '6h': 6 * 60 * 60 * 1000,
@@ -267,44 +237,32 @@ router.get('/:sensorId/statistics', async (req, res) => {
     const timeRange = periodMap[period] || periodMap['24h'];
     const startTime = new Date(Date.now() - timeRange);
 
-    // Get readings for the specified period
     const readings = await SensorReading.findAll({
       where: {
         sensor_id: sensorId,
-        timestamp: { [Op.gte]: startTime },
-        is_validated: true
+        timestamp: { [Op.gte]: startTime }
       },
-      attributes: ['timestamp', ...parameters.split(',')],
+      attributes: ['timestamp', 'value'],
       order: [['timestamp', 'ASC']]
     });
 
-    // Calculate statistics for each parameter
-    const stats = {};
-    const paramList = parameters.split(',');
+    const values = readings
+      .map(r => r.value)
+      .filter(v => v !== null && v !== undefined && !Number.isNaN(v));
 
-    paramList.forEach(param => {
-      const values = readings
-        .map(r => r[param])
-        .filter(v => v !== null && v !== undefined && !isNaN(v));
-
-      if (values.length > 0) {
-        stats[param] = {
-          count: values.length,
-          min: Math.min(...values),
-          max: Math.max(...values),
-          avg: values.reduce((a, b) => a + b, 0) / values.length,
-          latest: values[values.length - 1]
-        };
-      } else {
-        stats[param] = {
-          count: 0,
-          min: null,
-          max: null,
-          avg: null,
-          latest: null
-        };
-      }
-    });
+    const stats = values.length > 0 ? {
+      count: values.length,
+      min: Math.min(...values),
+      max: Math.max(...values),
+      avg: values.reduce((a, b) => a + b, 0) / values.length,
+      latest: values[values.length - 1]
+    } : {
+      count: 0,
+      min: null,
+      max: null,
+      avg: null,
+      latest: null
+    };
 
     res.json({
       sensor_id: sensorId,
@@ -316,31 +274,30 @@ router.get('/:sensorId/statistics', async (req, res) => {
       statistics: stats,
       total_readings: readings.length
     });
-
   } catch (error) {
     console.error('Error calculating sensor statistics:', error);
-    res.status(500).json({ error: 'Failed to calculate statistics', details: error.message });
+    res.status(500).json({ error: 'Failed to calculate statistics' });
   }
 });
 
-// Update sensor status or configuration
+// Update sensor basic fields
 router.put('/:sensorId', async (req, res) => {
   try {
     const { sensorId } = req.params;
-    const updates = req.body;
+    const updates = req.body || {};
 
-    // Validate allowed updates
-    const allowedUpdates = [
-      'status', 'battery_level', 'transmission_interval', 
-      'last_maintenance', 'calibration_date', 'watershed_zone', 'river_section'
-    ];
-    
+    const allowedUpdates = ['status', 'name', 'type', 'unit', 'latitude', 'longitude', 'barangay_id'];
     const updateData = {};
+
     Object.keys(updates).forEach(key => {
       if (allowedUpdates.includes(key)) {
         updateData[key] = updates[key];
       }
     });
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
 
     const [updatedRows] = await Sensor.update(updateData, {
       where: { id: sensorId }
@@ -354,7 +311,7 @@ router.put('/:sensorId', async (req, res) => {
       include: [{
         model: Barangay,
         as: 'barangay',
-        attributes: ['id', 'name']
+        attributes: ['id', 'code', 'name']
       }]
     });
 
@@ -362,10 +319,9 @@ router.put('/:sensorId', async (req, res) => {
       message: 'Sensor updated successfully',
       sensor: updatedSensor
     });
-
   } catch (error) {
     console.error('Error updating sensor:', error);
-    res.status(500).json({ error: 'Failed to update sensor', details: error.message });
+    res.status(500).json({ error: 'Failed to update sensor' });
   }
 });
 
