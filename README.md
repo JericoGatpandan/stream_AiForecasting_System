@@ -66,7 +66,7 @@ Database (MySQL)
 3. **Frontend Setup**
 
    ```bash
-   cd ../client
+   cd ../frontend
    npm install
    ```
 
@@ -93,7 +93,7 @@ Database (MySQL)
    npm run dev
 
    # Terminal 2 - Frontend  
-   cd client
+   cd frontend
    npm run dev
    ```
 

@@ -18,7 +18,7 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
-// CORS configuration to allow client
+// CORS configuration to allow frontend
 const allowedOrigin = process.env.CLIENT_ORIGIN || process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 app.use(cors({
   origin: (origin, cb) => {
@@ -55,7 +55,6 @@ app.use('/barangays', require('./routes/barangays'));
 app.use('/flood', require('./routes/floodCharacteristics'));
 app.use('/sensors', require('./routes/sensors'));
 app.use('/predictions', require('./routes/predictions'));
-app.use('/auth', require('./routes/auth'));
 
 app.get('/health', async (req, res) => {
   const uptime = process.uptime();
@@ -67,7 +66,7 @@ app.get('/health', async (req, res) => {
     uptime_seconds: Math.round(uptime),
     timestamp: new Date().toISOString(),
     db: dbStatus,
-    version: require('./package.json').version
+    version: require('../package.json').version
   });
 });
 
@@ -79,25 +78,25 @@ function startServer() {
     logger.info('Running in Vercel mode (no explicit listen).');
     return app;
   }
-  const maybeAutoSeed = async () => {
-    try {
-      const count = await db.Barangay.count();
-      if (count === 0) {
-        logger.info('No barangays found. Auto-seeding database...');
-        const { seedDatabase } = require('./seedMVP');
-        await seedDatabase();
-        logger.info('Auto-seed complete.');
-      } else {
-        logger.info(`Database already seeded (Barangays: ${count}). Skipping auto-seed.`);
-      }
-    } catch (e) {
-      logger.warn(`Auto-seed skipped: ${e.message}`);
-    }
-  };
+  // const maybeAutoSeed = async () => {
+  //   try {
+  //     const count = await db.Barangay.count();
+  //     if (count === 0) {
+  //       logger.info('No barangays found. Auto-seeding database...');
+  //       const { seedDatabase } = require('./seedMVP');
+  //       await seedDatabase();
+  //       logger.info('Auto-seed complete.');
+  //     } else {
+  //       logger.info(`Database already seeded (Barangays: ${count}). Skipping auto-seed.`);
+  //     }
+  //   } catch (e) {
+  //     logger.warn(`Auto-seed skipped: ${e.message}`);
+  //   }
+  // };
 
   db.sequelize.sync({ force: false })
     .then(async () => {
-      await maybeAutoSeed();
+      // await maybeAutoSeed();
       app.listen(config.port, () => {
         logger.info(`Server listening on http://localhost:${config.port}`);
         logger.info(`Environment: ${config.env}`);

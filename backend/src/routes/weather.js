@@ -3,6 +3,7 @@ const router = express.Router();
 const { WeatherForecast, WeatherAlert, UserLocation, WeatherTrigger, Notification } = require("../models");
 const axios = require('axios');
 const moment = require('moment');
+const { Op } = require('sequelize');
 
 // Weather Forecast Routes
 router.get("/forecast/:location", async (req, res) => {
@@ -26,8 +27,8 @@ router.get("/forecast/hourly/:location", async (req, res) => {
       where: { 
         location,
         forecast_date: {
-          [require('sequelize').Op.gte]: new Date(),
-          [require('sequelize').Op.lte]: moment().add(24, 'hours').toDate()
+          [Op.gte]: new Date(),
+          [Op.lte]: moment().add(24, 'hours').toDate()
         }
       },
       order: [["forecast_date", "ASC"]],
@@ -207,7 +208,7 @@ router.get("/summary/:location", async (req, res) => {
       where: { 
         location,
         forecast_date: {
-          [require('sequelize').Op.gte]: new Date(),
+          [Op.gte]: new Date(),
         }
       },
       order: [["forecast_date", "ASC"]],

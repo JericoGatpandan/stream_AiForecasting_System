@@ -70,8 +70,17 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-// Import the FloodCharacteristics model
-const FloodCharacteristics = require('./floodCharacteristics')(sequelize, Sequelize.DataTypes);
-db.FloodCharacteristics = FloodCharacteristics;
+// Explicitly export FloodCharacteristics model if it exists
+try {
+  // This file may not exist yet in all deployments, so guard the require
+  const floodCharacteristicsPath = path.join(__dirname, 'floodCharacteristics.js');
+  if (fs.existsSync(floodCharacteristicsPath)) {
+    const FloodCharacteristics = require(floodCharacteristicsPath)(sequelize, Sequelize.DataTypes);
+    db.FloodCharacteristics = FloodCharacteristics;
+  }
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.warn('[models] FloodCharacteristics model could not be loaded:', err.message);
+}
 
 module.exports = db;
