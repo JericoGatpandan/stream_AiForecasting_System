@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="./Stream_logo.svg" alt="Stream AI Forecasting System Logo" width="400"/>
+</div>
+
 # Technical Documentation: Stream AI Forecasting System
 
 ## 1. Executive Summary
@@ -22,9 +26,37 @@ The system implements a modern three-tier architecture comprising:
 
 **Deployment Infrastructure**: Railway.app for backend hosting, Vercel for frontend deployment, and environment-specific configuration management.
 
-## 2. System Architecture and Containerization
+## 2. System Screenshots
 
-### 2.1 Directory Structure
+The following screenshots demonstrate the operational user interface and key features of the deployed Stream AI Forecasting System.
+
+### 2.1 Main Map Interface
+
+![Main Map View](./Screenshots/Screenshot%20from%202025-12-09%2019-20-49.png)
+
+**Figure 2.1:** Primary map interface displaying geographic barangay boundaries with color-coded flood risk visualization. The interface presents the interactive Mapbox GL map with overlaid GeoJSON polygons representing administrative units. Map controls are positioned in the upper-left quadrant, providing style selection and visualization options.
+
+### 2.2 Barangay Selection and Risk Assessment
+
+![Barangay Selection Interface](./Screenshots/Screenshot%20from%202025-12-09%2019-21-27.png)
+
+**Figure 2.2:** Barangay selection interface with dropdown selector and flood risk assessment panel. The interface demonstrates the location-based filtering mechanism enabling users to focus on specific geographic areas. The risk assessment panel displays current flood risk metrics, environmental conditions, and predictive analytics for the selected barangay.
+
+### 2.3 Detailed Flood Risk Panel
+
+![Flood Risk Details](./Screenshots/Screenshot%20from%202025-12-09%2019-21-53.png)
+
+**Figure 2.3:** Comprehensive flood risk panel displaying multi-parameter assessment including current risk level, water level measurements, environmental factors, and recommended actions. The panel implements Material-UI components with structured data presentation, enabling rapid situation awareness for emergency response personnel.
+
+### 2.4 Alert Notification System
+
+![Alert Panel](./Screenshots/Screenshot%20from%202025-12-09%2019-22-49.png)
+
+**Figure 2.4:** Alert notification panel presenting active flood warnings with severity classification, location identification, and timestamp information. The interface provides a prioritized list of alerts enabling quick navigation to affected areas. Each alert includes severity indicators (warning, watch, advisory, emergency) with color-coded visual hierarchy.
+
+## 3. System Architecture and Containerization
+
+### 3.1 Directory Structure
 
 The project follows a monorepo structure with clear separation of concerns:
 
@@ -302,9 +334,9 @@ Production environment supports two connection modes:
 6. Sequelize transforms results to model instances
 7. Model instances returned to application layer
 
-## 3. Database Design and Data Model
+## 4. Database Design and Data Model
 
-### 3.1 Schema Overview
+### 4.1 Schema Overview
 
 The database implements a normalized relational schema using MySQL 8.0 as the storage engine. The design follows Third Normal Form (3NF) principles to minimize data redundancy while maintaining query performance through strategic indexing.
 
@@ -317,11 +349,11 @@ The database implements a normalized relational schema using MySQL 8.0 as the st
 **Normalization Strategy:**
 The schema eliminates transitive dependencies and partial dependencies, ensuring each non-key attribute depends solely on the primary key. Denormalization is applied selectively for JSON fields storing complex, non-relational data structures (hyperparameters, metrics, GeoJSON boundaries).
 
-### 3.2 Entity-Relationship Description
+### 4.2 Entity-Relationship Description
 
 The database schema consists of six primary entities with well-defined relationships:
 
-#### 3.2.1 Barangays Entity
+#### 4.2.1 Barangays Entity
 
 Represents geographic administrative units (barangays) within the monitored region. Each barangay serves as a spatial container for sensors, environmental data, and flood predictions.
 
@@ -337,7 +369,7 @@ Represents geographic administrative units (barangays) within the monitored regi
 - One barangay generates zero or many environmental data records (one-to-many)
 - One barangay receives zero or many flood predictions (one-to-many)
 
-#### 3.2.2 Sensors Entity
+#### 4.2.2 Sensors Entity
 
 Represents physical monitoring devices deployed across barangays to collect real-time environmental measurements.
 
@@ -358,7 +390,7 @@ Represents physical monitoring devices deployed across barangays to collect real
 - Cascading updates on barangay modification
 - Restricted deletion (prevents barangay deletion with associated sensors)
 
-#### 3.2.3 Sensor Readings Entity
+#### 4.2.3 Sensor Readings Entity
 
 Stores time-series measurement data captured by deployed sensors.
 
@@ -379,7 +411,7 @@ Stores time-series measurement data captured by deployed sensors.
 - Composite index on (sensor_id, timestamp) for efficient time-range queries
 - Single index on timestamp for cross-sensor temporal analysis
 
-#### 3.2.4 Environmental Data Entity
+#### 4.2.4 Environmental Data Entity
 
 Captures comprehensive environmental conditions for each barangay at discrete time intervals.
 
@@ -402,7 +434,7 @@ Captures comprehensive environmental conditions for each barangay at discrete ti
 **Indexing Strategy:**
 - Single index on timestamp for temporal queries
 
-#### 3.2.5 Model Runs Entity
+#### 4.2.5 Model Runs Entity
 
 Tracks execution metadata for AI/ML forecasting model runs, enabling model versioning and performance tracking.
 
@@ -421,7 +453,7 @@ Tracks execution metadata for AI/ML forecasting model runs, enabling model versi
 - Composite index on (model_name, model_version)
 - Single index on status for monitoring queries
 
-#### 3.2.6 Predictions Entity
+#### 4.2.6 Predictions Entity
 
 Stores flood forecast predictions generated by AI models for specific barangays and time horizons.
 
@@ -451,7 +483,7 @@ Stores flood forecast predictions generated by AI models for specific barangays 
 - Single index on predicted_risk_level for filtering by severity
 - Single index on model_run_id for model performance analysis
 
-### 3.3 Data Dictionary
+### 4.3 Data Dictionary
 
 #### Table: barangays
 
@@ -551,9 +583,9 @@ Stores flood forecast predictions generated by AI models for specific barangays 
 
 **Indexes:** (barangay_id, forecast_for), predicted_risk_level, model_run_id
 
-## 4. Backend Component Analysis
+## 5. Backend Component Analysis
 
-### 4.1 API Architecture
+### 5.1 API Architecture
 
 The backend implements a RESTful API architecture adhering to standard HTTP semantics and REST constraints. The API provides stateless communication between client and server with resource-oriented endpoint design.
 
@@ -562,7 +594,7 @@ The backend implements a RESTful API architecture adhering to standard HTTP sema
 **Data Interchange Format:** JSON (application/json)
 **API Version:** Implicit (no version prefix in current implementation)
 
-#### 4.1.1 API Endpoint Catalog
+#### 5.1.1 API Endpoint Catalog
 
 **Barangays Resource Endpoints:**
 
@@ -642,7 +674,7 @@ The backend implements a RESTful API architecture adhering to standard HTTP sema
 |--------|----------|-------------|---------------|
 | GET | /health | Retrieve system health status and metrics | HealthResponse object |
 
-### 4.2 Core Logic
+### 5.2 Core Logic
 
 The backend business logic is organized into route handlers and model associations. The following table describes the responsibilities of core components:
 
@@ -666,7 +698,7 @@ The backend business logic is organized into route handlers and model associatio
 | src/middleware/errorHandler.js | Error Handling Middleware | Centralized error processing, status code management, stack trace inclusion for development |
 | src/utils/logger.js | Logging Utility | Structured logging implementation, log level configuration, development request logging |
 
-#### 4.2.1 Key Business Logic Patterns
+#### 5.2.1 Key Business Logic Patterns
 
 **Pagination Implementation:**
 Route handlers implement limit-offset pagination with configurable maximum result sizes to prevent resource exhaustion. Response objects include pagination metadata indicating whether additional pages exist.
@@ -683,9 +715,9 @@ Prediction endpoints implement aggregation logic to calculate summary statistics
 **Temporal Filtering:**
 Time-series endpoints support flexible temporal filtering through ISO 8601 timestamp parameters, enabling precise time-range queries.
 
-## 5. Frontend Component Analysis
+## 6. Frontend Component Analysis
 
-### 5.1 Structure
+### 6.1 Structure
 
 The frontend implements a component-based architecture using React 19 with TypeScript, following modern functional component patterns with hooks for state management and side effects.
 
@@ -728,11 +760,11 @@ App (Root)
 
 **Utility Components:** Infrastructure components providing error boundaries and route protection (ErrorBoundary, ProtectedRoute). Located in src/components/ directory.
 
-### 5.2 State Management
+### 6.2 State Management
 
 The application implements a hybrid state management strategy combining Redux Toolkit for server state and React Context for UI state.
 
-#### 5.2.1 Redux Store Architecture
+#### 6.2.1 Redux Store Architecture
 
 **Store Configuration:**
 The Redux store is configured using Redux Toolkit's configureStore with RTK Query integration for API state management.
@@ -771,7 +803,7 @@ RTK Query implements automatic request deduplication and cache management with t
 **Data Transformation:**
 API endpoints implement transformResponse functions to normalize backend data structures into frontend-compatible formats, handling field name conversions and type coercions.
 
-#### 5.2.2 React Context State
+#### 6.2.2 React Context State
 
 **FloodMonitoringContext:**
 Manages flood monitoring application state including:
@@ -786,7 +818,7 @@ The context provides methods for adding alerts and reports, retrieving location-
 **ThemeContext:**
 Manages application theme state (light/dark mode) with persistence to local storage and Material-UI theme provider integration.
 
-#### 5.2.3 Local Component State
+#### 6.2.3 Local Component State
 
 Components maintain local state using useState hooks for UI-specific concerns:
 - Map style selection (satellite, terrain, dark, light)
@@ -796,11 +828,11 @@ Components maintain local state using useState hooks for UI-specific concerns:
 - Animation playback state
 - Time simulation controls
 
-### 5.3 Interface Analysis
+### 6.3 Interface Analysis
 
 The user interface implements a single-page application architecture with the map view as the primary interaction surface.
 
-#### 5.3.1 Layout Architecture
+#### 6.3.1 Layout Architecture
 
 **Application Shell:**
 The application employs a full-viewport layout with the following structure:
@@ -811,7 +843,7 @@ The application employs a full-viewport layout with the following structure:
 **Responsive Design:**
 The interface implements responsive breakpoints using Material-UI's breakpoint system, adjusting layout density and control positioning for mobile, tablet, and desktop viewports.
 
-#### 5.3.2 Primary Interface Components
+#### 6.3.2 Primary Interface Components
 
 **Navigation Bar:**
 The AppBar component provides persistent navigation with:
@@ -877,7 +909,7 @@ Active when weather layer is selected, displays:
 - Real-time measurements
 - Data quality indicators
 
-#### 5.3.3 User Flow
+#### 6.3.3 User Flow
 
 **Primary User Journey:**
 
@@ -932,7 +964,7 @@ The prediction endpoints implement risk aggregation logic to compute summary sta
 
 **Data Structure:** Hash map for risk level counting with O(1) insertion and lookup
 
-### 6.2 Time-Series Data Retrieval Optimization
+### 7.2 Time-Series Data Retrieval Optimization
 
 Sensor reading endpoints implement optimized time-range queries using database indexes:
 
@@ -948,7 +980,7 @@ Sensor reading endpoints implement optimized time-range queries using database i
 
 **Performance Characteristics:** O(log n + k) where n is total readings and k is result set size
 
-### 6.3 GeoJSON Boundary Processing
+### 7.3 GeoJSON Boundary Processing
 
 The frontend implements GeoJSON processing for rendering barangay boundaries:
 
@@ -964,7 +996,7 @@ The frontend implements GeoJSON processing for rendering barangay boundaries:
 
 **Rendering Optimization:** Mapbox GL performs client-side tessellation and WebGL rendering of polygon geometries
 
-### 6.4 Pagination Pattern
+### 7.4 Pagination Pattern
 
 Multiple endpoints implement offset-based pagination with the following algorithm:
 
@@ -983,7 +1015,7 @@ Multiple endpoints implement offset-based pagination with the following algorith
 
 **Limitations:** Performance degrades for large offset values, not suitable for real-time data with frequent inserts
 
-### 6.5 Data Transformation Logic
+### 7.5 Data Transformation Logic
 
 The frontend API layer implements data transformation to normalize backend responses:
 
@@ -1000,13 +1032,13 @@ The frontend API layer implements data transformation to normalize backend respo
 
 **Type Safety:** TypeScript type guards ensure transformation correctness
 
-## 7. Security and Configuration
+## 8. Security and Configuration
 
-### 7.1 Security Measures
+### 8.1 Security Measures
 
 The application implements multiple security layers to protect against common web application vulnerabilities:
 
-#### 7.1.1 HTTP Security Headers
+#### 8.1.1 HTTP Security Headers
 
 The backend employs Helmet.js middleware (version 7.1.0) to set security-related HTTP headers:
 
@@ -1021,7 +1053,7 @@ The backend employs Helmet.js middleware (version 7.1.0) to set security-related
 **Custom Configuration:**
 Cross-Origin Resource Policy is set to "cross-origin" to enable frontend-backend communication across different domains.
 
-#### 7.1.2 Rate Limiting
+#### 8.1.2 Rate Limiting
 
 The application implements rate limiting using express-rate-limit (version 7.4.0):
 
@@ -1035,7 +1067,7 @@ The application implements rate limiting using express-rate-limit (version 7.4.0
 
 **Behavior:** Returns HTTP 429 (Too Many Requests) when limit exceeded
 
-#### 7.1.3 CORS Policy
+#### 8.1.3 CORS Policy
 
 The backend implements origin-based CORS validation:
 
@@ -1053,20 +1085,20 @@ The backend implements origin-based CORS validation:
 
 **Security Benefit:** Prevents unauthorized domains from accessing API resources
 
-#### 7.1.4 Request Body Size Limiting
+#### 8.1.4 Request Body Size Limiting
 
 Express JSON parser configured with size limit:
 - Maximum Body Size: 512 kilobytes
 - Purpose: Prevents memory exhaustion from oversized payloads
 
-#### 7.1.5 Input Validation
+#### 8.1.5 Input Validation
 
 While explicit validation middleware is not extensively implemented in the current codebase, the system relies on:
 - Sequelize model validation for data type enforcement
 - Type coercion in query parameter processing
 - SQL injection prevention through parameterized queries (Sequelize ORM)
 
-#### 7.1.6 Error Handling Security
+#### 8.1.6 Error Handling Security
 
 The error handler middleware implements environment-aware stack trace exposure:
 - Development Environment: Full stack traces included in error responses
@@ -1074,7 +1106,7 @@ The error handler middleware implements environment-aware stack trace exposure:
 
 **Security Benefit:** Prevents information leakage that could aid attackers
 
-#### 7.1.7 Database Security
+#### 8.1.7 Database Security
 
 **Connection Security:**
 - SSL/TLS support for encrypted database connections (configurable via DB_SSL environment variable)
@@ -1084,11 +1116,11 @@ The error handler middleware implements environment-aware stack trace exposure:
 **SQL Injection Prevention:**
 All database queries are executed through Sequelize ORM, which automatically parameterizes queries and escapes user input.
 
-### 7.2 Configuration Management
+### 8.2 Configuration Management
 
 The application implements environment-based configuration with clear separation between development and production settings.
 
-#### 7.2.1 Backend Environment Variables
+#### 8.2.1 Backend Environment Variables
 
 **Development Environment (.env.development):**
 ```
@@ -1136,7 +1168,7 @@ LOG_LEVEL=info
 5. Validate required variables
 6. Export configuration object
 
-#### 7.2.2 Frontend Environment Variables
+#### 8.2.2 Frontend Environment Variables
 
 **Development Environment (.env.development):**
 ```
@@ -1166,7 +1198,7 @@ VITE_MAPBOX_ACCESS_TOKEN=<token>
 **Build-Time Injection:**
 Vite injects environment variables prefixed with VITE_ at build time, replacing import.meta.env references with literal values. This ensures configuration values are embedded in the production bundle.
 
-#### 7.2.3 Database Configuration
+#### 8.2.3 Database Configuration
 
 Sequelize configuration is managed through src/config/config.js with environment-specific settings:
 
@@ -1188,9 +1220,9 @@ The models/index.js file implements intelligent configuration selection:
 3. Create Sequelize instance with URL and minimal options
 4. Otherwise, create Sequelize instance with discrete credentials
 
-## 8. Setup and Installation
+## 9. Setup and Installation
 
-### 8.1 Prerequisites
+### 9.1 Prerequisites
 
 The following software and services are required to deploy and operate the Stream AI Forecasting System:
 
@@ -1215,9 +1247,9 @@ The following software and services are required to deploy and operate the Strea
 - Storage: Minimum 2GB available disk space
 - Network: Internet connectivity for package installation and API access
 
-### 8.2 Deployment Instructions
+### 9.2 Deployment Instructions
 
-#### 8.2.1 Local Development Setup
+#### 9.2.1 Local Development Setup
 
 **Step 1: Repository Acquisition**
 
@@ -1394,7 +1426,7 @@ Access the application in a web browser:
 - Verify API connectivity by checking browser console for errors
 - Test sensor data retrieval by clicking map features
 
-#### 8.2.2 Production Deployment
+#### 9.2.2 Production Deployment
 
 **Backend Deployment (Railway.app):**
 
@@ -1437,7 +1469,7 @@ Access the application in a web browser:
 5. Test all major user flows
 6. Monitor error logs in deployment platform dashboards
 
-#### 8.2.3 Docker Compose Full Stack Deployment
+#### 9.2.3 Docker Compose Full Stack Deployment
 
 For deployment using Docker Compose orchestration (requires additional Dockerfiles):
 
@@ -1585,9 +1617,9 @@ Stop services and remove volumes:
 docker-compose down -v
 ```
 
-## 9. Conclusion
+## 10. Conclusion
 
-### 9.1 System Integrity Assessment
+### 10.1 System Integrity Assessment
 
 The Stream AI Forecasting System demonstrates a comprehensive implementation of modern web application architecture principles with appropriate separation of concerns across frontend, backend, and database layers. The system exhibits the following strengths:
 
@@ -1606,7 +1638,7 @@ The application implements fundamental security measures including rate limiting
 **Scalability Considerations:**
 The stateless API design enables horizontal scaling of backend services. Database indexing strategies support efficient querying as data volume grows. The use of content delivery networks (Vercel) for frontend hosting ensures global availability with low latency.
 
-### 9.2 Areas for Enhancement
+### 10.2 Areas for Enhancement
 
 **Authentication and Authorization:**
 The current implementation lacks user authentication and role-based access control. Production deployment requires implementation of JWT-based authentication, user management, and permission-based endpoint protection.
@@ -1629,7 +1661,7 @@ The current implementation relies on polling for data updates. WebSocket integra
 **Machine Learning Integration:**
 While the database schema supports model runs and predictions, actual machine learning model integration for flood forecasting remains to be implemented. This would involve training time-series forecasting models on historical sensor and environmental data.
 
-### 9.3 Deployment Status
+### 10.3 Deployment Status
 
 The system is currently deployed and operational at the following URLs:
 
@@ -1639,7 +1671,7 @@ The system is currently deployed and operational at the following URLs:
 
 The deployment demonstrates successful integration of all system components with external hosting providers, validating the containerization and configuration strategies documented herein.
 
-### 9.4 Final Remarks
+### 10.4 Final Remarks
 
 This technical documentation provides a comprehensive analysis of the Stream AI Forecasting System architecture, implementation, and deployment procedures. The system represents a solid foundation for flood monitoring and prediction capabilities, with clear pathways for enhancement and production hardening. The formal documentation style employed herein ensures suitability for academic submission, technical review, and future system maintenance.
 
