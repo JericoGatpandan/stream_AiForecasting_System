@@ -6,7 +6,6 @@ import { Suspense, useState } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import Map from './scenes/map/Map';
 import MenuIcon from '@mui/icons-material/Menu';
-import MapIcon from '@mui/icons-material/Map';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import AlertsPanel from './scenes/map/AlertsPanel';
 
@@ -56,8 +55,12 @@ function AppShell() {
                 })}
               >
                 <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <MapIcon color="primary" />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <img
+                      src="/Stream_logo.svg"
+                      alt="STREAM Logo"
+                      style={{ height: '32px', width: 'auto' }}
+                    />
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       STREAM Flood Monitoring
                     </Typography>
