@@ -19,7 +19,7 @@ module.exports = {
                 onDelete: 'RESTRICT',
             },
             name: {
-                type: Sequelize.STRING(191),
+                type: Sequelize.STRING(30),
                 allowNull: false,
             },
             type: {

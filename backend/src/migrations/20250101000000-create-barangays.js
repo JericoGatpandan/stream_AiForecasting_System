@@ -15,7 +15,7 @@ module.exports = {
                 comment: 'LGU code or internal code',
             },
             name: {
-                type: Sequelize.STRING(191),
+                type: Sequelize.STRING(40),
                 allowNull: false,
             },
             latitude: {
