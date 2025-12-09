@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./Stream_logo.svg" alt="Stream AI Forecasting System Logo" width="400"/>
+  <img src="frontend/public/Stream_logo.svg" alt="Stream AI Forecasting System Logo" width="400"/>
 </div>
 
 # Technical Documentation: Stream AI Forecasting System
