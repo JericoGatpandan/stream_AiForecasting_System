@@ -28,31 +28,37 @@ The system implements a modern three-tier architecture comprising:
 
 ## 2. System Screenshots
 
-The following screenshots demonstrate the operational user interface and key features of the deployed Stream AI Forecasting System.
+The following screenshots demonstrate the operational user interface and key features of the deployed Stream AI Forecasting System with the integrated STREAM logo branding.
 
-### 2.1 Main Map Interface
+### 2.1 Main Map Interface with Logo
 
-![Main Map View](./Screenshots/Screenshot%20from%202025-12-09%2019-20-49.png)
+![Main Map View](./Screenshots/Screenshot%20from%202025-12-09%2019-38-21.png)
 
-**Figure 2.1:** Primary map interface displaying geographic barangay boundaries with color-coded flood risk visualization. The interface presents the interactive Mapbox GL map with overlaid GeoJSON polygons representing administrative units. Map controls are positioned in the upper-left quadrant, providing style selection and visualization options.
+**Figure 2.1:** Primary map interface displaying the updated header with STREAM logo branding, geographic barangay boundaries with color-coded flood risk visualization. The interface presents the interactive Mapbox GL map with overlaid GeoJSON polygons representing administrative units. Map controls are positioned in the upper-left quadrant, providing style selection and visualization options.
 
-### 2.2 Barangay Selection and Risk Assessment
+### 2.2 Risk Assessment Panel
 
-![Barangay Selection Interface](./Screenshots/Screenshot%20from%202025-12-09%2019-21-27.png)
+![Risk Assessment Interface](./Screenshots/Screenshot%20from%202025-12-09%2019-38-34.png)
 
-**Figure 2.2:** Barangay selection interface with dropdown selector and flood risk assessment panel. The interface demonstrates the location-based filtering mechanism enabling users to focus on specific geographic areas. The risk assessment panel displays current flood risk metrics, environmental conditions, and predictive analytics for the selected barangay.
+**Figure 2.2:** Flood risk assessment panel displaying comprehensive risk metrics for selected barangay. The panel presents current risk level indicators, environmental parameters, water level measurements, and predictive analytics. The interface demonstrates the structured data presentation using Material-UI components for rapid situation awareness.
 
-### 2.3 Detailed Flood Risk Panel
+### 2.3 Barangay Selection Interface
 
-![Flood Risk Details](./Screenshots/Screenshot%20from%202025-12-09%2019-21-53.png)
+![Barangay Selector](./Screenshots/Screenshot%20from%202025-12-09%2019-38-39.png)
 
-**Figure 2.3:** Comprehensive flood risk panel displaying multi-parameter assessment including current risk level, water level measurements, environmental factors, and recommended actions. The panel implements Material-UI components with structured data presentation, enabling rapid situation awareness for emergency response personnel.
+**Figure 2.3:** Barangay selection dropdown interface with alphabetically sorted location list. The selector provides quick access to all monitored barangays, enabling users to focus on specific geographic areas. The interface implements autocomplete functionality for efficient location filtering.
 
 ### 2.4 Alert Notification System
 
-![Alert Panel](./Screenshots/Screenshot%20from%202025-12-09%2019-22-49.png)
+![Alert Notification Panel](./Screenshots/Screenshot%20from%202025-12-09%2019-38-59.png)
 
-**Figure 2.4:** Alert notification panel presenting active flood warnings with severity classification, location identification, and timestamp information. The interface provides a prioritized list of alerts enabling quick navigation to affected areas. Each alert includes severity indicators (warning, watch, advisory, emergency) with color-coded visual hierarchy.
+**Figure 2.4:** Alert notification panel presenting active flood warnings with severity classification. The interface displays multiple alerts with color-coded severity indicators (warning, watch, advisory, emergency), location identification, timestamps, and detailed messages. Each alert is clickable for map navigation to the affected area.
+
+### 2.5 Detailed Alert Information
+
+![Alert Details View](./Screenshots/Screenshot%20from%202025-12-09%2019-39-13.png)
+
+**Figure 2.5:** Expanded alert detail view showing comprehensive warning information including affected areas, water level measurements, risk assessment, and recommended actions. The interface provides emergency response personnel with critical decision-support information including the list of impacted locations and specific safety recommendations.
 
 ## 3. System Architecture and Containerization
 
